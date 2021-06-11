@@ -1,0 +1,12 @@
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/netcoreapp3.1/SuperMendelianSandbox.deps.json
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/netcoreapp3.1/SuperMendelianSandbox.runtimeconfig.json
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/netcoreapp3.1/SuperMendelianSandbox.runtimeconfig.dev.json
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/netcoreapp3.1/SuperMendelianSandbox.dll
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/netcoreapp3.1/SuperMendelianSandbox.pdb
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/netcoreapp3.1/SuperMendelianSandbox.csprojAssemblyReference.cache
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/netcoreapp3.1/SuperMendelianSandbox.AssemblyInfoInputs.cache
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/netcoreapp3.1/SuperMendelianSandbox.AssemblyInfo.cs
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/netcoreapp3.1/SuperMendelianSandbox.csproj.CoreCompileInputs.cache
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/netcoreapp3.1/SuperMendelianSandbox.dll
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/netcoreapp3.1/SuperMendelianSandbox.pdb
+/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/netcoreapp3.1/SuperMendelianSandbox.genruntimeconfig.cache
