@@ -10,6 +10,8 @@ namespace SMS
         public List<Chromosome> ChromosomeListA;
         public List<Chromosome> ChromosomeListB;
 
+        public Dictionary<string, dynamic> MaternalFactors;
+
         public static Random randomorg = new Random();
 
         //new organism (ex nihilo)
@@ -35,7 +37,6 @@ namespace SMS
                 this.ChromosomeListB.Add(new Chromosome(item));
             });
 
-
         }
 
         //new organism (sex)
@@ -47,6 +48,7 @@ namespace SMS
             this.ChromosomeListA.AddRange(Dad.GetGametChromosomeList());
             this.ChromosomeListB.AddRange(Mum.GetGametChromosomeList());
 
+            
         }
 
         #region Organism methods
@@ -57,7 +59,6 @@ namespace SMS
 
             for (int i = 0; i < this.ChromosomeListA.Count; i++)
             {
-                //GametChroms.Add(new Chromosome(this.ChromosomeListA[i], this.ChromosomeListB[i], true, this.GetTransgeneLevel("transgene_Cas9")));
                 GametChroms.Add(new Chromosome(this.ChromosomeListA[i], this.ChromosomeListB[i],this));
             }
             return GametChroms;
@@ -143,7 +144,6 @@ namespace SMS
             return sex;
 
         }
-
 
         public string GetGenotype(string WhichGene)
         {
@@ -452,14 +452,14 @@ namespace SMS
                 return false;
         }
 
-        public int GetTransgeneLevel(string whichtransgene)
+        public float GetTransgeneLevel(string whichtransgene)
         {
-            int level = 0;
+            float level = 0;
             foreach (Chromosome Chrom in this.ChromosomeListA)
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.AlleleName == "Construct")
+                    if (GL.AlleleName == "Transgene")
                     {
                         foreach (var (name, value) in GL.Traits)
                         {
@@ -474,7 +474,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.AlleleName == "Construct")
+                    if (GL.AlleleName == "Transgene")
                     {
                         foreach (var (name, value) in GL.Traits)
                         {
@@ -485,8 +485,8 @@ namespace SMS
                 }
             }
 
-            if (level > 100)
-                return 100;
+            if (level > 1.0F)
+                return 1.0F;
             else
                 return level;
             

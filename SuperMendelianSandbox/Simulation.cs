@@ -14,8 +14,9 @@ namespace SMS
         public List<Organism> Adults = new List<Organism>();
         public List<Organism> Eggs = new List<Organism>();
         public static Random random = new Random();
-      
-        /*-------------------- Simulation Parameters ---------------------------------*/
+
+
+    /*-------------------- Simulation Parameters ---------------------------------*/
 
         public int Generations = 10;
         public int Iterations = 10;
@@ -33,7 +34,8 @@ namespace SMS
         public int InterventionReleaseNumber = 125;
 
         string[] Track = {"RCD1R"};
-        //string[] Track = { "ZPG" };
+
+        public static string[,] Target_cognate_gRNA = { { "RCD1R", "gRNA_RCD1R" }, { "Transformer", "gRNA_tra" } };
 
         /*------------------------------- The Simulation ---------------------------------------------*/
 
@@ -286,9 +288,10 @@ namespace SMS
         {
             Organism IDG_Male = new Organism(GenerateWTMale());
 
-            GeneLocus IDG = new GeneLocus("RCD1R", 1, "Construct");
-            IDG.Traits.Add("transgene_Cas9", 95);
-            IDG.Traits.Add("transgene_RCD1R_gRNA", 1);
+            GeneLocus IDG = new GeneLocus("RCD1R", 1, "Transgene");
+            IDG.Traits.Add("Cas9", 0.95F);
+            IDG.Traits.Add("Cas9_maternal", 0.5F);
+            IDG.Traits.Add("gRNA_RCD1R", 1.0F);
             IDG.Traits.Add("Hom_Repair", 0.8F);
 
             Organism.ModifyAllele(ref IDG_Male.ChromosomeListA, IDG, "WT");

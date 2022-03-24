@@ -34,13 +34,13 @@ namespace SMS
         //New Chromosome in Meiosis (more complex DRIVE, with  gRNA checker)
         public Chromosome(Chromosome HomChrom1, Chromosome HomChrom2, Organism parent)
         {
-            int Cas9level = parent.GetTransgeneLevel("transgene_Cas9");
-            int RCD1RgRNAlevel = parent.GetTransgeneLevel("transgene_RCD1R_gRNA");
+            float Cas9level = parent.GetTransgeneLevel("Cas9");
+
+            
            
 
             if (HomChrom1.HomologousPairName != HomChrom2.HomologousPairName)
             { throw new System.ArgumentException("Not homologous Chromosomes", "warning"); }
-
 
             if (HomChrom1.HomologousPairName == "Sex")
             {
@@ -81,81 +81,86 @@ namespace SMS
                 #region homing at all loci
                 if (Cas9level > 0)
                 {
-                    for (var i = 0; i < HC1.GeneLocusList.Count; i++)
+                    for (int u = 0; u < Simulation.Target_cognate_gRNA.GetLength(0); u++)
                     {
-                        if (HC1.GeneLocusList[i].GeneName == HC2.GeneLocusList[i].GeneName)
+                    
+                    float gRNAlevel = parent.GetTransgeneLevel(Simulation.Target_cognate_gRNA[u, 1]);
+
+                        for (var i = 0; i < HC1.GeneLocusList.Count; i++)
                         {
-                            if (HC1.GeneLocusList[i].GeneName == "RCD1R" && RCD1RgRNAlevel > 0)
+                            if (HC1.GeneLocusList[i].GeneName == HC2.GeneLocusList[i].GeneName)
                             {
-                                if (HC1.GeneLocusList[i].AlleleName == "WT")
+                                if (HC1.GeneLocusList[i].GeneName == Simulation.Target_cognate_gRNA[u, 0])
                                 {
-                                    if (Cas9level >= Simulation.random.Next(0, 101))
+                                    if (HC1.GeneLocusList[i].AlleleName == "WT")
                                     {
-                                        dynamic Hom_Repair = 0;
-                                        dynamic Cons = 0;
-
-                                        HC2.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
-                                        HC1.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
-
-                                        if (HC2.GeneLocusList[i].AlleleName == "WT")
-                                        { Hom_Repair = 1F; }
-
-                                        if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
                                         {
-                                            HC1.GeneLocusList[i].AlleleName = HC2.GeneLocusList[i].AlleleName;
-                                            HC1.GeneLocusList[i].InheritTraits(HC2.GeneLocusList[i]);
-                                        }
-                                        else
-                                        {
-                                            if (Cons >= (float)Simulation.random.NextDouble())
-                                                HC1.GeneLocusList[i].AlleleName = "R2";
+                                            dynamic Hom_Repair = 0;
+                                            dynamic Cons = 0;
+
+                                            HC2.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
+                                            HC1.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
+
+                                            if (HC2.GeneLocusList[i].AlleleName == "WT")
+                                            { Hom_Repair = 1F; }
+
+                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            {
+                                                HC1.GeneLocusList[i].AlleleName = HC2.GeneLocusList[i].AlleleName;
+                                                HC1.GeneLocusList[i].InheritTraits(HC2.GeneLocusList[i]);
+                                            }
                                             else
-                                                HC1.GeneLocusList[i].AlleleName = "R1";
+                                            {
+                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                    HC1.GeneLocusList[i].AlleleName = "R2";
+                                                else
+                                                    HC1.GeneLocusList[i].AlleleName = "R1";
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    ///====================
-                    for (var i = 0; i < HC2.GeneLocusList.Count; i++)
-                    {
-                        if (HC1.GeneLocusList[i].GeneName == HC2.GeneLocusList[i].GeneName)
+                        ///====================
+                        for (var i = 0; i < HC2.GeneLocusList.Count; i++)
                         {
-                            if (HC2.GeneLocusList[i].GeneName == "RCD1R" && RCD1RgRNAlevel > 0) 
+                            if (HC1.GeneLocusList[i].GeneName == HC2.GeneLocusList[i].GeneName)
                             {
-                                if (HC2.GeneLocusList[i].AlleleName == "WT")
+                                if (HC2.GeneLocusList[i].GeneName == Simulation.Target_cognate_gRNA[u, 0])
                                 {
-                                    if (Cas9level >= Simulation.random.Next(0, 101))
+                                    if (HC2.GeneLocusList[i].AlleleName == "WT")
                                     {
-                                        dynamic Hom_Repair = 0;
-                                        dynamic Cons = 0;
-
-                                        HC1.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
-                                        HC2.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
-
-                                        if (HC1.GeneLocusList[i].AlleleName == "WT")
-                                        { Hom_Repair = 1F; }
-
-                                        if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
                                         {
-                                            HC2.GeneLocusList[i].AlleleName = HC1.GeneLocusList[i].AlleleName;
-                                            HC2.GeneLocusList[i].InheritTraits(HC1.GeneLocusList[i]);
-                                        }
-                                        else
-                                        {
-                                            if (Cons >= (float)Simulation.random.NextDouble())
-                                                HC2.GeneLocusList[i].AlleleName = "R2";
+                                            dynamic Hom_Repair = 0;
+                                            dynamic Cons = 0;
+
+                                            HC1.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
+                                            HC2.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
+
+                                            if (HC1.GeneLocusList[i].AlleleName == "WT")
+                                            { Hom_Repair = 1F; }
+
+                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            {
+                                                HC2.GeneLocusList[i].AlleleName = HC1.GeneLocusList[i].AlleleName;
+                                                HC2.GeneLocusList[i].InheritTraits(HC1.GeneLocusList[i]);
+                                            }
                                             else
-                                                HC2.GeneLocusList[i].AlleleName = "R1";
+                                            {
+                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                    HC2.GeneLocusList[i].AlleleName = "R2";
+                                                else
+                                                    HC2.GeneLocusList[i].AlleleName = "R1";
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+
                     }
-
-
                 }
                 #endregion
 
@@ -178,6 +183,8 @@ namespace SMS
             #endregion
 
         }
+
+        
 
     }
 

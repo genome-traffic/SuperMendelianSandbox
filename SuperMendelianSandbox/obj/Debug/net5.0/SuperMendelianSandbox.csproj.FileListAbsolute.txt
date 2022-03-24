@@ -13,3 +13,19 @@
 /Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/ref/SuperMendelianSandbox.dll
 /Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.pdb
 /Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.genruntimeconfig.cache
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/net5.0/SuperMendelianSandbox
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/net5.0/SuperMendelianSandbox.deps.json
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/net5.0/SuperMendelianSandbox.runtimeconfig.json
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/net5.0/SuperMendelianSandbox.runtimeconfig.dev.json
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/net5.0/SuperMendelianSandbox.dll
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/bin/Debug/net5.0/SuperMendelianSandbox.pdb
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.csproj.AssemblyReference.cache
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.GeneratedMSBuildEditorConfig.editorconfig
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.AssemblyInfoInputs.cache
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.AssemblyInfo.cs
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.csproj.CoreCompileInputs.cache
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.dll
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/refint/SuperMendelianSandbox.dll
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.pdb
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/SuperMendelianSandbox.genruntimeconfig.cache
+/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/obj/Debug/net5.0/ref/SuperMendelianSandbox.dll

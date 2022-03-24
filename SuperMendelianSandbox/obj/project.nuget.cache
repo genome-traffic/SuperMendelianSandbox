@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "KuPIe7DNaPdfr4+3VqHXjE+R8jBktZ+n1y5W7713dJlhzXSNnOOG6xnegW+gNxC7fwnYzitBMd5TAPGal7WhJw==",
+  "dgSpecHash": "lfDLGPtMfkrNUPMD1Z3JN1KfZ39k5DyYyGdwD8O1z0m0GL1xHJ7OC++SfzEzL1bRshabZ1LouBSi06Ih0UVfPQ==",
   "success": true,
-  "projectFilePath": "/Users/nikolai/Sync-Computing/NET core programs/SuperMendelianSandbox/SuperMendelianSandbox/SuperMendelianSandbox.csproj",
+  "projectFilePath": "/Users/nikolai/Sync-Computing/GeneDrives/SMS/SuperMendelianSandbox/SuperMendelianSandbox/SuperMendelianSandbox.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
