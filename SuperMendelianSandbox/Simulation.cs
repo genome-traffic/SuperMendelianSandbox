@@ -15,14 +15,14 @@ namespace SMS
         public List<Organism> Eggs = new List<Organism>();
         public static Random random = new Random();
 
-
     /*-------------------- Simulation Parameters ---------------------------------*/
 
         public int Generations = 10;
-        public int Iterations = 10;
+        public int Iterations = 50;
 
         public int PopulationCap = 200;
         public float Mortality = 0.1f;
+        public static float MaternalHDRReduction = 0.05F;
         public int GlobalEggsPerFemale = 50;
         public int Sample = 48;
 
@@ -33,9 +33,9 @@ namespace SMS
         public int EndIntervention = 2;
         public int InterventionReleaseNumber = 125;
 
-        string[] Track = {"RCD1R"};
+        string[] Track = {"CP","Cas9_helper"};
 
-        public static string[,] Target_cognate_gRNA = { { "RCD1R", "gRNA_RCD1R" }, { "Transformer", "gRNA_tra" } };
+        public static string[,] Target_cognate_gRNA = { { "CP", "gRNA_CP" }, { "Transformer", "gRNA_tra" } };
 
         /*------------------------------- The Simulation ---------------------------------------------*/
 
@@ -43,7 +43,7 @@ namespace SMS
         { 
             string pathdesktop = (string)Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             pathdesktop = pathdesktop + "/model";
-            string pathString = System.IO.Path.Combine(pathdesktop, "RCD1R_middle.csv");
+            string pathString = System.IO.Path.Combine(pathdesktop, "MMCP.csv");
             Console.WriteLine("Writing output to: " + pathString);
             File.Create(pathString).Dispose();
 
@@ -75,7 +75,23 @@ namespace SMS
                                 Intervention();
                             }
                         }
-                        #region output data to file
+
+                        #region maternal effects
+                        foreach (Organism OM in Adults)
+                        {
+                            // implement here
+                            if (Simulation.random.Next(0, 2) != 0)
+                            {
+                                OM.SwapChromLists();
+                            }
+
+                            OM.EmbryonicCas9Activity();
+
+                            OM.MaternalFactors.Clear();                            
+                        }
+                        #endregion
+
+                        #region output adult data to file
 
                         //------------------------ Genotypes -------
 
@@ -171,12 +187,13 @@ namespace SMS
 
                         #endregion
 
+                        #region Cross all adults and return eggs for next generation
+
                         Shuffle.ShuffleList(Adults);
                         CrossAll();
                         Adults.Clear();
                         Shuffle.ShuffleList(Eggs);
 
-                        #region Return Adults from Eggs for the next Generation
                         int EggsToBeReturned = 0;
 
                         if (Eggs.Count <= PopulationCap)
@@ -188,14 +205,14 @@ namespace SMS
                         {
                             Adults.Add(new Organism(Eggs[na]));
                         }
-                        #endregion
 
                         Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Eggs.Count.ToString(), "all");
 
                         Eggs.Clear();
 
-                    }
+                        #endregion
 
+                    }
                 }
                 // END OF SIMULATION
 
@@ -207,52 +224,64 @@ namespace SMS
 
         public void Populate_with_WT()
         {
-            for (int i = 0; i < StartingNumberOfWTFemales; i++)
-            {
-                Adults.Add(new Organism(GenerateWTFemale()));
-            }
-            for (int i = 0; i < StartingNumberOfWTMales; i++)
-            {
-                Adults.Add(new Organism(GenerateWTMale()));
-            }
+            //for (int i = 0; i < StartingNumberOfWTFemales; i++)
+            //{
+            //    Adults.Add(new Organism(GenerateWTFemale()));
+            //}
+            //for (int i = 0; i < StartingNumberOfWTMales; i++)
+            //{
+            //    Adults.Add(new Organism(GenerateWTMale()));
+            //}
         }
 
         public void Populate_with_Setup()
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 50; i++)
             {
-                Adults.Add(new Organism(GenerateWTFemale()));
+                Adults.Add(new Organism(Generate_Transhet_Female()));
             }
-            for (int i = 0; i < 70; i++)
+            for (int i = 0; i < 50; i++)
             {
-                Adults.Add(new Organism(GenerateWTMale()));
+                Adults.Add(new Organism(Generate_Transhet_Male()));
             }
 
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 50; i++)
             {
-                Adults.Add(new Organism(Generate_DriveMale()));
+                Adults.Add(new Organism(GenerateCas9Female()));
             }
+            for (int i = 0; i < 50; i++)
+            {
+                Adults.Add(new Organism(GenerateCas9Male()));
+            }
+
+
         }
 
         public void Intervention()
         {
             for (int i = 0; i < InterventionReleaseNumber; i++)
             {
-                Adults.Add(new Organism(Generate_DriveMale()));
+                //Adults.Add(new Organism(Generate_DriveMale()));
             }
         }
 
-        public Organism GenerateWTFemale()
+        public Organism GenerateCas9Female()
         {
             Organism WTFemale = new Organism();
 
-            GeneLocus RCD1Ra = new GeneLocus("RCD1R", 1, "WT");
-            RCD1Ra.Traits.Add("Conservation", 0.1F);
-            RCD1Ra.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus RCD1Rb = new GeneLocus("RCD1R", 1, "WT");
-            RCD1Rb.Traits.Add("Conservation", 0.1F);
-            RCD1Rb.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus CPa = new GeneLocus("CP", 1, "WT");
+            CPa.Traits.Add("Conservation", 0F);
+            CPa.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus CPb = new GeneLocus("CP", 1, "WT");
+            CPb.Traits.Add("Conservation", 0F);
+            CPb.Traits.Add("Hom_Repair", 0.95F);
 
+            GeneLocus Insertion_a = new GeneLocus("Cas9_helper", 1, "Transgene");
+            Insertion_a.Traits.Add("Cas9", 0.95F);
+            Insertion_a.Traits.Add("Cas9_maternal", 0F);
+            Insertion_a.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus Insertion_b = new GeneLocus("Cas9_helper", 1, "WT");
+    
             Chromosome ChromXa = new Chromosome("X", "Sex");
             Chromosome ChromXb = new Chromosome("X", "Sex");
             Chromosome Chrom2a = new Chromosome("2", "2");
@@ -260,9 +289,12 @@ namespace SMS
             Chromosome Chrom3a = new Chromosome("3", "3");
             Chromosome Chrom3b = new Chromosome("3", "3");
 
-            Chrom2a.GeneLocusList.Add(RCD1Ra);
-            Chrom2b.GeneLocusList.Add(RCD1Rb);
-      
+            Chrom2a.GeneLocusList.Add(CPa);
+            Chrom2b.GeneLocusList.Add(CPb);
+
+            Chrom3a.GeneLocusList.Add(Insertion_a);
+            Chrom3b.GeneLocusList.Add(Insertion_b);
+
             WTFemale.ChromosomeListA.Add(ChromXa);
             WTFemale.ChromosomeListB.Add(ChromXb);
             WTFemale.ChromosomeListA.Add(Chrom2a);
@@ -273,9 +305,9 @@ namespace SMS
             return WTFemale;
         }
 
-        public Organism GenerateWTMale()
+        public Organism GenerateCas9Male()
         {
-            Organism WTMale = new Organism(GenerateWTFemale());
+            Organism WTMale = new Organism(GenerateCas9Female());
             Chromosome ChromY = new Chromosome("Y", "Sex");
             GeneLocus MaleFactor = new GeneLocus("MaleDeterminingLocus", 1, "WT");
             ChromY.GeneLocusList.Add(MaleFactor);
@@ -284,22 +316,60 @@ namespace SMS
             return WTMale;
         }
 
-        public Organism Generate_DriveMale()
+        public Organism Generate_Transhet_Female()
         {
-            Organism IDG_Male = new Organism(GenerateWTMale());
+            Organism THfemale = new Organism();
 
-            GeneLocus IDG = new GeneLocus("RCD1R", 1, "Transgene");
-            IDG.Traits.Add("Cas9", 0.95F);
-            IDG.Traits.Add("Cas9_maternal", 0.5F);
-            IDG.Traits.Add("gRNA_RCD1R", 1.0F);
-            IDG.Traits.Add("Hom_Repair", 0.8F);
+            GeneLocus CPa = new GeneLocus("CP", 1, "WT");
+            CPa.Traits.Add("Conservation", 0F);
+            CPa.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus CPb = new GeneLocus("CP", 1, "Transgene");
+            CPb.Traits.Add("gRNA_CP", 1.0F);
+            CPb.Traits.Add("Hom_Repair", 0.95F);
+   
+            GeneLocus Insertion_a = new GeneLocus("Cas9_helper", 1, "Transgene");
+            Insertion_a.Traits.Add("Cas9", 0.95F);
+            Insertion_a.Traits.Add("Cas9_maternal", 0F);
+            Insertion_a.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus Insertion_b = new GeneLocus("Cas9_helper", 1, "WT");
 
-            Organism.ModifyAllele(ref IDG_Male.ChromosomeListA, IDG, "WT");
-            return IDG_Male;           
+            Chromosome ChromXa = new Chromosome("X", "Sex");
+            Chromosome ChromXb = new Chromosome("X", "Sex");
+            Chromosome Chrom2a = new Chromosome("2", "2");
+            Chromosome Chrom2b = new Chromosome("2", "2");
+            Chromosome Chrom3a = new Chromosome("3", "3");
+            Chromosome Chrom3b = new Chromosome("3", "3");
+
+            Chrom2a.GeneLocusList.Add(CPa);
+            Chrom2b.GeneLocusList.Add(CPb);
+
+            Chrom3a.GeneLocusList.Add(Insertion_a);
+            Chrom3b.GeneLocusList.Add(Insertion_b);
+
+            THfemale.ChromosomeListA.Add(ChromXa);
+            THfemale.ChromosomeListB.Add(ChromXb);
+            THfemale.ChromosomeListA.Add(Chrom2a);
+            THfemale.ChromosomeListB.Add(Chrom2b);
+            THfemale.ChromosomeListA.Add(Chrom3a);
+            THfemale.ChromosomeListB.Add(Chrom3b);
+
+            return THfemale;
+        }
+
+        public Organism Generate_Transhet_Male()
+        {
+
+            Organism THMale = new Organism(Generate_Transhet_Female());
+            Chromosome ChromY = new Chromosome("Y", "Sex");
+            GeneLocus MaleFactor = new GeneLocus("MaleDeterminingLocus", 1, "WT");
+            ChromY.GeneLocusList.Add(MaleFactor);
+
+            THMale.ChromosomeListA[0] = ChromY;
+            return THMale;
+
         }
 
         //----------------------- Simulation methods ----------------------------------------------------
-
 
         public void PerformCross(Organism Dad, Organism Mum, ref List<Organism> EggList)
         {

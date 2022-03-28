@@ -12,13 +12,12 @@ namespace SMS
 
         public Dictionary<string, dynamic> MaternalFactors;
 
-        public static Random randomorg = new Random();
-
         //new organism (ex nihilo)
         public Organism()
         {
             this.ChromosomeListA = new List<Chromosome>();
             this.ChromosomeListB = new List<Chromosome>();
+            this.MaternalFactors = new Dictionary<string, dynamic>();
         }
 
         //new organism (clone) 
@@ -37,6 +36,13 @@ namespace SMS
                 this.ChromosomeListB.Add(new Chromosome(item));
             });
 
+            this.MaternalFactors = new Dictionary<string, dynamic>();
+
+            foreach (var OldFactor in Old.MaternalFactors)
+            {
+                this.MaternalFactors.Add(OldFactor.Key, OldFactor.Value);
+            }
+
         }
 
         //new organism (sex)
@@ -48,7 +54,14 @@ namespace SMS
             this.ChromosomeListA.AddRange(Dad.GetGametChromosomeList());
             this.ChromosomeListB.AddRange(Mum.GetGametChromosomeList());
 
-            
+            //determine maternal factors
+            this.MaternalFactors = new Dictionary<string, dynamic>();
+            this.MaternalFactors.Add("Cas9", Mum.GetTransgeneLevel("Cas9_maternal"));
+
+            for (int u = 0; u < Simulation.Target_cognate_gRNA.GetLength(0); u++)
+            {
+                this.MaternalFactors.Add(Simulation.Target_cognate_gRNA[u, 1], Mum.GetTransgeneLevel(Simulation.Target_cognate_gRNA[u, 1]));
+            }
         }
 
         #region Organism methods
@@ -59,7 +72,7 @@ namespace SMS
 
             for (int i = 0; i < this.ChromosomeListA.Count; i++)
             {
-                GametChroms.Add(new Chromosome(this.ChromosomeListA[i], this.ChromosomeListB[i],this));
+                GametChroms.Add(new Chromosome(this.ChromosomeListA[i], this.ChromosomeListB[i], this));
             }
             return GametChroms;
         }
@@ -92,7 +105,7 @@ namespace SMS
         public string GetSexChromKaryo()
         {
             string karyo = "";
-          
+
             //role of sex chromosomes
             foreach (Chromosome Chrom in this.ChromosomeListA)
             {
@@ -111,9 +124,9 @@ namespace SMS
                     break;
                 }
             }
-            
+
             return karyo;
-            
+
         }
 
         public string GetSex()
@@ -126,7 +139,7 @@ namespace SMS
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
                     if (GL.GeneName == "MaleDeterminingLocus" && GL.AlleleName == "WT")
-                    sex = "male";
+                        sex = "male";
                     return sex;
                 }
             }
@@ -136,7 +149,7 @@ namespace SMS
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
                     if (GL.GeneName == "MaleDeterminingLocus" && GL.AlleleName == "WT")
-                    sex = "male";
+                        sex = "male";
                     return sex;
                 }
             }
@@ -189,10 +202,10 @@ namespace SMS
             float fer = 1.0F;
 
             //recessive male fertility
-            if (this.GetSex() == "male")
+            if (this.GetSex() == "female")
             {
-                if (this.AlleleHomozygous("RCD1R", "R2"))
-                { fer = 0.05F; }
+                if (this.AlleleHomozygous("CP", "Transgene"))
+                { fer = 0.9F; }
             }
 
             return fer;
@@ -489,7 +502,130 @@ namespace SMS
                 return 1.0F;
             else
                 return level;
-            
+
+        }
+
+        public void EmbryonicCas9Activity()
+        {
+            dynamic Cas9level = 0;
+
+            if (!this.MaternalFactors.TryGetValue("Cas9", out Cas9level))
+            {
+                // the key isn't in the dictionary.
+                return;
+            }
+
+            if (Cas9level > 0)
+            {
+                for (int u = 0; u < Simulation.Target_cognate_gRNA.GetLength(0); u++)
+                {
+                    dynamic gRNAlevel = 0;
+
+                    if (!this.MaternalFactors.TryGetValue(Simulation.Target_cognate_gRNA[u, 1], out gRNAlevel))
+                    {
+                        // the key isn't in the dictionary.
+                        continue;
+                    }
+
+                    for (var c = 0; c < this.ChromosomeListA.Count; c++)
+                    {
+                        if (this.ChromosomeListA[c].HomologousPairName == "Sex")
+                        continue;
+
+                        for (var i = 0; i < this.ChromosomeListA[c].GeneLocusList.Count; i++)
+                        {
+                            if (this.ChromosomeListA[c].GeneLocusList[i].GeneName == this.ChromosomeListB[c].GeneLocusList[i].GeneName)
+                            {
+                                if (this.ChromosomeListA[c].GeneLocusList[i].GeneName == Simulation.Target_cognate_gRNA[u, 0])
+                                {
+                                    if (this.ChromosomeListA[c].GeneLocusList[i].AlleleName == "WT")
+                                    {
+                                        //Console.WriteLine("WT in A ready for maternal modification!");
+                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
+                                        {
+                                            dynamic Hom_Repair = 0;
+                                            dynamic Cons = 0;
+
+                                            this.ChromosomeListB[c].GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
+                                            this.ChromosomeListA[c].GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
+
+                                            Hom_Repair = Hom_Repair * Simulation.MaternalHDRReduction;
+
+                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            {
+                                                this.ChromosomeListA[c].GeneLocusList[i].AlleleName = this.ChromosomeListB[c].GeneLocusList[i].AlleleName;
+                                                this.ChromosomeListA[c].GeneLocusList[i].InheritTraits(this.ChromosomeListB[c].GeneLocusList[i]);
+                                            }
+                                            else
+                                            {
+                                                //Console.WriteLine("List A maternal modification!");
+                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                    this.ChromosomeListA[c].GeneLocusList[i].AlleleName = "R2";
+                                                else
+                                                    this.ChromosomeListA[c].GeneLocusList[i].AlleleName = "R1";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ///====================
+                    for (var c = 0; c < this.ChromosomeListB.Count; c++)
+                    {
+                        if (this.ChromosomeListB[c].HomologousPairName == "Sex")
+                            continue;
+
+                        for (var i = 0; i < this.ChromosomeListB[c].GeneLocusList.Count; i++)
+                        {
+                            if (this.ChromosomeListA[c].GeneLocusList[i].GeneName == this.ChromosomeListB[c].GeneLocusList[i].GeneName)
+                            {
+                                if (this.ChromosomeListB[c].GeneLocusList[i].GeneName == Simulation.Target_cognate_gRNA[u, 0])
+                                {
+                                    if (this.ChromosomeListB[c].GeneLocusList[i].AlleleName == "WT")
+                                    {
+                                        //Console.WriteLine("WT in B ready for maternal modification!");
+
+                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
+                                        {
+                                            dynamic Hom_Repair = 0;
+                                            dynamic Cons = 0;
+
+                                            this.ChromosomeListA[c].GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
+                                            this.ChromosomeListB[c].GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
+
+                                            Hom_Repair = Hom_Repair * Simulation.MaternalHDRReduction;
+
+                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            {
+                                                this.ChromosomeListB[c].GeneLocusList[i].AlleleName = this.ChromosomeListA[c].GeneLocusList[i].AlleleName;
+                                                this.ChromosomeListB[c].GeneLocusList[i].InheritTraits(this.ChromosomeListA[c].GeneLocusList[i]);
+                                            }
+                                            else
+                                            {
+                                                //Console.WriteLine("List B maternal modification!");
+                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                    this.ChromosomeListB[c].GeneLocusList[i].AlleleName = "R2";
+                                                else
+                                                    this.ChromosomeListB[c].GeneLocusList[i].AlleleName = "R1";
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        public void SwapChromLists()
+        {
+            List<Chromosome> TList;
+            TList = this.ChromosomeListA;
+            this.ChromosomeListA = this.ChromosomeListB;
+            this.ChromosomeListA = TList;
         }
 
         #endregion

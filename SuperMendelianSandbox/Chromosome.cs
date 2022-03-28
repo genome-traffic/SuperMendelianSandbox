@@ -34,10 +34,7 @@ namespace SMS
         //New Chromosome in Meiosis (more complex DRIVE, with  gRNA checker)
         public Chromosome(Chromosome HomChrom1, Chromosome HomChrom2, Organism parent)
         {
-            float Cas9level = parent.GetTransgeneLevel("Cas9");
-
-            
-           
+            //float Cas9level = parent.GetTransgeneLevel("Cas9");
 
             if (HomChrom1.HomologousPairName != HomChrom2.HomologousPairName)
             { throw new System.ArgumentException("Not homologous Chromosomes", "warning"); }
@@ -79,11 +76,12 @@ namespace SMS
                 Chromosome HC2 = new Chromosome(HomChrom2);
 
                 #region homing at all loci
+                float Cas9level = parent.GetTransgeneLevel("Cas9");
                 if (Cas9level > 0)
                 {
                     for (int u = 0; u < Simulation.Target_cognate_gRNA.GetLength(0); u++)
                     {
-                    
+
                     float gRNAlevel = parent.GetTransgeneLevel(Simulation.Target_cognate_gRNA[u, 1]);
 
                         for (var i = 0; i < HC1.GeneLocusList.Count; i++)
@@ -102,9 +100,6 @@ namespace SMS
                                             HC2.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
                                             HC1.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
 
-                                            if (HC2.GeneLocusList[i].AlleleName == "WT")
-                                            { Hom_Repair = 1F; }
-
                                             if (Hom_Repair >= (float)Simulation.random.NextDouble())
                                             {
                                                 HC1.GeneLocusList[i].AlleleName = HC2.GeneLocusList[i].AlleleName;
@@ -112,6 +107,7 @@ namespace SMS
                                             }
                                             else
                                             {
+                                                //Console.WriteLine("List A germline mutation!");
                                                 if (Cons >= (float)Simulation.random.NextDouble())
                                                     HC1.GeneLocusList[i].AlleleName = "R2";
                                                 else
@@ -139,9 +135,6 @@ namespace SMS
                                             HC1.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
                                             HC2.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
 
-                                            if (HC1.GeneLocusList[i].AlleleName == "WT")
-                                            { Hom_Repair = 1F; }
-
                                             if (Hom_Repair >= (float)Simulation.random.NextDouble())
                                             {
                                                 HC2.GeneLocusList[i].AlleleName = HC1.GeneLocusList[i].AlleleName;
@@ -149,6 +142,7 @@ namespace SMS
                                             }
                                             else
                                             {
+                                                //Console.WriteLine("List B germline mutation!");
                                                 if (Cons >= (float)Simulation.random.NextDouble())
                                                     HC2.GeneLocusList[i].AlleleName = "R2";
                                                 else
@@ -184,8 +178,5 @@ namespace SMS
 
         }
 
-        
-
     }
-
 }
