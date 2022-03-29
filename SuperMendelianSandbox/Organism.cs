@@ -208,6 +208,12 @@ namespace SMS
                 { fer = 0.9F; }
             }
 
+            if (this.GetSex() == "female")
+            {
+                if (this.AlleleHomozygous("CP", "R2"))
+                { fer = 0.05F; }
+            }
+
             return fer;
         }
 

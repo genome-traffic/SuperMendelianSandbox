@@ -236,20 +236,20 @@ namespace SMS
 
         public void Populate_with_Setup()
         {
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 60; i++)
             {
                 Adults.Add(new Organism(Generate_Transhet_Female()));
             }
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 60; i++)
             {
                 Adults.Add(new Organism(Generate_Transhet_Male()));
             }
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 40; i++)
             {
                 Adults.Add(new Organism(GenerateCas9Female()));
             }
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 40; i++)
             {
                 Adults.Add(new Organism(GenerateCas9Male()));
             }
@@ -270,10 +270,10 @@ namespace SMS
             Organism WTFemale = new Organism();
 
             GeneLocus CPa = new GeneLocus("CP", 1, "WT");
-            CPa.Traits.Add("Conservation", 0F);
+            CPa.Traits.Add("Conservation", 0.95F);
             CPa.Traits.Add("Hom_Repair", 0.95F);
             GeneLocus CPb = new GeneLocus("CP", 1, "WT");
-            CPb.Traits.Add("Conservation", 0F);
+            CPb.Traits.Add("Conservation", 0.95F);
             CPb.Traits.Add("Hom_Repair", 0.95F);
 
             GeneLocus Insertion_a = new GeneLocus("Cas9_helper", 1, "Transgene");
@@ -321,7 +321,7 @@ namespace SMS
             Organism THfemale = new Organism();
 
             GeneLocus CPa = new GeneLocus("CP", 1, "WT");
-            CPa.Traits.Add("Conservation", 0F);
+            CPa.Traits.Add("Conservation", 0.95F);
             CPa.Traits.Add("Hom_Repair", 0.95F);
             GeneLocus CPb = new GeneLocus("CP", 1, "Transgene");
             CPb.Traits.Add("gRNA_CP", 1.0F);

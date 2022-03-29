@@ -1,12 +1,12 @@
 ﻿<Properties StartupConfiguration="{715C96E1-AF98-4952-A15B-5C138F12E73E}|Default">
   <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Simulation.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Organism.cs">
     <Files>
       <File FileName="SuperMendelianSandbox.csproj" Line="1" Column="1" />
       <File FileName="Chromosome.cs" Line="110" Column="51" />
-      <File FileName="Simulation.cs" Line="234" Column="10" />
+      <File FileName="Simulation.cs" Line="281" Column="54" />
       <File FileName="Shuffle.cs" Line="11" Column="57" />
-      <File FileName="Organism.cs" Line="606" Column="51" />
+      <File FileName="Organism.cs" Line="214" Column="29" />
       <File FileName="GeneLocus.cs" Line="29" Column="40" />
     </Files>
     <Pads>
