@@ -238,21 +238,14 @@ namespace SMS
         {
             for (int i = 0; i < 60; i++)
             {
-                Adults.Add(new Organism(Generate_Transhet_Female()));
+               // Adults.Add(new Organism(Generate_Transhet_Female()));
             }
             for (int i = 0; i < 60; i++)
             {
-                Adults.Add(new Organism(Generate_Transhet_Male()));
+                // Adults.Add(new Organism(Generate_Transhet_Male()));
             }
 
-            for (int i = 0; i < 40; i++)
-            {
-                Adults.Add(new Organism(GenerateCas9Female()));
-            }
-            for (int i = 0; i < 40; i++)
-            {
-                Adults.Add(new Organism(GenerateCas9Male()));
-            }
+           
 
 
         }
@@ -265,23 +258,25 @@ namespace SMS
             }
         }
 
-        public Organism GenerateCas9Female()
+        
+        public Organism GenerateWTFemale()
         {
             Organism WTFemale = new Organism();
 
-            GeneLocus CPa = new GeneLocus("CP", 1, "WT");
-            CPa.Traits.Add("Conservation", 0.95F);
-            CPa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus CPb = new GeneLocus("CP", 1, "WT");
-            CPb.Traits.Add("Conservation", 0.95F);
-            CPb.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus FFERa = new GeneLocus("FFER", 1, "WT");
+            FFERa.Traits.Add("Conservation", 0.90F);
+            FFERa.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus FFERb = new GeneLocus("FFER", 1, "WT");
+            FFERb.Traits.Add("Conservation", 0.90F);
+            FFERb.Traits.Add("Hom_Repair", 0.95F);
 
-            GeneLocus Insertion_a = new GeneLocus("Cas9_helper", 1, "Transgene");
-            Insertion_a.Traits.Add("Cas9", 0.95F);
-            Insertion_a.Traits.Add("Cas9_maternal", 0F);
-            Insertion_a.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus Insertion_b = new GeneLocus("Cas9_helper", 1, "WT");
-    
+            GeneLocus TRAa = new GeneLocus("TRA", 2, "WT");
+            TRAa.Traits.Add("Conservation", 0.90F);
+            TRAa.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus TRAb = new GeneLocus("TRA", 2, "WT");
+            TRAb.Traits.Add("Conservation", 0.90F);
+            TRAb.Traits.Add("Hom_Repair", 0.95F);
+
             Chromosome ChromXa = new Chromosome("X", "Sex");
             Chromosome ChromXb = new Chromosome("X", "Sex");
             Chromosome Chrom2a = new Chromosome("2", "2");
@@ -289,11 +284,11 @@ namespace SMS
             Chromosome Chrom3a = new Chromosome("3", "3");
             Chromosome Chrom3b = new Chromosome("3", "3");
 
-            Chrom2a.GeneLocusList.Add(CPa);
-            Chrom2b.GeneLocusList.Add(CPb);
+            Chrom2a.GeneLocusList.Add(FFERa);
+            Chrom2b.GeneLocusList.Add(FFERb);
 
-            Chrom3a.GeneLocusList.Add(Insertion_a);
-            Chrom3b.GeneLocusList.Add(Insertion_b);
+            Chrom3a.GeneLocusList.Add(TRAa);
+            Chrom3b.GeneLocusList.Add(TRAb);
 
             WTFemale.ChromosomeListA.Add(ChromXa);
             WTFemale.ChromosomeListB.Add(ChromXb);
@@ -305,69 +300,34 @@ namespace SMS
             return WTFemale;
         }
 
-        public Organism GenerateCas9Male()
+        public Organism GenerateWTMale()
         {
-            Organism WTMale = new Organism(GenerateCas9Female());
+            Organism WTMale = new Organism(GenerateWTFemale());
             Chromosome ChromY = new Chromosome("Y", "Sex");
             GeneLocus MaleFactor = new GeneLocus("MaleDeterminingLocus", 1, "WT");
             ChromY.GeneLocusList.Add(MaleFactor);
 
             WTMale.ChromosomeListA[0] = ChromY;
+
             return WTMale;
         }
 
-        public Organism Generate_Transhet_Female()
+        public Organism Generate_DriveMale()
         {
-            Organism THfemale = new Organism();
+            Organism D_Male = new Organism(GenerateWTMale());
 
-            GeneLocus CPa = new GeneLocus("CP", 1, "WT");
-            CPa.Traits.Add("Conservation", 0.95F);
-            CPa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus CPb = new GeneLocus("CP", 1, "Transgene");
-            CPb.Traits.Add("gRNA_CP", 1.0F);
-            CPb.Traits.Add("Hom_Repair", 0.95F);
-   
-            GeneLocus Insertion_a = new GeneLocus("Cas9_helper", 1, "Transgene");
-            Insertion_a.Traits.Add("Cas9", 0.95F);
-            Insertion_a.Traits.Add("Cas9_maternal", 0F);
-            Insertion_a.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus Insertion_b = new GeneLocus("Cas9_helper", 1, "WT");
+            GeneLocus FFD = new GeneLocus("TRA", 1, "Construct");
+            FFD.Traits.Add("Cas9", 0.95F);
+            FFD.Traits.Add("Cas9_maternal", 0.95F);
+            FFD.Traits.Add("gRNA_TRA", 1F);
+            FFD.Traits.Add("Hom_Repair", 0.95F);
 
-            Chromosome ChromXa = new Chromosome("X", "Sex");
-            Chromosome ChromXb = new Chromosome("X", "Sex");
-            Chromosome Chrom2a = new Chromosome("2", "2");
-            Chromosome Chrom2b = new Chromosome("2", "2");
-            Chromosome Chrom3a = new Chromosome("3", "3");
-            Chromosome Chrom3b = new Chromosome("3", "3");
-
-            Chrom2a.GeneLocusList.Add(CPa);
-            Chrom2b.GeneLocusList.Add(CPb);
-
-            Chrom3a.GeneLocusList.Add(Insertion_a);
-            Chrom3b.GeneLocusList.Add(Insertion_b);
-
-            THfemale.ChromosomeListA.Add(ChromXa);
-            THfemale.ChromosomeListB.Add(ChromXb);
-            THfemale.ChromosomeListA.Add(Chrom2a);
-            THfemale.ChromosomeListB.Add(Chrom2b);
-            THfemale.ChromosomeListA.Add(Chrom3a);
-            THfemale.ChromosomeListB.Add(Chrom3b);
-
-            return THfemale;
+            Organism.ModifyAllele(ref D_Male.ChromosomeListA, FFD, "WT");
+            return D_Male;
         }
 
-        public Organism Generate_Transhet_Male()
-        {
 
-            Organism THMale = new Organism(Generate_Transhet_Female());
-            Chromosome ChromY = new Chromosome("Y", "Sex");
-            GeneLocus MaleFactor = new GeneLocus("MaleDeterminingLocus", 1, "WT");
-            ChromY.GeneLocusList.Add(MaleFactor);
 
-            THMale.ChromosomeListA[0] = ChromY;
-            return THMale;
-
-        }
 
         //----------------------- Simulation methods ----------------------------------------------------
 
