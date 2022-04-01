@@ -11,31 +11,29 @@ namespace SMS
 {
     class Simulation
     {
-        public List<Organism> Adults = new List<Organism>();
-        public List<Organism> Eggs = new List<Organism>();
-        public static Random random = new Random();
 
-    /*-------------------- Simulation Parameters ---------------------------------*/
+        /*-------------------- Simulation Parameters ---------------------------------*/
 
         public int Generations = 10;
         public int Iterations = 50;
 
         public int PopulationCap = 200;
         public float Mortality = 0.1f;
-        public static float MaternalHDRReduction = 0.05F;
+        public float MaternalHDRReduction = 0.05F;
         public int GlobalEggsPerFemale = 50;
         public int Sample = 48;
 
-        public bool ApplyIntervention = false;
+        public bool ApplyIntervention = true;
         public int StartingNumberOfWTFemales = 250;
         public int StartingNumberOfWTMales = 250;
         public int StartIntervention = 2;
         public int EndIntervention = 2;
         public int InterventionReleaseNumber = 125;
 
-        string[] Track = {"CP","Cas9_helper"};
+        string[] Track = {"TRA","FFER"};
 
-        public static string[,] Target_cognate_gRNA = { { "CP", "gRNA_CP" }, { "Transformer", "gRNA_tra" } };
+        public static string[,] Target_cognate_gRNA = { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" } };
+
 
         /*------------------------------- The Simulation ---------------------------------------------*/
 
@@ -43,7 +41,7 @@ namespace SMS
         { 
             string pathdesktop = (string)Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             pathdesktop = pathdesktop + "/model";
-            string pathString = System.IO.Path.Combine(pathdesktop, "MMCP.csv");
+            string pathString = System.IO.Path.Combine(pathdesktop, "modeloutput.csv");
             Console.WriteLine("Writing output to: " + pathString);
             File.Create(pathString).Dispose();
 
@@ -56,15 +54,8 @@ namespace SMS
                 for (int cIterations = 1; cIterations <= Iterations; cIterations++)
                 {
                     Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
-                    Adults.Clear();
-                    Eggs.Clear();
 
-                    if (ApplyIntervention)
-                        Populate_with_WT();
-                    else
-                        Populate_with_Setup();
-
-                    Shuffle.ShuffleList(Adults);
+                    Population Pop = new Population(200);
 
                     for (int cGenerations = 1; cGenerations <= Generations; cGenerations++)
                     {
@@ -72,20 +63,20 @@ namespace SMS
                         {
                             if ((cGenerations >= StartIntervention) && (cGenerations <= EndIntervention))
                             {
-                                Intervention();
+                                Pop = new Population(Pop, new Population("standard release", InterventionReleaseNumber));
                             }
                         }
 
                         #region maternal effects
-                        foreach (Organism OM in Adults)
+                        foreach (Organism OM in Pop.Adults)
                         {
                             // implement here
-                            if (Simulation.random.Next(0, 2) != 0)
+                            if (Shuffle.random.Next(0, 2) != 0)
                             {
                                 OM.SwapChromLists();
                             }
 
-                            OM.EmbryonicCas9Activity();
+                            OM.EmbryonicCas9Activity(MaternalHDRReduction);
 
                             OM.MaternalFactors.Clear();                            
                         }
@@ -97,7 +88,7 @@ namespace SMS
 
                         List<string> Genotypes = new List<string>();
 
-                         foreach (Organism O in Adults)
+                         foreach (Organism O in Pop.Adults)
                          {
                              foreach (string s in Track)
                              {
@@ -116,7 +107,7 @@ namespace SMS
                         Genotypes.Clear();
 
                         int cSample = Sample;
-                        foreach (Organism O in Adults)
+                        foreach (Organism O in Pop.Adults)
                         {
                             if (cSample > 0)
                             {
@@ -139,7 +130,7 @@ namespace SMS
                         //------------------------- Sex -----------
                         int numberofallmales = 0;
                         int numberofallfemales = 0;
-                        foreach (Organism O in Adults)
+                        foreach (Organism O in Pop.Adults)
                         {
                             if (O.GetSex() == "female")
                                 numberofallfemales++;
@@ -152,7 +143,7 @@ namespace SMS
                         //------------------------- Sex Karyotype -----------
                         int numberofXX = 0;
                         int numberofXY = 0;
-                        foreach (Organism O in Adults)
+                        foreach (Organism O in Pop.Adults)
                         {
 
                             switch (O.GetSexChromKaryo())
@@ -189,26 +180,23 @@ namespace SMS
 
                         #region Cross all adults and return eggs for next generation
 
-                        Shuffle.ShuffleList(Adults);
-                        CrossAll();
-                        Adults.Clear();
-                        Shuffle.ShuffleList(Eggs);
+                        Pop.ReproduceToEggs(Mortality,PopulationCap, GlobalEggsPerFemale);
 
                         int EggsToBeReturned = 0;
 
-                        if (Eggs.Count <= PopulationCap)
-                            EggsToBeReturned = Eggs.Count;
+                        if (Pop.Eggs.Count <= PopulationCap)
+                            EggsToBeReturned = Pop.Eggs.Count;
                         else
                             EggsToBeReturned = PopulationCap;
 
                         for (int na = 0; na < EggsToBeReturned; na++)
                         {
-                            Adults.Add(new Organism(Eggs[na]));
+                            Pop.Adults.Add(new Organism(Pop.Eggs[na]));
                         }
 
-                        Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Eggs.Count.ToString(), "all");
+                        Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Pop.Eggs.Count.ToString(), "all");
 
-                        Eggs.Clear();
+                        Pop.Eggs.Clear();
 
                         #endregion
 
@@ -220,156 +208,6 @@ namespace SMS
             }
         }
 
-        //---------------------- Define Organisms, Genotypes and Starting Populations -----------------------------------------------------
-
-        public void Populate_with_WT()
-        {
-            //for (int i = 0; i < StartingNumberOfWTFemales; i++)
-            //{
-            //    Adults.Add(new Organism(GenerateWTFemale()));
-            //}
-            //for (int i = 0; i < StartingNumberOfWTMales; i++)
-            //{
-            //    Adults.Add(new Organism(GenerateWTMale()));
-            //}
-        }
-
-        public void Populate_with_Setup()
-        {
-            for (int i = 0; i < 60; i++)
-            {
-               // Adults.Add(new Organism(Generate_Transhet_Female()));
-            }
-            for (int i = 0; i < 60; i++)
-            {
-                // Adults.Add(new Organism(Generate_Transhet_Male()));
-            }
-
-           
-
-
-        }
-
-        public void Intervention()
-        {
-            for (int i = 0; i < InterventionReleaseNumber; i++)
-            {
-                //Adults.Add(new Organism(Generate_DriveMale()));
-            }
-        }
-
-        
-        public Organism GenerateWTFemale()
-        {
-            Organism WTFemale = new Organism();
-
-            GeneLocus FFERa = new GeneLocus("FFER", 1, "WT");
-            FFERa.Traits.Add("Conservation", 0.90F);
-            FFERa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus FFERb = new GeneLocus("FFER", 1, "WT");
-            FFERb.Traits.Add("Conservation", 0.90F);
-            FFERb.Traits.Add("Hom_Repair", 0.95F);
-
-            GeneLocus TRAa = new GeneLocus("TRA", 2, "WT");
-            TRAa.Traits.Add("Conservation", 0.90F);
-            TRAa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus TRAb = new GeneLocus("TRA", 2, "WT");
-            TRAb.Traits.Add("Conservation", 0.90F);
-            TRAb.Traits.Add("Hom_Repair", 0.95F);
-
-            Chromosome ChromXa = new Chromosome("X", "Sex");
-            Chromosome ChromXb = new Chromosome("X", "Sex");
-            Chromosome Chrom2a = new Chromosome("2", "2");
-            Chromosome Chrom2b = new Chromosome("2", "2");
-            Chromosome Chrom3a = new Chromosome("3", "3");
-            Chromosome Chrom3b = new Chromosome("3", "3");
-
-            Chrom2a.GeneLocusList.Add(FFERa);
-            Chrom2b.GeneLocusList.Add(FFERb);
-
-            Chrom3a.GeneLocusList.Add(TRAa);
-            Chrom3b.GeneLocusList.Add(TRAb);
-
-            WTFemale.ChromosomeListA.Add(ChromXa);
-            WTFemale.ChromosomeListB.Add(ChromXb);
-            WTFemale.ChromosomeListA.Add(Chrom2a);
-            WTFemale.ChromosomeListB.Add(Chrom2b);
-            WTFemale.ChromosomeListA.Add(Chrom3a);
-            WTFemale.ChromosomeListB.Add(Chrom3b);
-
-            return WTFemale;
-        }
-
-        public Organism GenerateWTMale()
-        {
-            Organism WTMale = new Organism(GenerateWTFemale());
-            Chromosome ChromY = new Chromosome("Y", "Sex");
-            GeneLocus MaleFactor = new GeneLocus("MaleDeterminingLocus", 1, "WT");
-            ChromY.GeneLocusList.Add(MaleFactor);
-
-            WTMale.ChromosomeListA[0] = ChromY;
-
-            return WTMale;
-        }
-
-        public Organism Generate_DriveMale()
-        {
-            Organism D_Male = new Organism(GenerateWTMale());
-
-            GeneLocus FFD = new GeneLocus("TRA", 1, "Construct");
-            FFD.Traits.Add("Cas9", 0.95F);
-            FFD.Traits.Add("Cas9_maternal", 0.95F);
-            FFD.Traits.Add("gRNA_TRA", 1F);
-            FFD.Traits.Add("Hom_Repair", 0.95F);
-
-            Organism.ModifyAllele(ref D_Male.ChromosomeListA, FFD, "WT");
-            return D_Male;
-        }
-
-
-
-
-        //----------------------- Simulation methods ----------------------------------------------------
-
-        public void PerformCross(Organism Dad, Organism Mum, ref List<Organism> EggList)
-        {
-            int EggsPerFemale = GlobalEggsPerFemale;
-
-            EggsPerFemale = (int)(EggsPerFemale * Dad.GetFertility() * Mum.GetFertility());
-
-                for (int i = 0; i < EggsPerFemale; i++)
-                {
-                    EggList.Add(new Organism(Dad,Mum));
-                }
-        }
-        public void CrossAll()
-        {
-
-            int EffectivePopulation = (int)((1 - Mortality) * PopulationCap);
-  
-            int numb;
-            foreach (Organism F1 in Adults)
-            {
-                if (F1.GetSex() == "male")
-                {
-                    continue;
-                }
-                else
-                {
-                    for (int a = 0; a < EffectivePopulation; a++)
-                    {
-                        numb = random.Next(0, Adults.Count);
-                        if (Adults[numb].GetSex() == "male")
-                        {
-                            PerformCross(Adults[numb], F1, ref Eggs);
-                            break;
-                        }
-                    }
-                }
-
-            }
-
-        }
 
     }
 }

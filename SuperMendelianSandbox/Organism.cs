@@ -10,6 +10,7 @@ namespace SMS
         public List<Chromosome> ChromosomeListA;
         public List<Chromosome> ChromosomeListB;
 
+        
         public Dictionary<string, dynamic> MaternalFactors;
 
         //new organism (ex nihilo)
@@ -511,7 +512,7 @@ namespace SMS
 
         }
 
-        public void EmbryonicCas9Activity()
+        public void EmbryonicCas9Activity(float MaternalHDRReduction)
         {
             dynamic Cas9level = 0;
 
@@ -547,7 +548,7 @@ namespace SMS
                                     if (this.ChromosomeListA[c].GeneLocusList[i].AlleleName == "WT")
                                     {
                                         //Console.WriteLine("WT in A ready for maternal modification!");
-                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
+                                        if (Cas9level >= (float)Shuffle.random.NextDouble() && gRNAlevel >= (float)Shuffle.random.NextDouble())
                                         {
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
@@ -555,9 +556,9 @@ namespace SMS
                                             this.ChromosomeListB[c].GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
                                             this.ChromosomeListA[c].GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
 
-                                            Hom_Repair = Hom_Repair * Simulation.MaternalHDRReduction;
+                                            Hom_Repair = Hom_Repair * MaternalHDRReduction;
 
-                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            if (Hom_Repair >= (float)Shuffle.random.NextDouble())
                                             {
                                                 this.ChromosomeListA[c].GeneLocusList[i].AlleleName = this.ChromosomeListB[c].GeneLocusList[i].AlleleName;
                                                 this.ChromosomeListA[c].GeneLocusList[i].InheritTraits(this.ChromosomeListB[c].GeneLocusList[i]);
@@ -565,7 +566,7 @@ namespace SMS
                                             else
                                             {
                                                 //Console.WriteLine("List A maternal modification!");
-                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                if (Cons >= (float)Shuffle.random.NextDouble())
                                                     this.ChromosomeListA[c].GeneLocusList[i].AlleleName = "R2";
                                                 else
                                                     this.ChromosomeListA[c].GeneLocusList[i].AlleleName = "R1";
@@ -592,7 +593,7 @@ namespace SMS
                                     {
                                         //Console.WriteLine("WT in B ready for maternal modification!");
 
-                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
+                                        if (Cas9level >= (float)Shuffle.random.NextDouble() && gRNAlevel >= (float)Shuffle.random.NextDouble())
                                         {
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
@@ -600,9 +601,9 @@ namespace SMS
                                             this.ChromosomeListA[c].GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
                                             this.ChromosomeListB[c].GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
 
-                                            Hom_Repair = Hom_Repair * Simulation.MaternalHDRReduction;
+                                            Hom_Repair = Hom_Repair * MaternalHDRReduction;
 
-                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            if (Hom_Repair >= (float)Shuffle.random.NextDouble())
                                             {
                                                 this.ChromosomeListB[c].GeneLocusList[i].AlleleName = this.ChromosomeListA[c].GeneLocusList[i].AlleleName;
                                                 this.ChromosomeListB[c].GeneLocusList[i].InheritTraits(this.ChromosomeListA[c].GeneLocusList[i]);
@@ -610,7 +611,7 @@ namespace SMS
                                             else
                                             {
                                                 //Console.WriteLine("List B maternal modification!");
-                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                if (Cons >= (float)Shuffle.random.NextDouble())
                                                     this.ChromosomeListB[c].GeneLocusList[i].AlleleName = "R2";
                                                 else
                                                     this.ChromosomeListB[c].GeneLocusList[i].AlleleName = "R1";

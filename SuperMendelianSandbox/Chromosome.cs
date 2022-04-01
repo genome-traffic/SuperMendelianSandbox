@@ -41,7 +41,7 @@ namespace SMS
 
             if (HomChrom1.HomologousPairName == "Sex")
             {
-                if (Simulation.random.Next(0, 2) != 0)
+                if (Shuffle.random.Next(0, 2) != 0)
                 {
                     this.ChromosomeName = HomChrom1.ChromosomeName;
                     this.HomologousPairName = HomChrom1.HomologousPairName;
@@ -92,7 +92,7 @@ namespace SMS
                                 {
                                     if (HC1.GeneLocusList[i].AlleleName == "WT")
                                     {
-                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
+                                        if (Cas9level >= (float)Shuffle.random.NextDouble() && gRNAlevel >= (float)Shuffle.random.NextDouble())
                                         {
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
@@ -100,7 +100,7 @@ namespace SMS
                                             HC2.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
                                             HC1.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
 
-                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            if (Hom_Repair >= (float)Shuffle.random.NextDouble())
                                             {
                                                 HC1.GeneLocusList[i].AlleleName = HC2.GeneLocusList[i].AlleleName;
                                                 HC1.GeneLocusList[i].InheritTraits(HC2.GeneLocusList[i]);
@@ -108,7 +108,7 @@ namespace SMS
                                             else
                                             {
                                                 //Console.WriteLine("List A germline mutation!");
-                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                if (Cons >= (float)Shuffle.random.NextDouble())
                                                     HC1.GeneLocusList[i].AlleleName = "R2";
                                                 else
                                                     HC1.GeneLocusList[i].AlleleName = "R1";
@@ -127,7 +127,7 @@ namespace SMS
                                 {
                                     if (HC2.GeneLocusList[i].AlleleName == "WT")
                                     {
-                                        if (Cas9level >= (float)Simulation.random.NextDouble() && gRNAlevel >= (float)Simulation.random.NextDouble())
+                                        if (Cas9level >= (float)Shuffle.random.NextDouble() && gRNAlevel >= (float)Shuffle.random.NextDouble())
                                         {
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
@@ -135,7 +135,7 @@ namespace SMS
                                             HC1.GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
                                             HC2.GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
 
-                                            if (Hom_Repair >= (float)Simulation.random.NextDouble())
+                                            if (Hom_Repair >= (float)Shuffle.random.NextDouble())
                                             {
                                                 HC2.GeneLocusList[i].AlleleName = HC1.GeneLocusList[i].AlleleName;
                                                 HC2.GeneLocusList[i].InheritTraits(HC1.GeneLocusList[i]);
@@ -143,7 +143,7 @@ namespace SMS
                                             else
                                             {
                                                 //Console.WriteLine("List B germline mutation!");
-                                                if (Cons >= (float)Simulation.random.NextDouble())
+                                                if (Cons >= (float)Shuffle.random.NextDouble())
                                                     HC2.GeneLocusList[i].AlleleName = "R2";
                                                 else
                                                     HC2.GeneLocusList[i].AlleleName = "R1";
@@ -164,7 +164,7 @@ namespace SMS
 
                 for (var i = 0; i < HC1.GeneLocusList.Count; i++)
                 {
-                    if (Simulation.random.Next(0, 2) != 0)
+                    if (Shuffle.random.Next(0, 2) != 0)
                     {
                         this.GeneLocusList.Add(new GeneLocus(HC1.GeneLocusList[i]));
                     }
