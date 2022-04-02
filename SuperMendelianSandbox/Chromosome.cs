@@ -34,7 +34,8 @@ namespace SMS
         //New Chromosome in Meiosis (more complex DRIVE, with  gRNA checker)
         public Chromosome(Chromosome HomChrom1, Chromosome HomChrom2, Organism parent)
         {
-            //float Cas9level = parent.GetTransgeneLevel("Cas9");
+            
+            this.GeneLocusList = new List<GeneLocus>();
 
             if (HomChrom1.HomologousPairName != HomChrom2.HomologousPairName)
             { throw new System.ArgumentException("Not homologous Chromosomes", "warning"); }
@@ -45,8 +46,7 @@ namespace SMS
                 {
                     this.ChromosomeName = HomChrom1.ChromosomeName;
                     this.HomologousPairName = HomChrom1.HomologousPairName;
-                    this.GeneLocusList = new List<GeneLocus>();
-
+                 
                     foreach (GeneLocus OldGL in HomChrom1.GeneLocusList)
                     {
                         GeneLocus NewGL = new GeneLocus(OldGL);
@@ -57,8 +57,7 @@ namespace SMS
                 {
                     this.ChromosomeName = HomChrom2.ChromosomeName;
                     this.HomologousPairName = HomChrom2.HomologousPairName;
-                    this.GeneLocusList = new List<GeneLocus>();
-
+                    
                     foreach (GeneLocus OldGL in HomChrom2.GeneLocusList)
                     {
                         GeneLocus NewGL = new GeneLocus(OldGL);
@@ -158,7 +157,7 @@ namespace SMS
                 }
                 #endregion
 
-                this.GeneLocusList = new List<GeneLocus>();
+                //this.GeneLocusList = new List<GeneLocus>();
 
                 #region recombining the two homologous chroms to create new chrom
 

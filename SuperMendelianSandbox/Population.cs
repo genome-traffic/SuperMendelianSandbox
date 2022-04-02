@@ -16,7 +16,6 @@ namespace SMS
 
        
 
-
         //---------------------- Population constructors Organisms -----------------------------------------------------
 
         //new WT population
@@ -154,9 +153,9 @@ namespace SMS
         {
             Organism D_Male = new Organism(GenerateWTMale());
 
-            GeneLocus FFD = new GeneLocus("TRA", 1, "Construct");
+            GeneLocus FFD = new GeneLocus("TRA", 1, "Transgene");
             FFD.Traits.Add("Cas9", 0.95F);
-            FFD.Traits.Add("Cas9_maternal", 0.95F);
+            FFD.Traits.Add("Cas9_maternal", 0F);
             FFD.Traits.Add("gRNA_TRA", 1F);
             FFD.Traits.Add("Hom_Repair", 0.95F);
 

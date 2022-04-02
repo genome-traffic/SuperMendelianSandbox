@@ -3,15 +3,15 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Simulation.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Chromosome.cs">
     <Files>
       <File FileName="Simulation.cs" Line="17" Column="15" />
       <File FileName="SuperMendelianSandbox.csproj" Line="1" Column="1" />
-      <File FileName="Chromosome.cs" Line="95" Column="80" />
+      <File FileName="Chromosome.cs" Line="43" Column="55" />
       <File FileName="Shuffle.cs" Line="28" Column="1" />
-      <File FileName="Organism.cs" Line="13" Column="9" />
-      <File FileName="GeneLocus.cs" Line="29" Column="40" />
-      <File FileName="Population.cs" Line="17" Column="8" />
+      <File FileName="Organism.cs" Line="515" Column="70" />
+      <File FileName="GeneLocus.cs" Line="13" Column="26" />
+      <File FileName="Population.cs" Line="178" Column="32" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
