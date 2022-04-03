@@ -106,7 +106,7 @@ namespace SMS
                                             }
                                             else
                                             {
-                                                //Console.WriteLine("List A germline mutation!");
+                                                
                                                 if (Cons >= (float)Shuffle.random.NextDouble())
                                                     HC1.GeneLocusList[i].AlleleName = "R2";
                                                 else
@@ -141,7 +141,7 @@ namespace SMS
                                             }
                                             else
                                             {
-                                                //Console.WriteLine("List B germline mutation!");
+                                                
                                                 if (Cons >= (float)Shuffle.random.NextDouble())
                                                     HC2.GeneLocusList[i].AlleleName = "R2";
                                                 else
@@ -157,8 +157,7 @@ namespace SMS
                 }
                 #endregion
 
-                //this.GeneLocusList = new List<GeneLocus>();
-
+                
                 #region recombining the two homologous chroms to create new chrom
 
                 for (var i = 0; i < HC1.GeneLocusList.Count; i++)

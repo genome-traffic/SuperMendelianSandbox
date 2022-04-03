@@ -202,20 +202,45 @@ namespace SMS
         {
             float fer = 1.0F;
 
-            //recessive male fertility
-            if (this.GetSex() == "female")
+            if (this.GetSex() == "male")
             {
-                if (this.AlleleHomozygous("CP", "Transgene"))
-                { fer = 0.9F; }
+                if (this.AlleleHomozygous("ZPG", "Transgene"))
+                { fer -= 0.59F; }
+                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHomozygous("ZPG", "R2"))
+                { fer = 0F; }
+
+            }
+            else
+            {
+                if (this.AlleleHomozygous("ZPG", "Transgene"))
+                { fer = 0F; }
+                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHomozygous("ZPG", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "WT"))
+                { fer = 0F; }
             }
 
-            if (this.GetSex() == "female")
-            {
-                if (this.AlleleHomozygous("CP", "R2"))
-                { fer = 0.05F; }
-            }
+            if (this.AlleleHomozygous("Aper1", "R2"))
+            { fer -= 0.25F; }
+
+            if (this.AlleleHomozygous("AP2", "R2"))
+            { fer -= 0.25F; }
+
+            if (this.AlleleHomozygous("CP", "R2"))
+            { fer -= 0.25F; }
+
+
+            if (fer < 0F)
+            { fer = 0F; }
+            else if (fer > 1F)
+            { fer = 1F; }
 
             return fer;
+             
         }
 
         public bool AllelePresent(string WhichGene, string WhichAllele)

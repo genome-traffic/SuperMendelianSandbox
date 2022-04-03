@@ -14,25 +14,30 @@ namespace SMS
 
         /*-------------------- Simulation Parameters ---------------------------------*/
 
-        public int Generations = 10;
-        public int Iterations = 50;
+        public int Generations = 11;
+        public int Iterations = 25;
 
-        public int PopulationCap = 200;
+        public int PopulationCap = 600;
         public float Mortality = 0.1f;
         public float MaternalHDRReduction = 0.05F;
-        public int GlobalEggsPerFemale = 50;
-        public int Sample = 48;
+        public int GlobalEggsPerFemale = 80;
+        public int Sample = 47;
 
-        public bool ApplyIntervention = true;
+        public bool ApplyIntervention = false;
         public int StartingNumberOfWTFemales = 250;
         public int StartingNumberOfWTMales = 250;
         public int StartIntervention = 2;
         public int EndIntervention = 2;
         public int InterventionReleaseNumber = 125;
 
-        string[] Track = {"TRA","FFER"};
+        string[] Track = { "ZPG", "Aper1", "CP", "AP2" };
 
-        public static string[,] Target_cognate_gRNA = { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" } };
+        public static string[,] Target_cognate_gRNA = {
+                                                            { "Aper1", "gRNA_Aper1" },
+                                                            { "AP2", "gRNA_AP2" },
+                                                            { "CP", "gRNA_CP" },
+                                                            { "ZPG", "gRNA_ZPG" }
+                                                       };
 
 
         /*------------------------------- The Simulation ---------------------------------------------*/
@@ -55,7 +60,10 @@ namespace SMS
                 {
                     Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
 
-                    Population Pop = new Population(200);
+                    //Population Pop = new Population(200);
+                    //Population Pop = new Population("no resistance");
+                    Population Pop = new Population("resistance");
+
 
                     for (int cGenerations = 1; cGenerations <= Generations; cGenerations++)
                     {
@@ -63,20 +71,20 @@ namespace SMS
                         {
                             if ((cGenerations >= StartIntervention) && (cGenerations <= EndIntervention))
                             {
-                                Pop = new Population(Pop, new Population("standard release", InterventionReleaseNumber));
+                                //Pop = new Population(Pop, new Population("no resistance"));
                             }
                         }
 
                         #region maternal effects
                         foreach (Organism OM in Pop.Adults)
                         {
-                            // implement here
+                            
                             if (Shuffle.random.Next(0, 2) != 0)
                             {
                                 OM.SwapChromLists();
                             }
 
-                            OM.EmbryonicCas9Activity(MaternalHDRReduction);
+                            //OM.EmbryonicCas9Activity(MaternalHDRReduction);
 
                             OM.MaternalFactors.Clear();                            
                         }

@@ -14,9 +14,7 @@ namespace SMS
         public List<Organism> Adults;
         public List<Organism> Eggs;
 
-       
-
-        //---------------------- Population constructors Organisms -----------------------------------------------------
+        //---------------------- Population constructors  -----------------------------------------------------
 
         //new WT population
         public Population(int number)
@@ -74,20 +72,52 @@ namespace SMS
         }
 
         //new specific population
-        public Population(string type, int number)
+        public Population(string type)
         {
             this.Adults = new List<Organism>();
             this.Eggs = new List<Organism>();
 
-            if (type == "standard release")
+            if (type == "no resistance")
             {
-                for (int i = 0; i < number; i++)
+                for (int i = 0; i < 300; i++)
                 {
-                    this.Adults.Add(new Organism(Generate_DriveMale()));
+                    this.Adults.Add(new Organism(GenerateWTFemale()));
                 }
+                for (int i = 0; i < 120; i++)
+                {
+                    this.Adults.Add(new Organism(GenerateWTMale()));
+                }
+
+                for (int i = 0; i < 60; i++)
+                {
+                    this.Adults.Add(new Organism(GenerateZPG_Aper1_DriveMale()));
+                    this.Adults.Add(new Organism(GenerateZPG_AP2_DriveMale()));
+                    this.Adults.Add(new Organism(GenerateZPG_CP_DriveMale()));
+                }
+
+            }
+            else if (type == "resistance")
+            {
+
+                for (int i = 0; i < 300; i++)
+                {
+                    this.Adults.Add(new Organism(GenerateWTFemale()));
+                }
+                for (int i = 0; i < 120; i++)
+                {
+                    this.Adults.Add(new Organism(GenerateWTMale()));
+                }
+
+                for (int i = 0; i < 60; i++)
+                {
+                    this.Adults.Add(new Organism(GenerateZPG_Aper1_R1zpg_DriveMale()));
+                    this.Adults.Add(new Organism(GenerateZPG_AP2_DriveMale()));
+                    this.Adults.Add(new Organism(GenerateZPG_CP_DriveMale()));
+                }
+
             }
             else
-            throw new InvalidOperationException("Intervention not defined!");
+                throw new InvalidOperationException("Population not defined!");
 
             Shuffle.ShuffleList(this.Adults);
         }
@@ -100,19 +130,33 @@ namespace SMS
         {
             Organism WTFemale = new Organism();
 
-            GeneLocus FFERa = new GeneLocus("FFER", 1, "WT");
-            FFERa.Traits.Add("Conservation", 0.90F);
-            FFERa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus FFERb = new GeneLocus("FFER", 1, "WT");
-            FFERb.Traits.Add("Conservation", 0.90F);
-            FFERb.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus ZPGa = new GeneLocus("ZPG", 1, "WT");
+            ZPGa.Traits.Add("Conservation", 0.95F);
+            ZPGa.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus ZPGb = new GeneLocus("ZPG", 1, "WT");
+            ZPGb.Traits.Add("Conservation", 0.95F);
+            ZPGb.Traits.Add("Hom_Repair", 0.95F);
 
-            GeneLocus TRAa = new GeneLocus("TRA", 2, "WT");
-            TRAa.Traits.Add("Conservation", 0.90F);
-            TRAa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus TRAb = new GeneLocus("TRA", 2, "WT");
-            TRAb.Traits.Add("Conservation", 0.90F);
-            TRAb.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus Aper1a = new GeneLocus("Aper1", 2, "WT");
+            Aper1a.Traits.Add("Conservation", 0.95F);
+            Aper1a.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus Aper1b = new GeneLocus("Aper1", 2, "WT");
+            Aper1b.Traits.Add("Conservation", 0.95F);
+            Aper1b.Traits.Add("Hom_Repair", 0.95F);
+
+            GeneLocus AP2a = new GeneLocus("AP2", 3, "WT");
+            AP2a.Traits.Add("Conservation", 0.95F);
+            AP2a.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus AP2b = new GeneLocus("AP2", 3, "WT");
+            AP2b.Traits.Add("Conservation", 0.95F);
+            AP2b.Traits.Add("Hom_Repair", 0.95F);
+
+            GeneLocus CPa = new GeneLocus("CP", 1, "WT");
+            CPa.Traits.Add("Conservation", 0.95F);
+            CPa.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus CPb = new GeneLocus("CP", 1, "WT");
+            CPb.Traits.Add("Conservation", 0.95F);
+            CPb.Traits.Add("Hom_Repair", 0.95F);
 
             Chromosome ChromXa = new Chromosome("X", "Sex");
             Chromosome ChromXb = new Chromosome("X", "Sex");
@@ -121,11 +165,16 @@ namespace SMS
             Chromosome Chrom3a = new Chromosome("3", "3");
             Chromosome Chrom3b = new Chromosome("3", "3");
 
-            Chrom2a.GeneLocusList.Add(FFERa);
-            Chrom2b.GeneLocusList.Add(FFERb);
+            Chrom2a.GeneLocusList.Add(ZPGa);
+            Chrom2a.GeneLocusList.Add(Aper1a);
+            Chrom2a.GeneLocusList.Add(AP2a);
 
-            Chrom3a.GeneLocusList.Add(TRAa);
-            Chrom3b.GeneLocusList.Add(TRAb);
+            Chrom2b.GeneLocusList.Add(ZPGb);
+            Chrom2b.GeneLocusList.Add(Aper1b);
+            Chrom2b.GeneLocusList.Add(AP2b);
+
+            Chrom3a.GeneLocusList.Add(CPa);
+            Chrom3b.GeneLocusList.Add(CPb);
 
             WTFemale.ChromosomeListA.Add(ChromXa);
             WTFemale.ChromosomeListB.Add(ChromXb);
@@ -149,24 +198,89 @@ namespace SMS
             return WTMale;
         }
 
-        public Organism Generate_DriveMale()
+        public Organism GenerateZPG_DriveMale()
         {
-            Organism D_Male = new Organism(GenerateWTMale());
+            Organism ZPG_Male = new Organism(GenerateWTMale());
 
-            GeneLocus FFD = new GeneLocus("TRA", 1, "Transgene");
-            FFD.Traits.Add("Cas9", 0.95F);
-            FFD.Traits.Add("Cas9_maternal", 0F);
-            FFD.Traits.Add("gRNA_TRA", 1F);
-            FFD.Traits.Add("Hom_Repair", 0.95F);
+            GeneLocus ZPG_d = new GeneLocus("ZPG", 1, "Transgene");
+            ZPG_d.Traits.Add("Cas9", 0.99F);
+            ZPG_d.Traits.Add("Cas9_maternal", 0F);
+            ZPG_d.Traits.Add("gRNA_ZPG", 1F);
+            ZPG_d.Traits.Add("Hom_Repair", 0.96F);
 
-            Organism.ModifyAllele(ref D_Male.ChromosomeListA, FFD, "WT");
-            return D_Male;
+            Organism.ModifyAllele(ref ZPG_Male.ChromosomeListA, ZPG_d, "WT");
+            //Organism.ModifyAllele(ref ZPG_Male.ChromosomeListA, ZPG_d, "R1");
+
+            return ZPG_Male;
+        }
+
+        public Organism GenerateZPG_Aper1_DriveMale()
+        {
+            Organism ZPG_Aper1_Male = new Organism(GenerateZPG_DriveMale());
+
+            GeneLocus Aper1_d = new GeneLocus("Aper1", 2, "Transgene");
+            Aper1_d.Traits.Add("Cas9", 0F);
+            Aper1_d.Traits.Add("gRNA_Aper1", 1F);
+            Aper1_d.Traits.Add("Hom_Repair", 0.96F);
+
+            Organism.ModifyAllele(ref ZPG_Aper1_Male.ChromosomeListA, Aper1_d, "WT");
+
+            //GeneLocus ZPG_R1 = new GeneLocus("ZPG", 1, "R1");
+
+            //Organism.ModifyAllele(ref ZPG_Aper1_Male.ChromosomeListB, ZPG_R1, "WT");
+
+            return ZPG_Aper1_Male;
+        }
+
+        public Organism GenerateZPG_Aper1_R1zpg_DriveMale()
+        {
+            Organism ZPG_Aper1_Male = new Organism(GenerateZPG_DriveMale());
+
+            GeneLocus Aper1_d = new GeneLocus("Aper1", 2, "Transgene");
+            Aper1_d.Traits.Add("Cas9", 0F);
+            Aper1_d.Traits.Add("gRNA_Aper1", 1F);
+            Aper1_d.Traits.Add("Hom_Repair", 0.96F);
+
+            Organism.ModifyAllele(ref ZPG_Aper1_Male.ChromosomeListA, Aper1_d, "WT");
+
+            GeneLocus ZPG_R1 = new GeneLocus("ZPG", 1, "R1");
+
+            Organism.ModifyAllele(ref ZPG_Aper1_Male.ChromosomeListB, ZPG_R1, "WT");
+
+            return ZPG_Aper1_Male;
+        }
+
+        public Organism GenerateZPG_CP_DriveMale()
+        {
+            Organism ZPG_CP_Male = new Organism(GenerateZPG_DriveMale());
+
+            GeneLocus CP_d = new GeneLocus("CP", 2, "Transgene");
+            CP_d.Traits.Add("Cas9", 0F);
+            CP_d.Traits.Add("gRNA_CP", 1F);
+            CP_d.Traits.Add("Hom_Repair", 0.99F);
+
+            Organism.ModifyAllele(ref ZPG_CP_Male.ChromosomeListA, CP_d, "WT");
+
+            return ZPG_CP_Male;
+        }
+
+        public Organism GenerateZPG_AP2_DriveMale()
+        {
+            Organism ZPG_AP2_Male = new Organism(GenerateZPG_DriveMale());
+
+            GeneLocus AP2_d = new GeneLocus("AP2", 2, "Transgene");
+            AP2_d.Traits.Add("Cas9", 0F);
+            AP2_d.Traits.Add("gRNA_AP2", 1F);
+            AP2_d.Traits.Add("Hom_Repair", 0.96F);
+
+            Organism.ModifyAllele(ref ZPG_AP2_Male.ChromosomeListA, AP2_d, "WT");
+
+            return ZPG_AP2_Male;
         }
 
 
         //----------------------- Population methods ----------------------------------------------------
 
-        
 
         public List<Organism> PerformCross(Organism Dad, Organism Mum, int GlobalEggsPerFemale)
         {
@@ -182,8 +296,6 @@ namespace SMS
 
             return EggList;
         }
-
-
 
         public void ReproduceToEggs(float m,int cap, int GlobalEggsPerFemale)
         {
