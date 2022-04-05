@@ -10,14 +10,14 @@ namespace SMS
     {
         // Properties
         public string GeneName;
-        public int GenePosition;
+        public float GenePosition;
         public string AlleleName;
       
         //public List<(string, int)> Traits;
         public Dictionary<string, dynamic> Traits;
 
         //Constructor
-        public GeneLocus(string iGeneName, int iGenePosition, string iAlleleName)
+        public GeneLocus(string iGeneName, float iGenePosition, string iAlleleName)
         {
             this.GeneName = iGeneName;
             this.GenePosition = iGenePosition;
@@ -46,6 +46,21 @@ namespace SMS
             {
                 this.Traits.Add(ParentTrait.Key, ParentTrait.Value);
             }
+        }
+
+        public float RecFreq(GeneLocus Other)
+        {
+            var dis = Math.Abs(this.GenePosition - Other.GenePosition);
+            
+            if (dis > 0.5F)
+                return 0.5F;
+            else
+                return dis;
+        }
+
+        public float Distance(GeneLocus Other)
+        {
+           return Math.Abs(this.GenePosition - Other.GenePosition);
         }
     }
 }

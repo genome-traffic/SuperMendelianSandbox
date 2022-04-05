@@ -157,19 +157,55 @@ namespace SMS
                 }
                 #endregion
 
-                
-                #region recombining the two homologous chroms to create new chrom
 
+                #region recombining the two homologous chroms to create new chrom
+                bool listone = true;
                 for (var i = 0; i < HC1.GeneLocusList.Count; i++)
                 {
-                    if (Shuffle.random.Next(0, 2) != 0)
+                     
+                    if (i == 0)
                     {
-                        this.GeneLocusList.Add(new GeneLocus(HC1.GeneLocusList[i]));
+                        if (Shuffle.random.Next(0, 2) != 0)
+                        {
+                            this.GeneLocusList.Add(new GeneLocus(HC1.GeneLocusList[i]));
+                            listone = true;
+                        }
+                        else
+                        {
+                            this.GeneLocusList.Add(new GeneLocus(HC2.GeneLocusList[i]));
+                            listone = false;
+                        }
                     }
                     else
                     {
-                        this.GeneLocusList.Add(new GeneLocus(HC2.GeneLocusList[i]));
+                        if (listone == true)
+                        {
+                            if (HC1.GeneLocusList[i].RecFreq(HC1.GeneLocusList[i - 1]) < (float)Shuffle.random.NextDouble())
+                            {
+                                this.GeneLocusList.Add(new GeneLocus(HC1.GeneLocusList[i]));
+                            }
+                            else
+                            {
+                                this.GeneLocusList.Add(new GeneLocus(HC2.GeneLocusList[i]));
+                                listone = false;
+                            }
+                        }
+                        else
+                        {
+                            if (HC2.GeneLocusList[i].RecFreq(HC2.GeneLocusList[i - 1]) < (float)Shuffle.random.NextDouble())
+                            {
+                                this.GeneLocusList.Add(new GeneLocus(HC2.GeneLocusList[i]));
+                            }
+                            else
+                            {
+                                this.GeneLocusList.Add(new GeneLocus(HC1.GeneLocusList[i]));
+                                listone = true;
+                            }
+                        }
                     }
+
+
+
                 }
             }
             #endregion

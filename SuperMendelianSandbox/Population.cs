@@ -130,31 +130,31 @@ namespace SMS
         {
             Organism WTFemale = new Organism();
 
-            GeneLocus ZPGa = new GeneLocus("ZPG", 1, "WT");
+            GeneLocus ZPGa = new GeneLocus("ZPG", 1F, "WT");
             ZPGa.Traits.Add("Conservation", 0.95F);
             ZPGa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus ZPGb = new GeneLocus("ZPG", 1, "WT");
+            GeneLocus ZPGb = new GeneLocus("ZPG", 1F, "WT");
             ZPGb.Traits.Add("Conservation", 0.95F);
             ZPGb.Traits.Add("Hom_Repair", 0.95F);
 
-            GeneLocus Aper1a = new GeneLocus("Aper1", 2, "WT");
+            GeneLocus Aper1a = new GeneLocus("Aper1", 2F, "WT");
             Aper1a.Traits.Add("Conservation", 0.95F);
             Aper1a.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus Aper1b = new GeneLocus("Aper1", 2, "WT");
+            GeneLocus Aper1b = new GeneLocus("Aper1", 2F, "WT");
             Aper1b.Traits.Add("Conservation", 0.95F);
             Aper1b.Traits.Add("Hom_Repair", 0.95F);
 
-            GeneLocus AP2a = new GeneLocus("AP2", 3, "WT");
+            GeneLocus AP2a = new GeneLocus("AP2", 3F, "WT");
             AP2a.Traits.Add("Conservation", 0.95F);
             AP2a.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus AP2b = new GeneLocus("AP2", 3, "WT");
+            GeneLocus AP2b = new GeneLocus("AP2", 3F, "WT");
             AP2b.Traits.Add("Conservation", 0.95F);
             AP2b.Traits.Add("Hom_Repair", 0.95F);
 
-            GeneLocus CPa = new GeneLocus("CP", 1, "WT");
+            GeneLocus CPa = new GeneLocus("CP", 1F, "WT");
             CPa.Traits.Add("Conservation", 0.95F);
             CPa.Traits.Add("Hom_Repair", 0.95F);
-            GeneLocus CPb = new GeneLocus("CP", 1, "WT");
+            GeneLocus CPb = new GeneLocus("CP", 1F, "WT");
             CPb.Traits.Add("Conservation", 0.95F);
             CPb.Traits.Add("Hom_Repair", 0.95F);
 

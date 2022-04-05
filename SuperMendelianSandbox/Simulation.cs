@@ -24,8 +24,6 @@ namespace SMS
         public int Sample = 47;
 
         public bool ApplyIntervention = false;
-        public int StartingNumberOfWTFemales = 250;
-        public int StartingNumberOfWTMales = 250;
         public int StartIntervention = 2;
         public int EndIntervention = 2;
         public int InterventionReleaseNumber = 125;
@@ -84,7 +82,7 @@ namespace SMS
                                 OM.SwapChromLists();
                             }
 
-                            //OM.EmbryonicCas9Activity(MaternalHDRReduction);
+                            OM.EmbryonicCas9Activity(MaternalHDRReduction);
 
                             OM.MaternalFactors.Clear();                            
                         }
