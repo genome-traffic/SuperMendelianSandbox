@@ -7,11 +7,12 @@ namespace SMS
 {
     class Organism
     {
-        public List<Chromosome> ChromosomeListA;
-        public List<Chromosome> ChromosomeListB;
+        public List<Chromosome> ChromosomeListA
+        {get;set;}
+        public List<Chromosome> ChromosomeListB
+        {get;set;}
 
-        
-        public Dictionary<string, dynamic> MaternalFactors;
+        Dictionary<string, dynamic> MaternalFactors;
 
         //new organism (ex nihilo)
         public Organism()
@@ -78,29 +79,40 @@ namespace SMS
             return GametChroms;
         }
 
-        public static void ModifyAllele(ref List<Chromosome> ChromList, GeneLocus NewLocus, string Replace)
+        public void ModifyAllele(string AorB, GeneLocus NewLocus, string AlleleToReplace)
         {
-            foreach (Chromosome Chrom in ChromList)
-            {
-                foreach (GeneLocus GL in Chrom.GeneLocusList)
+            if (AorB == "A")
+                foreach (Chromosome Chrom in this.ChromosomeListA)
                 {
-                    if (GL.GeneName == NewLocus.GeneName)
+                    foreach (GeneLocus GL in Chrom.GeneLocusList)
                     {
-                        if (GL.AlleleName == Replace)
+                        if (GL.IsSameGene(NewLocus))
                         {
-                            GL.AlleleName = NewLocus.AlleleName;
-                            GL.GeneName = NewLocus.GeneName;
-                            GL.GenePosition = NewLocus.GenePosition;
-
-                            GL.Traits.Clear();
-                            foreach (var NewTrait in NewLocus.Traits)
+                            if (GL.IsSameAllele(AlleleToReplace))
                             {
-                                GL.Traits.Add(NewTrait.Key, NewTrait.Value);
+                                GL.InheritAll(NewLocus);
                             }
                         }
                     }
                 }
-            }
+            else if (AorB == "B")
+                foreach (Chromosome Chrom in this.ChromosomeListB)
+                {
+                    foreach (GeneLocus GL in Chrom.GeneLocusList)
+                    {
+                        if (GL.IsSameGene(NewLocus))
+                        {
+                            if (GL.IsSameAllele(AlleleToReplace))
+                            {
+                                GL.InheritAll(NewLocus);
+                            }
+                        }
+                    }
+                }
+            else
+                throw new ArgumentException("neither A nor B name");
+
+
         }
 
         public string GetSexChromKaryo()
@@ -110,7 +122,7 @@ namespace SMS
             //role of sex chromosomes
             foreach (Chromosome Chrom in this.ChromosomeListA)
             {
-                if (Chrom.HomologousPairName == "Sex")
+                if (Chrom.IsSexChrom())
                 {
                     karyo = Chrom.ChromosomeName;
                     break;
@@ -119,7 +131,7 @@ namespace SMS
 
             foreach (Chromosome Chrom in this.ChromosomeListB)
             {
-                if (Chrom.HomologousPairName == "Sex")
+                if (Chrom.IsSexChrom())
                 {
                     karyo += Chrom.ChromosomeName;
                     break;
@@ -139,7 +151,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == "MaleDeterminingLocus" && GL.AlleleName == "WT")
+                    if (GL.IsSameGene("MaleDeterminingLocus") && GL.IsSameAllele("WT"))
                         sex = "male";
                     return sex;
                 }
@@ -149,7 +161,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == "MaleDeterminingLocus" && GL.AlleleName == "WT")
+                    if (GL.IsSameGene("MaleDeterminingLocus") && GL.IsSameAllele("WT"))
                         sex = "male";
                     return sex;
                 }
@@ -169,7 +181,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene)
+                    if (GL.IsSameGene(WhichGene))
                     {
                         GT1 = GL.AlleleName;
                     }
@@ -181,7 +193,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene)
+                    if (GL.IsSameGene(WhichGene))
                     {
                         GT2 = GL.AlleleName;
                     }
@@ -250,7 +262,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene)
+                    if (GL.IsSameGene(WhichGene))
                     {
                         if (GL.AlleleName == WhichAllele)
                         { return true; }
@@ -263,7 +275,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene)
+                    if (GL.IsSameGene(WhichGene))
                     {
                         if (GL.AlleleName == WhichAllele)
                         { return true; }
@@ -281,7 +293,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus.GeneName)
+                    if (GL.IsSameGene(WhichLocus))
                     {
                         if (GL.AlleleName == WhichLocus.AlleleName)
                         { return true; }
@@ -294,7 +306,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus.GeneName)
+                    if (GL.IsSameGene(WhichLocus))
                     {
                         if (GL.AlleleName == WhichLocus.AlleleName)
                         { return true; }
@@ -314,7 +326,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene)
+                    if (GL.IsSameGene(WhichGene))
                     {
                         if (GL.AlleleName == WhichAllele)
                         { oneisthere = true; }
@@ -327,7 +339,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene)
+                    if (GL.IsSameGene(WhichGene))
                     {
                         if (GL.AlleleName == WhichAllele && oneisthere)
                         { return true; }
@@ -346,7 +358,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus.GeneName)
+                    if (GL.IsSameGene(WhichLocus))
                     {
                         if (GL.AlleleName == WhichLocus.AlleleName)
                         { oneisthere = true; }
@@ -359,7 +371,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus.GeneName)
+                    if (GL.IsSameGene(WhichLocus))
                     {
                         if (GL.AlleleName == WhichLocus.AlleleName && oneisthere)
                         { return true; }
@@ -380,10 +392,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene1)
+                    if (GL.IsSameGene(WhichGene1))
                     {
                         if (GL.AlleleName == WhichAllele1)
-                        { oneisthere = true; }
+                        {
+                            oneisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -393,10 +408,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene1)
+                    if (GL.IsSameGene(WhichGene1))
                     {
                         if (GL.AlleleName == WhichAllele1)
-                        { oneisthere = true; }
+                        {
+                            oneisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -407,10 +425,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene2)
+                    if (GL.IsSameGene(WhichGene2))
                     {
                         if (GL.AlleleName == WhichAllele2)
-                        { twoisthere = true; }
+                        {
+                            twoisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -420,10 +441,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichGene2)
+                    if (GL.IsSameGene(WhichGene2))
                     {
                         if (GL.AlleleName == WhichAllele2)
-                        { twoisthere = true; }
+                        {
+                            twoisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -442,10 +466,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus1.GeneName)
+                    if (GL.IsSameGene(WhichLocus1))
                     {
                         if (GL.AlleleName == WhichLocus1.AlleleName)
-                        { oneisthere = true; }
+                        {
+                            oneisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -455,10 +482,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus1.GeneName)
+                    if (GL.IsSameGene(WhichLocus1))
                     {
                         if (GL.AlleleName == WhichLocus1.AlleleName)
-                        { oneisthere = true; }
+                        {
+                            oneisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -469,10 +499,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus2.GeneName)
+                    if (GL.IsSameGene(WhichLocus2))
                     {
                         if (GL.AlleleName == WhichLocus2.AlleleName)
-                        { twoisthere = true; }
+                        {
+                            twoisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -482,10 +515,13 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.GeneName == WhichLocus2.GeneName)
+                    if (GL.IsSameGene(WhichLocus2))
                     {
                         if (GL.AlleleName == WhichLocus2.AlleleName)
-                        { twoisthere = true; }
+                        {
+                            twoisthere = true;
+                            break;
+                        }
                     }
 
                 }
@@ -497,20 +533,16 @@ namespace SMS
                 return false;
         }
 
-        public float GetTransgeneLevel(string whichtransgene)
+        public float GetTransgeneLevel(string whichtrait)
         {
-            float level = 0;
+            float level = 0F;
             foreach (Chromosome Chrom in this.ChromosomeListA)
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
                     if (GL.AlleleName == "Transgene")
                     {
-                        foreach (var (name, value) in GL.Traits)
-                        {
-                            if (name == whichtransgene)
-                                level += value;
-                        }
+                        level += GL.GetOutValue(whichtrait);
                     }
                 }
             }
@@ -521,11 +553,7 @@ namespace SMS
                 {
                     if (GL.AlleleName == "Transgene")
                     {
-                        foreach (var (name, value) in GL.Traits)
-                        {
-                            if (name == whichtransgene)
-                                level += value;
-                        }
+                        level += GL.GetOutValue(whichtrait);
                     }
                 }
             }
@@ -561,14 +589,14 @@ namespace SMS
 
                     for (var c = 0; c < this.ChromosomeListA.Count; c++)
                     {
-                        if (this.ChromosomeListA[c].HomologousPairName == "Sex")
+                        if (this.ChromosomeListA[c].IsSexChrom())
                         continue;
 
                         for (var i = 0; i < this.ChromosomeListA[c].GeneLocusList.Count; i++)
                         {
-                            if (this.ChromosomeListA[c].GeneLocusList[i].GeneName == this.ChromosomeListB[c].GeneLocusList[i].GeneName)
+                            if (this.ChromosomeListA[c].GeneLocusList[i].IsSameGene(this.ChromosomeListB[c].GeneLocusList[i]))
                             {
-                                if (this.ChromosomeListA[c].GeneLocusList[i].GeneName == Simulation.Target_cognate_gRNA[u, 0])
+                                if (this.ChromosomeListA[c].GeneLocusList[i].IsSameGene(Simulation.Target_cognate_gRNA[u, 0]))
                                 {
                                     if (this.ChromosomeListA[c].GeneLocusList[i].AlleleName == "WT")
                                     {
@@ -578,8 +606,8 @@ namespace SMS
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
 
-                                            this.ChromosomeListB[c].GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
-                                            this.ChromosomeListA[c].GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
+                                            Hom_Repair = this.ChromosomeListB[c].GeneLocusList[i].GetOutValue("Hom_Repair");
+                                            Cons = this.ChromosomeListA[c].GeneLocusList[i].GetOutValue("Conservation");
 
                                             Hom_Repair = Hom_Repair * MaternalHDRReduction;
 
@@ -602,17 +630,17 @@ namespace SMS
                             }
                         }
                     }
-                    ///====================
+                    
                     for (var c = 0; c < this.ChromosomeListB.Count; c++)
                     {
-                        if (this.ChromosomeListB[c].HomologousPairName == "Sex")
+                        if (this.ChromosomeListB[c].IsSexChrom())
                             continue;
 
                         for (var i = 0; i < this.ChromosomeListB[c].GeneLocusList.Count; i++)
                         {
-                            if (this.ChromosomeListA[c].GeneLocusList[i].GeneName == this.ChromosomeListB[c].GeneLocusList[i].GeneName)
+                            if (this.ChromosomeListA[c].GeneLocusList[i].IsSameGene(this.ChromosomeListB[c].GeneLocusList[i]))
                             {
-                                if (this.ChromosomeListB[c].GeneLocusList[i].GeneName == Simulation.Target_cognate_gRNA[u, 0])
+                                if (this.ChromosomeListB[c].GeneLocusList[i].IsSameGene(Simulation.Target_cognate_gRNA[u, 0]))
                                 {
                                     if (this.ChromosomeListB[c].GeneLocusList[i].AlleleName == "WT")
                                     {
@@ -623,8 +651,8 @@ namespace SMS
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
 
-                                            this.ChromosomeListA[c].GeneLocusList[i].Traits.TryGetValue("Hom_Repair", out Hom_Repair);
-                                            this.ChromosomeListB[c].GeneLocusList[i].Traits.TryGetValue("Conservation", out Cons);
+                                            Hom_Repair = this.ChromosomeListA[c].GeneLocusList[i].GetOutValue("Hom_Repair");
+                                            Cons = this.ChromosomeListB[c].GeneLocusList[i].GetOutValue("Conservation");
 
                                             Hom_Repair = Hom_Repair * MaternalHDRReduction;
 
@@ -650,6 +678,8 @@ namespace SMS
 
                 }
             }
+
+            this.MaternalFactors.Clear();
         }
 
         public void SwapChromLists()
@@ -659,6 +689,8 @@ namespace SMS
             this.ChromosomeListA = this.ChromosomeListB;
             this.ChromosomeListA = TList;
         }
+
+       
 
         #endregion
     }

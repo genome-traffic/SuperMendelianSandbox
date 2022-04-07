@@ -31,10 +31,10 @@ namespace SMS
         string[] Track = { "ZPG", "Aper1", "CP", "AP2" };
 
         public static string[,] Target_cognate_gRNA = {
+                                                            { "ZPG", "gRNA_ZPG" },
                                                             { "Aper1", "gRNA_Aper1" },
-                                                            { "AP2", "gRNA_AP2" },
                                                             { "CP", "gRNA_CP" },
-                                                            { "ZPG", "gRNA_ZPG" }
+                                                            { "AP2", "gRNA_AP2" }
                                                        };
 
 
@@ -58,7 +58,7 @@ namespace SMS
                 {
                     Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
 
-                    //Population Pop = new Population(200);
+                    
                     //Population Pop = new Population("no resistance");
                     Population Pop = new Population("resistance");
 
@@ -69,24 +69,11 @@ namespace SMS
                         {
                             if ((cGenerations >= StartIntervention) && (cGenerations <= EndIntervention))
                             {
-                                //Pop = new Population(Pop, new Population("no resistance"));
+                                //do some releases
                             }
                         }
 
-                        #region maternal effects
-                        foreach (Organism OM in Pop.Adults)
-                        {
-                            
-                            if (Shuffle.random.Next(0, 2) != 0)
-                            {
-                                OM.SwapChromLists();
-                            }
-
-                            OM.EmbryonicCas9Activity(MaternalHDRReduction);
-
-                            OM.MaternalFactors.Clear();                            
-                        }
-                        #endregion
+                        Pop.Grow(MaternalHDRReduction);
 
                         #region output adult data to file
 

@@ -8,27 +8,56 @@ namespace SMS
 {
     class GeneLocus
     {
-        // Properties
-        public string GeneName;
-        public float GenePosition;
-        public string AlleleName;
-      
-        //public List<(string, int)> Traits;
-        public Dictionary<string, dynamic> Traits;
+        // Basic fields & properties
+        string genename;
+        public string GeneName
+        {
+            get { return genename; }
+            set { genename = value; }
+        }
+
+        string allelename;
+        string[] possiblealleles = { "R1", "R2", "Transgene", "WT" };
+        public string AlleleName
+        {
+            get { return allelename; }
+            set {
+                if (possiblealleles.Contains(value))
+                    allelename = value;
+                else
+                    throw new ArgumentException("not an allele name");
+            }
+        }
+
+        float GenePosition;
+
+        Dictionary<string, dynamic> Traits;
+        public void AddToTraits(string name, dynamic value)
+        {
+            this.Traits[name] = value;
+        }
+        public dynamic GetOutValue(string key)
+        {
+            dynamic output = 0F;
+            if (this.Traits.TryGetValue(key, out output))
+                return output;
+            else
+                return 0F;
+        }
 
         //Constructor
-        public GeneLocus(string iGeneName, float iGenePosition, string iAlleleName)
+        public GeneLocus(string iGeneName, float iGenePosition, string iallelename)
         {
             this.GeneName = iGeneName;
             this.GenePosition = iGenePosition;
-            this.AlleleName = iAlleleName;
+            this.allelename = iallelename;
             this.Traits = new Dictionary<string, dynamic>();
         }
 
         //Copy Constructor
         public GeneLocus(GeneLocus Old)
         {
-            this.AlleleName = Old.AlleleName;
+            this.allelename = Old.allelename;
             this.GeneName = Old.GeneName;
             this.GenePosition = Old.GenePosition;
 
@@ -48,6 +77,19 @@ namespace SMS
             }
         }
 
+        public void InheritAll(GeneLocus Parent)
+        {
+            this.Traits.Clear();
+            foreach (var ParentTrait in Parent.Traits)
+            {
+                this.Traits.Add(ParentTrait.Key, ParentTrait.Value);
+            }
+
+            this.GeneName = Parent.GeneName;
+            this.allelename = Parent.allelename;
+            this.GenePosition = Parent.GenePosition;
+        }
+
         public float RecFreq(GeneLocus Other)
         {
             var dis = Math.Abs(this.GenePosition - Other.GenePosition);
@@ -62,5 +104,38 @@ namespace SMS
         {
            return Math.Abs(this.GenePosition - Other.GenePosition);
         }
+
+        public bool IsSameGene(GeneLocus Other)
+        {
+            if (this.GeneName == Other.GeneName)
+                return true;
+            else
+                return false;
+        }
+
+        public bool IsSameGene(string Other)
+        {
+            if (this.GeneName == Other)
+                return true;
+            else
+                return false;
+        }
+
+        public bool IsSameAllele(GeneLocus Other)
+        {
+            if (this.allelename == Other.allelename)
+                return true;
+            else
+                return false;
+        }
+
+        public bool IsSameAllele(string Other)
+        {
+            if (this.allelename == Other)
+                return true;
+            else
+                return false;
+        }
+
     }
 }
