@@ -36,7 +36,7 @@ namespace SMS
         {
             this.Traits[name] = value;
         }
-        public dynamic GetOutValue(string key)
+        public dynamic GetOutTraitValue(string key)
         {
             dynamic output = 0F;
             if (this.Traits.TryGetValue(key, out output))

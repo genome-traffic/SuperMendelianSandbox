@@ -542,7 +542,7 @@ namespace SMS
                 {
                     if (GL.AlleleName == "Transgene")
                     {
-                        level += GL.GetOutValue(whichtrait);
+                        level += GL.GetOutTraitValue(whichtrait);
                     }
                 }
             }
@@ -553,7 +553,7 @@ namespace SMS
                 {
                     if (GL.AlleleName == "Transgene")
                     {
-                        level += GL.GetOutValue(whichtrait);
+                        level += GL.GetOutTraitValue(whichtrait);
                     }
                 }
             }
@@ -606,8 +606,8 @@ namespace SMS
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
 
-                                            Hom_Repair = this.ChromosomeListB[c].GeneLocusList[i].GetOutValue("Hom_Repair");
-                                            Cons = this.ChromosomeListA[c].GeneLocusList[i].GetOutValue("Conservation");
+                                            Hom_Repair = this.ChromosomeListB[c].GeneLocusList[i].GetOutTraitValue("Hom_Repair");
+                                            Cons = this.ChromosomeListA[c].GeneLocusList[i].GetOutTraitValue("Conservation");
 
                                             Hom_Repair = Hom_Repair * MaternalHDRReduction;
 
@@ -651,8 +651,8 @@ namespace SMS
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
 
-                                            Hom_Repair = this.ChromosomeListA[c].GeneLocusList[i].GetOutValue("Hom_Repair");
-                                            Cons = this.ChromosomeListB[c].GeneLocusList[i].GetOutValue("Conservation");
+                                            Hom_Repair = this.ChromosomeListA[c].GeneLocusList[i].GetOutTraitValue("Hom_Repair");
+                                            Cons = this.ChromosomeListB[c].GeneLocusList[i].GetOutTraitValue("Conservation");
 
                                             Hom_Repair = Hom_Repair * MaternalHDRReduction;
 

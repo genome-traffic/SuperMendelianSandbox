@@ -124,8 +124,8 @@ namespace SMS
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
 
-                                            Hom_Repair = HC2.GeneLocusList[i].GetOutValue("Hom_Repair");
-                                            Cons = HC1.GeneLocusList[i].GetOutValue("Conservation");
+                                            Hom_Repair = HC2.GeneLocusList[i].GetOutTraitValue("Hom_Repair");
+                                            Cons = HC1.GeneLocusList[i].GetOutTraitValue("Conservation");
                                             
                                             if (Hom_Repair >= (float)Shuffle.random.NextDouble())
                                             {
@@ -157,8 +157,8 @@ namespace SMS
                                             dynamic Hom_Repair = 0;
                                             dynamic Cons = 0;
 
-                                            Hom_Repair = HC1.GeneLocusList[i].GetOutValue("Hom_Repair");
-                                            Cons = HC2.GeneLocusList[i].GetOutValue("Conservation");
+                                            Hom_Repair = HC1.GeneLocusList[i].GetOutTraitValue("Hom_Repair");
+                                            Cons = HC2.GeneLocusList[i].GetOutTraitValue("Conservation");
 
                                             if (Hom_Repair >= (float)Shuffle.random.NextDouble())
                                             {

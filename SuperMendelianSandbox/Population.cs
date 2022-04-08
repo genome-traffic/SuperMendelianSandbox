@@ -327,7 +327,7 @@ namespace SMS
 
         }
 
-        public void Grow(float MaternalHDRReduction)
+        public void MaternalEffect(float MaternalHDRReduction)
         {
             foreach (Organism OM in this.Adults)
             {

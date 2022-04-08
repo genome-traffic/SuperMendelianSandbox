@@ -30,13 +30,10 @@ namespace SMS
 
         string[] Track = { "ZPG", "Aper1", "CP", "AP2" };
 
-        public static string[,] Target_cognate_gRNA = {
-                                                            { "ZPG", "gRNA_ZPG" },
-                                                            { "Aper1", "gRNA_Aper1" },
-                                                            { "CP", "gRNA_CP" },
-                                                            { "AP2", "gRNA_AP2" }
-                                                       };
-
+        public static string[,] Target_cognate_gRNA = { { "ZPG", "gRNA_ZPG" },
+                                                        { "Aper1", "gRNA_Aper1" },
+                                                        { "CP", "gRNA_CP" },
+                                                        { "AP2", "gRNA_AP2" }};
 
         /*------------------------------- The Simulation ---------------------------------------------*/
 
@@ -58,7 +55,6 @@ namespace SMS
                 {
                     Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
 
-                    
                     //Population Pop = new Population("no resistance");
                     Population Pop = new Population("resistance");
 
@@ -72,8 +68,6 @@ namespace SMS
                                 //do some releases
                             }
                         }
-
-                        Pop.Grow(MaternalHDRReduction);
 
                         #region output adult data to file
 
@@ -175,6 +169,8 @@ namespace SMS
 
                         Pop.ReproduceToEggs(Mortality,PopulationCap, GlobalEggsPerFemale);
 
+                        Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Pop.Eggs.Count.ToString(), "all");
+
                         int EggsToBeReturned = 0;
 
                         if (Pop.Eggs.Count <= PopulationCap)
@@ -187,9 +183,9 @@ namespace SMS
                             Pop.Adults.Add(new Organism(Pop.Eggs[na]));
                         }
 
-                        Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Pop.Eggs.Count.ToString(), "all");
-
                         Pop.Eggs.Clear();
+
+                        Pop.MaternalEffect(MaternalHDRReduction);
 
                         #endregion
 
