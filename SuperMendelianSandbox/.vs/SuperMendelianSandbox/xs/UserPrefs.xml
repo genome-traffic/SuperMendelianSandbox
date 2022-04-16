@@ -3,21 +3,20 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Population.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Organism.cs">
     <Files>
-      <File FileName="Simulation.cs" Line="188" Column="43" />
-      <File FileName="Chromosome.cs" Line="161" Column="84" />
-      <File FileName="Shuffle.cs" Line="28" Column="1" />
-      <File FileName="Organism.cs" Line="655" Column="104" />
-      <File FileName="GeneLocus.cs" Line="39" Column="35" />
-      <File FileName="Population.cs" Line="330" Column="35" />
+      <File FileName="Simulation.cs" Line="184" Column="63" />
+      <File FileName="Chromosome.cs" Line="185" Column="1" />
+      <File FileName="Organism.cs" Line="698" Column="20" />
+      <File FileName="GeneLocus.cs" Line="35" Column="9" />
+      <File FileName="Population.cs" Line="37" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="SuperMendelianSandbox" expanded="True">
             <Node name="SuperMendelianSandbox" expanded="True">
-              <Node name="Population.cs" selected="True" />
+              <Node name="Organism.cs" selected="True" />
             </Node>
           </Node>
         </State>

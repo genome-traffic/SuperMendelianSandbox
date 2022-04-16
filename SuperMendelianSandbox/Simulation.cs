@@ -14,26 +14,23 @@ namespace SMS
 
         /*-------------------- Simulation Parameters ---------------------------------*/
 
-        public int Generations = 11;
+        public int Generations = 20;
         public int Iterations = 25;
 
         public int PopulationCap = 600;
         public float Mortality = 0.1f;
-        public float MaternalHDRReduction = 0.05F;
-        public int GlobalEggsPerFemale = 80;
-        public int Sample = 47;
+        public float ZygoticHDRReduction = 0.95F;
+        public int GlobalEggsPerFemale = 50;
+        public int Sample = 48;
 
-        public bool ApplyIntervention = false;
+        public bool ApplyIntervention = true;
         public int StartIntervention = 2;
         public int EndIntervention = 2;
         public int InterventionReleaseNumber = 125;
 
-        string[] Track = { "ZPG", "Aper1", "CP", "AP2" };
+        string[] Track = { "TRA", "FFER" };
 
-        public static string[,] Target_cognate_gRNA = { { "ZPG", "gRNA_ZPG" },
-                                                        { "Aper1", "gRNA_Aper1" },
-                                                        { "CP", "gRNA_CP" },
-                                                        { "AP2", "gRNA_AP2" }};
+        public static string[,] Target_cognate_gRNA = { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" } };
 
         /*------------------------------- The Simulation ---------------------------------------------*/
 
@@ -55,8 +52,8 @@ namespace SMS
                 {
                     Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
 
-                    //Population Pop = new Population("no resistance");
-                    Population Pop = new Population("resistance");
+
+                    Population Pop = new Population(200);
 
 
                     for (int cGenerations = 1; cGenerations <= Generations; cGenerations++)
@@ -65,7 +62,7 @@ namespace SMS
                         {
                             if ((cGenerations >= StartIntervention) && (cGenerations <= EndIntervention))
                             {
-                                //do some releases
+                                Pop = new Population(Pop, new Population("standard release", InterventionReleaseNumber));
                             }
                         }
 
@@ -162,7 +159,6 @@ namespace SMS
                         Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Sex_Karyotype", "XY", "NA", numberofXY, "all");
 
 
-
                         #endregion
 
                         #region Cross all adults and return eggs for next generation
@@ -185,7 +181,7 @@ namespace SMS
 
                         Pop.Eggs.Clear();
 
-                        Pop.MaternalEffect(MaternalHDRReduction);
+                        Pop.ParentalEffect(ZygoticHDRReduction);
 
                         #endregion
 

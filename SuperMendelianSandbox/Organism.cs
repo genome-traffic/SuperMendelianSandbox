@@ -12,14 +12,14 @@ namespace SMS
         public List<Chromosome> ChromosomeListB
         {get;set;}
 
-        Dictionary<string, dynamic> MaternalFactors;
+        Dictionary<string, float> ParentalFactors;
 
         //new organism (ex nihilo)
         public Organism()
         {
             this.ChromosomeListA = new List<Chromosome>();
             this.ChromosomeListB = new List<Chromosome>();
-            this.MaternalFactors = new Dictionary<string, dynamic>();
+            this.ParentalFactors = new Dictionary<string, float>();
         }
 
         //new organism (clone) 
@@ -38,11 +38,11 @@ namespace SMS
                 this.ChromosomeListB.Add(new Chromosome(item));
             });
 
-            this.MaternalFactors = new Dictionary<string, dynamic>();
+            this.ParentalFactors = new Dictionary<string, float>();
 
-            foreach (var OldFactor in Old.MaternalFactors)
+            foreach (var OldFactor in Old.ParentalFactors)
             {
-                this.MaternalFactors.Add(OldFactor.Key, OldFactor.Value);
+                this.ParentalFactors.Add(OldFactor.Key, OldFactor.Value);
             }
 
         }
@@ -56,17 +56,69 @@ namespace SMS
             this.ChromosomeListA.AddRange(Dad.GetGametChromosomeList());
             this.ChromosomeListB.AddRange(Mum.GetGametChromosomeList());
 
-            //determine maternal factors
-            this.MaternalFactors = new Dictionary<string, dynamic>();
-            this.MaternalFactors.Add("Cas9", Mum.GetTransgeneLevel("Cas9_maternal"));
+            this.ParentalFactors = new Dictionary<string, float>();
+
+            //determine parental factors
+
+            #region Cas9/gRNA deposition
+            float Cas9deposit = 0;
+            Cas9deposit = Mum.GetTransgeneLevel("Cas9_maternal") + Dad.GetTransgeneLevel("Cas9_paternal");
+
+            if (Cas9deposit > 1)
+                Cas9deposit = 1;
+            else if (Cas9deposit < 0)
+                Cas9deposit = 0;
+
+            this.ParentalFactors.Add("Cas9", Cas9deposit);
 
             for (int u = 0; u < Simulation.Target_cognate_gRNA.GetLength(0); u++)
             {
-                this.MaternalFactors.Add(Simulation.Target_cognate_gRNA[u, 1], Mum.GetTransgeneLevel(Simulation.Target_cognate_gRNA[u, 1]));
+                float gRNAdeposit = 0;
+                gRNAdeposit = Mum.GetTransgeneLevel(Simulation.Target_cognate_gRNA[u, 1]) + Dad.GetTransgeneLevel(Simulation.Target_cognate_gRNA[u, 1]);
+
+                if (gRNAdeposit > 1)
+                    gRNAdeposit = 1;
+                else if (gRNAdeposit < 0)
+                    gRNAdeposit = 0;
+
+                this.ParentalFactors.Add(Simulation.Target_cognate_gRNA[u, 1], gRNAdeposit);
             }
+            #endregion
+
+            #region determine maternal TRA provision
+
+            this.ParentalFactors["TRA_mRNA"] = 0F;
+
+            if (Mum.AllelePresent("TRA", "R1"))
+            { this.ParentalFactors["TRA_mRNA"] = 1F; }
+            else
+            {
+                if (!(Mum.AllelePresent("TRA", "WT")))
+                { this.ParentalFactors["TRA_mRNA"] = 0F; }
+                else
+                {
+                    float Cas9level = Mum.GetTransgeneLevel("Cas9_female");
+                    float tragRNAlevel = Mum.GetTransgeneLevel("gRNA_TRA");
+
+                    if (Cas9level >= (float)Shuffle.random.NextDouble() && tragRNAlevel >= (float)Shuffle.random.NextDouble())
+                    { this.ParentalFactors["TRA_mRNA"] = 0F; }
+                    else
+                    { this.ParentalFactors["TRA_mRNA"] = 1F; }
+
+                }
+            }
+            
+            #endregion
+
+
         }
 
         #region Organism methods
+
+        public void AddToParentalFactors(string name, float value)
+        {
+            this.ParentalFactors[name] = value;
+        }
 
         public List<Chromosome> GetGametChromosomeList()
         {
@@ -151,9 +203,8 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.IsSameGene("MaleDeterminingLocus") && GL.IsSameAllele("WT"))
-                        sex = "male";
-                    return sex;
+                    if (GL.IsSameGene("MoY") && GL.IsSameAllele("WT"))
+                    sex = "male";
                 }
             }
 
@@ -161,14 +212,37 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.IsSameGene("MaleDeterminingLocus") && GL.IsSameAllele("WT"))
-                        sex = "male";
-                    return sex;
+                    if (GL.IsSameGene("MoY") && GL.IsSameAllele("WT"))
+                    sex = "male";
                 }
             }
 
-            return sex;
+            //role of transformer
+            
+            if (this.ParentalFactors["TRA_mRNA"] < 1F)
+            { return "male"; }
 
+            if (this.AllelePresent("TRA", "WT") || this.AllelePresent("TRA", "R1"))
+            { return sex; }
+            else
+            { return "male"; }
+
+        }
+
+        public bool IsMale()
+        {
+            if (this.GetSex() == "male")
+                return true;
+            else
+                return false;
+        }
+
+        public bool IsFemale()
+        {
+            if (this.GetSex() == "male")
+                return false;
+            else
+                return true;
         }
 
         public string GetGenotype(string WhichGene)
@@ -216,34 +290,34 @@ namespace SMS
 
             if (this.GetSex() == "male")
             {
-                if (this.AlleleHomozygous("ZPG", "Transgene"))
-                { fer -= 0.59F; }
-                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
-                { fer = 0F; }
-                else if (this.AlleleHomozygous("ZPG", "R2"))
-                { fer = 0F; }
+                //if (this.AlleleHomozygous("ZPG", "Transgene"))
+                //{ fer -= 0.59F; }
+                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
+                //{ fer = 0F; }
+                //else if (this.AlleleHomozygous("ZPG", "R2"))
+                //{ fer = 0F; }
 
             }
             else
             {
-                if (this.AlleleHomozygous("ZPG", "Transgene"))
-                { fer = 0F; }
-                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
-                { fer = 0F; }
-                else if (this.AlleleHomozygous("ZPG", "R2"))
-                { fer = 0F; }
-                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "WT"))
-                { fer = 0F; }
+                //if (this.AlleleHomozygous("ZPG", "Transgene"))
+                //{ fer = 0F; }
+                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
+                //{ fer = 0F; }
+                //else if (this.AlleleHomozygous("ZPG", "R2"))
+                //{ fer = 0F; }
+                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "WT"))
+                //{ fer = 0F; }
             }
 
-            if (this.AlleleHomozygous("Aper1", "R2"))
-            { fer -= 0.25F; }
+            //if (this.AlleleHomozygous("Aper1", "R2"))
+            //{ fer -= 0.25F; }
 
-            if (this.AlleleHomozygous("AP2", "R2"))
-            { fer -= 0.25F; }
+            //if (this.AlleleHomozygous("AP2", "R2"))
+            //{ fer -= 0.25F; }
 
-            if (this.AlleleHomozygous("CP", "R2"))
-            { fer -= 0.25F; }
+            //if (this.AlleleHomozygous("CP", "R2"))
+            //{ fer -= 0.25F; }
 
 
             if (fer < 0F)
@@ -565,121 +639,60 @@ namespace SMS
 
         }
 
-        public void EmbryonicCas9Activity(float MaternalHDRReduction)
+        public void ZygoticCas9Activity(float ZygoticHDRReduction)
         {
-            dynamic Cas9level = 0;
+            float Cas9level_mat;
 
-            if (!this.MaternalFactors.TryGetValue("Cas9", out Cas9level))
+            if (!this.ParentalFactors.TryGetValue("Cas9_maternal", out Cas9level_mat))
             {
-                // the key isn't in the dictionary.
-                return;
+                Cas9level_mat = 0;
             }
+
+            float Cas9level_pat;
+
+            if (!this.ParentalFactors.TryGetValue("Cas9_maternal", out Cas9level_pat))
+            {
+                Cas9level_pat = 0;
+            }
+
+            float Cas9level = Cas9level_mat + Cas9level_pat;
+
+            if (Cas9level > 1)
+                Cas9level = 1;
 
             if (Cas9level > 0)
             {
                 for (int u = 0; u < Simulation.Target_cognate_gRNA.GetLength(0); u++)
                 {
-                    dynamic gRNAlevel = 0;
+                    float gRNAlevel = 0;
 
-                    if (!this.MaternalFactors.TryGetValue(Simulation.Target_cognate_gRNA[u, 1], out gRNAlevel))
+                    if (!this.ParentalFactors.TryGetValue(Simulation.Target_cognate_gRNA[u, 1], out gRNAlevel))
                     {
-                        // the key isn't in the dictionary.
                         continue;
                     }
+                    string gRNAtarget = Simulation.Target_cognate_gRNA[u, 0];
+
 
                     for (var c = 0; c < this.ChromosomeListA.Count; c++)
                     {
                         if (this.ChromosomeListA[c].IsSexChrom())
                         continue;
 
-                        for (var i = 0; i < this.ChromosomeListA[c].GeneLocusList.Count; i++)
-                        {
-                            if (this.ChromosomeListA[c].GeneLocusList[i].IsSameGene(this.ChromosomeListB[c].GeneLocusList[i]))
-                            {
-                                if (this.ChromosomeListA[c].GeneLocusList[i].IsSameGene(Simulation.Target_cognate_gRNA[u, 0]))
-                                {
-                                    if (this.ChromosomeListA[c].GeneLocusList[i].AlleleName == "WT")
-                                    {
-                                        //Console.WriteLine("WT in A ready for maternal modification!");
-                                        if (Cas9level >= (float)Shuffle.random.NextDouble() && gRNAlevel >= (float)Shuffle.random.NextDouble())
-                                        {
-                                            dynamic Hom_Repair = 0;
-                                            dynamic Cons = 0;
+                        this.ChromosomeListA[c].CutAndHomeInto(this.ChromosomeListB[c], this.GetSex(), Cas9level, gRNAlevel, gRNAtarget, ZygoticHDRReduction);
 
-                                            Hom_Repair = this.ChromosomeListB[c].GeneLocusList[i].GetOutTraitValue("Hom_Repair");
-                                            Cons = this.ChromosomeListA[c].GeneLocusList[i].GetOutTraitValue("Conservation");
-
-                                            Hom_Repair = Hom_Repair * MaternalHDRReduction;
-
-                                            if (Hom_Repair >= (float)Shuffle.random.NextDouble())
-                                            {
-                                                this.ChromosomeListA[c].GeneLocusList[i].AlleleName = this.ChromosomeListB[c].GeneLocusList[i].AlleleName;
-                                                this.ChromosomeListA[c].GeneLocusList[i].InheritTraits(this.ChromosomeListB[c].GeneLocusList[i]);
-                                            }
-                                            else
-                                            {
-                                                //Console.WriteLine("List A maternal modification!");
-                                                if (Cons >= (float)Shuffle.random.NextDouble())
-                                                    this.ChromosomeListA[c].GeneLocusList[i].AlleleName = "R2";
-                                                else
-                                                    this.ChromosomeListA[c].GeneLocusList[i].AlleleName = "R1";
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                     
                     for (var c = 0; c < this.ChromosomeListB.Count; c++)
                     {
                         if (this.ChromosomeListB[c].IsSexChrom())
-                            continue;
+                        continue;
 
-                        for (var i = 0; i < this.ChromosomeListB[c].GeneLocusList.Count; i++)
-                        {
-                            if (this.ChromosomeListA[c].GeneLocusList[i].IsSameGene(this.ChromosomeListB[c].GeneLocusList[i]))
-                            {
-                                if (this.ChromosomeListB[c].GeneLocusList[i].IsSameGene(Simulation.Target_cognate_gRNA[u, 0]))
-                                {
-                                    if (this.ChromosomeListB[c].GeneLocusList[i].AlleleName == "WT")
-                                    {
-                                        //Console.WriteLine("WT in B ready for maternal modification!");
+                        this.ChromosomeListB[c].CutAndHomeInto(this.ChromosomeListA[c], this.GetSex(), Cas9level, gRNAlevel, gRNAtarget, ZygoticHDRReduction);
 
-                                        if (Cas9level >= (float)Shuffle.random.NextDouble() && gRNAlevel >= (float)Shuffle.random.NextDouble())
-                                        {
-                                            dynamic Hom_Repair = 0;
-                                            dynamic Cons = 0;
-
-                                            Hom_Repair = this.ChromosomeListA[c].GeneLocusList[i].GetOutTraitValue("Hom_Repair");
-                                            Cons = this.ChromosomeListB[c].GeneLocusList[i].GetOutTraitValue("Conservation");
-
-                                            Hom_Repair = Hom_Repair * MaternalHDRReduction;
-
-                                            if (Hom_Repair >= (float)Shuffle.random.NextDouble())
-                                            {
-                                                this.ChromosomeListB[c].GeneLocusList[i].AlleleName = this.ChromosomeListA[c].GeneLocusList[i].AlleleName;
-                                                this.ChromosomeListB[c].GeneLocusList[i].InheritTraits(this.ChromosomeListA[c].GeneLocusList[i]);
-                                            }
-                                            else
-                                            {
-                                                //Console.WriteLine("List B maternal modification!");
-                                                if (Cons >= (float)Shuffle.random.NextDouble())
-                                                    this.ChromosomeListB[c].GeneLocusList[i].AlleleName = "R2";
-                                                else
-                                                    this.ChromosomeListB[c].GeneLocusList[i].AlleleName = "R1";
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
 
                 }
             }
-
-            this.MaternalFactors.Clear();
         }
 
         public void SwapChromLists()
@@ -689,8 +702,6 @@ namespace SMS
             this.ChromosomeListA = this.ChromosomeListB;
             this.ChromosomeListA = TList;
         }
-
-       
 
         #endregion
     }

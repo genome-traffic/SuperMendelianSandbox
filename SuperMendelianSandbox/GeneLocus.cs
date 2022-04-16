@@ -31,14 +31,14 @@ namespace SMS
 
         float GenePosition;
 
-        Dictionary<string, dynamic> Traits;
-        public void AddToTraits(string name, dynamic value)
+        Dictionary<string, float> Traits;
+        public void AddToTraits(string name, float value)
         {
             this.Traits[name] = value;
         }
-        public dynamic GetOutTraitValue(string key)
+        public float GetOutTraitValue(string key)
         {
-            dynamic output = 0F;
+            float output = 0F;
             if (this.Traits.TryGetValue(key, out output))
                 return output;
             else
@@ -51,7 +51,7 @@ namespace SMS
             this.GeneName = iGeneName;
             this.GenePosition = iGenePosition;
             this.allelename = iallelename;
-            this.Traits = new Dictionary<string, dynamic>();
+            this.Traits = new Dictionary<string, float>();
         }
 
         //Copy Constructor
@@ -61,7 +61,7 @@ namespace SMS
             this.GeneName = Old.GeneName;
             this.GenePosition = Old.GenePosition;
 
-            this.Traits = new Dictionary<string, dynamic>();
+            this.Traits = new Dictionary<string, float>();
             foreach (var OldTrait in Old.Traits)
             {
                 this.Traits.Add(OldTrait.Key, OldTrait.Value);        
