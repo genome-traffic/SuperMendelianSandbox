@@ -203,7 +203,7 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.IsSameGene("MoY") && GL.IsSameAllele("WT"))
+                    if (GL.IsSameGene("MaleDeterminingLocus") && GL.IsSameAllele("WT"))
                     sex = "male";
                 }
             }
@@ -212,20 +212,14 @@ namespace SMS
             {
                 foreach (GeneLocus GL in Chrom.GeneLocusList)
                 {
-                    if (GL.IsSameGene("MoY") && GL.IsSameAllele("WT"))
+                    if (GL.IsSameGene("MaleDeterminingLocus") && GL.IsSameAllele("WT"))
                     sex = "male";
                 }
             }
 
-            //role of transformer
             
-            if (this.ParentalFactors["TRA_mRNA"] < 1F)
-            { return "male"; }
-
-            if (this.AllelePresent("TRA", "WT") || this.AllelePresent("TRA", "R1"))
-            { return sex; }
-            else
-            { return "male"; }
+            return sex;
+            
 
         }
 
@@ -290,34 +284,34 @@ namespace SMS
 
             if (this.GetSex() == "male")
             {
-                //if (this.AlleleHomozygous("ZPG", "Transgene"))
-                //{ fer -= 0.59F; }
-                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHomozygous("ZPG", "R2"))
-                //{ fer = 0F; }
+                if (this.AlleleHomozygous("ZPG", "Transgene"))
+                { fer -= 0.59F; }
+                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHomozygous("ZPG", "R2"))
+                { fer = 0F; }
 
             }
             else
             {
-                //if (this.AlleleHomozygous("ZPG", "Transgene"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHomozygous("ZPG", "R2"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "WT"))
-                //{ fer = 0F; }
+                if (this.AlleleHomozygous("ZPG", "Transgene"))
+                { fer = 0F; }
+                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHomozygous("ZPG", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "WT"))
+                { fer = 0F; }
             }
 
-            //if (this.AlleleHomozygous("Aper1", "R2"))
-            //{ fer -= 0.25F; }
+            if (this.AlleleHomozygous("Aper1", "R2"))
+            { fer -= 0.25F; }
 
-            //if (this.AlleleHomozygous("AP2", "R2"))
-            //{ fer -= 0.25F; }
+            if (this.AlleleHomozygous("AP2", "R2"))
+            { fer -= 0.25F; }
 
-            //if (this.AlleleHomozygous("CP", "R2"))
-            //{ fer -= 0.25F; }
+            if (this.AlleleHomozygous("CP", "R2"))
+            { fer -= 0.25F; }
 
 
             if (fer < 0F)
@@ -326,7 +320,7 @@ namespace SMS
             { fer = 1F; }
 
             return fer;
-             
+
         }
 
         public bool AllelePresent(string WhichGene, string WhichAllele)
