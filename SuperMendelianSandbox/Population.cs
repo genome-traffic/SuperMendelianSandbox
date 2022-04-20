@@ -219,7 +219,7 @@ namespace SMS
             GeneLocus ZPG_d = new GeneLocus("ZPG", 1F, "Transgene");
             ZPG_d.AddToTraits("Cas9_male", 0.99F);
             ZPG_d.AddToTraits("Cas9_female", 0.99F);
-            ZPG_d.AddToTraits("Cas9_maternal", 0F);
+            ZPG_d.AddToTraits("Cas9_maternal", 0.1F);
             ZPG_d.AddToTraits("Cas9_paternal", 0F);
             ZPG_d.AddToTraits("gRNA_FFER", 1F);
             ZPG_d.AddToTraits("gRNA_ZPG", 1F);

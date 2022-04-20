@@ -3,13 +3,13 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="Simulation.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Population.cs">
     <Files>
       <File FileName="Simulation.cs" Line="22" Column="47" />
       <File FileName="Chromosome.cs" Line="130" Column="70" />
       <File FileName="Organism.cs" Line="636" Column="67" />
       <File FileName="GeneLocus.cs" Line="8" Column="2" />
-      <File FileName="Population.cs" Line="287" Column="44" />
+      <File FileName="Population.cs" Line="222" Column="51" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
