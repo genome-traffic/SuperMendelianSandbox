@@ -64,6 +64,7 @@ namespace SMS
             float Cas9deposit = 0;
             Cas9deposit = Mum.GetTransgeneLevel("Cas9_maternal") + Dad.GetTransgeneLevel("Cas9_paternal");
 
+
             if (Cas9deposit > 1)
                 Cas9deposit = 1;
             else if (Cas9deposit < 0)
@@ -641,24 +642,14 @@ namespace SMS
 
         public void ZygoticCas9Activity(float ZygoticHDRReduction)
         {
-            float Cas9level_mat;
-
-            if (!this.ParentalFactors.TryGetValue("Cas9_maternal", out Cas9level_mat))
+            
+            float Cas9level;
+            
+            if (!this.ParentalFactors.TryGetValue("Cas9", out Cas9level))
             {
-                Cas9level_mat = 0;
+                Cas9level = 0;
             }
-
-            float Cas9level_pat;
-
-            if (!this.ParentalFactors.TryGetValue("Cas9_maternal", out Cas9level_pat))
-            {
-                Cas9level_pat = 0;
-            }
-
-            float Cas9level = Cas9level_mat + Cas9level_pat;
-
-            if (Cas9level > 1)
-                Cas9level = 1;
+            
 
             if (Cas9level > 0)
             {
@@ -679,7 +670,7 @@ namespace SMS
                         continue;
 
                         this.ChromosomeListA[c].CutAndHomeInto(this.ChromosomeListB[c], this.GetSex(), Cas9level, gRNAlevel, gRNAtarget, ZygoticHDRReduction);
-
+                       
                     }
                     
                     for (var c = 0; c < this.ChromosomeListB.Count; c++)

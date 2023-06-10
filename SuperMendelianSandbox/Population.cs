@@ -74,6 +74,35 @@ namespace SMS
             Shuffle.ShuffleList(this.Adults);
         }
 
+        //new specific population
+        public Population(string type)
+        {
+            this.Adults = new List<Organism>();
+            this.Eggs = new List<Organism>();
+
+            if (type == "cage setup")
+            {
+
+                for (int i = 0; i < 500; i++)
+                {
+                    this.Adults.Add(new Organism(GenerateWTFemale()));
+                }
+
+                for (int i = 0; i < 250; i++)
+                {
+                    this.Adults.Add(new Organism(GenerateWTMale()));
+                }
+
+                for (int i = 0; i < 250; i++)
+                {
+                    this.Adults.Add(new Organism(Generate_DriveMale()));
+                }
+            }
+            else
+                throw new InvalidOperationException("setup not defined!");
+
+            Shuffle.ShuffleList(this.Adults);
+        }
 
         //---------------------- Define Organism Types -----------------------------------------------------
 
@@ -83,22 +112,22 @@ namespace SMS
             Organism WTFemale = new Organism();
 
             GeneLocus FFERa = new GeneLocus("FFER", 1F, "WT");
-            FFERa.AddToTraits("Conservation", 1F);
-            FFERa.AddToTraits("HomRepair_male", 0.959F);
-            FFERa.AddToTraits("HomRepair_female", 0.994F);
+            FFERa.AddToTraits("Conservation", Simulation.Param2);
+            FFERa.AddToTraits("HomRepair_male", 0.95F);
+            FFERa.AddToTraits("HomRepair_female", 0.95F);
             GeneLocus FFERb = new GeneLocus("FFER", 1F, "WT");
-            FFERb.AddToTraits("Conservation", 1F);
-            FFERb.AddToTraits("HomRepair_male", 0.959F);
-            FFERb.AddToTraits("HomRepair_female", 0.994F);
+            FFERb.AddToTraits("Conservation", Simulation.Param2);
+            FFERb.AddToTraits("HomRepair_male", 0.95F);
+            FFERb.AddToTraits("HomRepair_female", 0.95F);
 
             GeneLocus TRAa = new GeneLocus("TRA", 2F, "WT");
-            TRAa.AddToTraits("Conservation", 0.90F);
+            TRAa.AddToTraits("Conservation", Simulation.Param2);
             TRAa.AddToTraits("HomRepair_male", 0.95F);
             TRAa.AddToTraits("HomRepair_female", 0.95F);
             GeneLocus TRAb = new GeneLocus("TRA", 2F, "WT");
-            TRAb.AddToTraits("Conservation", 0.90F);
+            TRAb.AddToTraits("Conservation", Simulation.Param2);
             TRAb.AddToTraits("HomRepair_male", 0.95F);
-            TRAb.AddToTraits("HomRepair_female", 0.994F);
+            TRAb.AddToTraits("HomRepair_female", 0.95F);
 
             Chromosome ChromXa = new Chromosome("X", "Sex");
             Chromosome ChromXb = new Chromosome("X", "Sex");
@@ -141,19 +170,21 @@ namespace SMS
         {
             Organism D_Male = new Organism(GenerateWTMale());
 
-            GeneLocus FFD = new GeneLocus("FFER", 1F, "Transgene");
-            FFD.AddToTraits("Cas9_male", 1F);
-            FFD.AddToTraits("Cas9_female", 1F);
-            FFD.AddToTraits("Cas9_maternal", 0F);
-            FFD.AddToTraits("Cas9_paternal", 0F);
-            FFD.AddToTraits("gRNA_FFER", 1F);
-            FFD.AddToTraits("HomRepair_male", 0.959F);
-            FFD.AddToTraits("HomRepair_female", 0.994F);
+            GeneLocus TRADRIVE = new GeneLocus("TRA", 2F, "Transgene");
+            TRADRIVE.AddToTraits("Cas9_male", Simulation.Param1);
+            TRADRIVE.AddToTraits("Cas9_female", Simulation.Param1);
+            TRADRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
+            TRADRIVE.AddToTraits("Cas9_paternal", 0F);
+            TRADRIVE.AddToTraits("gRNA_TRA", 1F);
+            TRADRIVE.AddToTraits("HomRepair_male", 0.95F);
+            TRADRIVE.AddToTraits("HomRepair_female", 0.95F);
 
-            D_Male.ModifyAllele("A", FFD, "WT");
+            D_Male.ModifyAllele("A", TRADRIVE, "WT");
             return D_Male;
         }
 
+
+       
 
         //----------------------- Population methods ----------------------------------------------------
 
