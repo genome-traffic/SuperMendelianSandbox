@@ -113,21 +113,21 @@ namespace SMS
 
             GeneLocus FFERa = new GeneLocus("FFER", 1F, "WT");
             FFERa.AddToTraits("Conservation", Simulation.Param2);
-            FFERa.AddToTraits("HomRepair_male", 0.95F);
-            FFERa.AddToTraits("HomRepair_female", 0.95F);
+            FFERa.AddToTraits("HomRepair_male", Simulation.HomParam);
+            FFERa.AddToTraits("HomRepair_female", Simulation.HomParam);
             GeneLocus FFERb = new GeneLocus("FFER", 1F, "WT");
             FFERb.AddToTraits("Conservation", Simulation.Param2);
-            FFERb.AddToTraits("HomRepair_male", 0.95F);
-            FFERb.AddToTraits("HomRepair_female", 0.95F);
+            FFERb.AddToTraits("HomRepair_male", Simulation.HomParam);
+            FFERb.AddToTraits("HomRepair_female", Simulation.HomParam);
 
             GeneLocus TRAa = new GeneLocus("TRA", 2F, "WT");
             TRAa.AddToTraits("Conservation", Simulation.Param2);
-            TRAa.AddToTraits("HomRepair_male", 0.95F);
-            TRAa.AddToTraits("HomRepair_female", 0.95F);
+            TRAa.AddToTraits("HomRepair_male", Simulation.HomParam);
+            TRAa.AddToTraits("HomRepair_female", Simulation.HomParam);
             GeneLocus TRAb = new GeneLocus("TRA", 2F, "WT");
             TRAb.AddToTraits("Conservation", Simulation.Param2);
-            TRAb.AddToTraits("HomRepair_male", 0.95F);
-            TRAb.AddToTraits("HomRepair_female", 0.95F);
+            TRAb.AddToTraits("HomRepair_male", Simulation.HomParam);
+            TRAb.AddToTraits("HomRepair_female", Simulation.HomParam);
 
             Chromosome ChromXa = new Chromosome("X", "Sex");
             Chromosome ChromXb = new Chromosome("X", "Sex");
@@ -176,8 +176,8 @@ namespace SMS
             TRADRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
             TRADRIVE.AddToTraits("Cas9_paternal", 0F);
             TRADRIVE.AddToTraits("gRNA_TRA", 1F);
-            TRADRIVE.AddToTraits("HomRepair_male", 0.95F);
-            TRADRIVE.AddToTraits("HomRepair_female", 0.95F);
+            TRADRIVE.AddToTraits("HomRepair_male", Simulation.HomParam);
+            TRADRIVE.AddToTraits("HomRepair_female", Simulation.HomParam);
 
             D_Male.ModifyAllele("A", TRADRIVE, "WT");
             return D_Male;

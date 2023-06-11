@@ -40,6 +40,8 @@ namespace SMS
         public static float Param2MAX = 1F;
         public static float Param2step = 0.1F;
 
+        public static float HomParam = 0.95F;
+
         string[] Track = { "TRA","FFER"};
 
         public static string[,] Target_cognate_gRNA = { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" } };
