@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using System.ComponentModel;
 using System.IO;
+using System.Xml.Linq;
 
 
 namespace SMS
@@ -28,19 +29,30 @@ namespace SMS
         public int EndIntervention = 2;
         public int InterventionReleaseNumber = 100;
 
+
+        // Sweep param1 for HDR
+        //public static float Param0 = 0F;
+
+        public static float Param0
+        { get { return Param0; } set { Param0 = (float)(Math.Truncate((double)value * 100.0) / 100.0); } }
+        public static float Param0MIN = 0.55F;
+        public static float Param0MAX = 1F;
+        public static float Param0step = 0.2F;
+
         // Sweep param1 for Cas9 activity
-        public static float Param1 = 0F;
+        public static float Param1
+        { get { return Param1; } set { Param1 = (float)(Math.Truncate((double)value * 100.0) / 100.0); } }
         public static float Param1MIN = 0.5F;
         public static float Param1MAX = 1F;
         public static float Param1step = 0.1F;
 
         // Sweep param1 for r1
-        public static float Param2 = 0F;
+        public static float Param2
+        { get { return Param2; } set { Param2 = (float)(Math.Truncate((double)value * 100.0) / 100.0); } }
         public static float Param2MIN = 0.5F;
         public static float Param2MAX = 1F;
         public static float Param2step = 0.1F;
 
-        public static float HomParam = 0.95F;
 
         string[] Track = { "TRA","FFER"};
 
@@ -220,62 +232,68 @@ namespace SMS
             using (var Fwriter = new StreamWriter(stream))
             {
                 // THE ACTUAL SIMULATION
+
+                Param0 = Param0MIN;
                 Param1 = Param1MIN;
                 Param2 = Param2MIN;
-
-                while (Param1 <= Param1MAX)
+               
+                while (Param0 <= Param0MAX)
                 {
-                    while (Param2 <= Param2MAX)
+                    while (Param1 <= Param1MAX)
                     {
-                        for (int cIterations = 1; cIterations <= Iterations; cIterations++)
+                        while (Param2 <= Param2MAX)
                         {
-                            Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
-                            Console.WriteLine("Param1 = " + Param1.ToString() + " and Param2 = " + Param2.ToString());
-
-                            Population Pop = new Population("cage setup");
-
-                            for (int cGenerations = 1; cGenerations <= Generations; cGenerations++)
+                            for (int cIterations = 1; cIterations <= Iterations; cIterations++)
                             {
-                                //if (ApplyIntervention)
-                                //{
-                                //    if ((cGenerations >= StartIntervention) && (cGenerations <= EndIntervention))
-                                //    {
-                                //        Pop = new Population(Pop, new Population("standard release", InterventionReleaseNumber));
-                                //    }
-                                //}
+                                Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
+                                Console.WriteLine("Param1 = " + Param1.ToString() + " and Param2 = " + Param2.ToString());
 
-                                if (cGenerations == Generations)
-                                    Fwriter.WriteLine("{0},{1},{2},{3}", cIterations, Param1.ToString(), Param2.ToString(), Pop.Adults.Count().ToString());
+                                Population Pop = new Population("cage setup");
 
-                                Pop.ReproduceToEggs(Mortality, PopulationCap, GlobalEggsPerFemale);
-
-                                //Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Pop.Eggs.Count.ToString(), "all");
-
-                                int EggsToBeReturned = 0;
-
-                                if (Pop.Eggs.Count <= PopulationCap)
-                                    EggsToBeReturned = Pop.Eggs.Count;
-                                else
-                                    EggsToBeReturned = PopulationCap;
-
-                                for (int na = 0; na < EggsToBeReturned; na++)
+                                for (int cGenerations = 1; cGenerations <= Generations; cGenerations++)
                                 {
-                                    Pop.Adults.Add(new Organism(Pop.Eggs[na]));
+                                    //if (ApplyIntervention)
+                                    //{
+                                    //    if ((cGenerations >= StartIntervention) && (cGenerations <= EndIntervention))
+                                    //    {
+                                    //        Pop = new Population(Pop, new Population("standard release", InterventionReleaseNumber));
+                                    //    }
+                                    //}
+
+                                    if (cGenerations == Generations)
+                                        Fwriter.WriteLine("{0},{1},{2},{3}", cIterations, Param1.ToString(), Param2.ToString(), Pop.Adults.Count().ToString());
+
+                                    Pop.ReproduceToEggs(Mortality, PopulationCap, GlobalEggsPerFemale);
+
+                                    //Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Pop.Eggs.Count.ToString(), "all");
+
+                                    int EggsToBeReturned = 0;
+
+                                    if (Pop.Eggs.Count <= PopulationCap)
+                                        EggsToBeReturned = Pop.Eggs.Count;
+                                    else
+                                        EggsToBeReturned = PopulationCap;
+
+                                    for (int na = 0; na < EggsToBeReturned; na++)
+                                    {
+                                        Pop.Adults.Add(new Organism(Pop.Eggs[na]));
+                                    }
+
+                                    Pop.Eggs.Clear();
+
+                                    Pop.ParentalEffect(ZygoticHDRReduction);
+
                                 }
-
-                                Pop.Eggs.Clear();
-
-                                Pop.ParentalEffect(ZygoticHDRReduction);
-
                             }
+                            Param2 = Param2 + Param2step;
                         }
-                        Param2 = Param2 + Param2step;
-                        Param2 = (float)(Math.Truncate((double)Param2 * 100.0) / 100.0);
+                        Param1 = Param1 + Param1step;
+                        Param2 = Param2MIN;
                     }
-                    Param1 = Param1 + Param1step;
-                    Param1 = (float)(Math.Truncate((double)Param1 * 100.0) / 100.0);
-                    Param2 = Param1MIN;
+                    Param0 = Param0 + Param0step;
+                    Param1 = Param1MIN;
                 }
+
                 // END OF SIMULATION
                 Fwriter.Flush();
             }
