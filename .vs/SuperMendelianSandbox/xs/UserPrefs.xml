@@ -1,0 +1,31 @@
+﻿<Properties StartupConfiguration="{9614F1FC-4580-4EF4-80FD-C1D1761D48C0}|Default">
+  <MonoDevelop.Ide.ItemProperties.SuperMendelianSandbox PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="SuperMendelianSandbox/Simulation.cs">
+    <Files>
+      <File FileName="SuperMendelianSandbox/Program.cs" />
+      <File FileName="SuperMendelianSandbox/Shuffle.cs" />
+      <File FileName="SuperMendelianSandbox/Chromosome.cs" />
+      <File FileName="SuperMendelianSandbox/GeneLocus.cs" />
+      <File FileName="SuperMendelianSandbox/Organism.cs" Line="313" Column="1" />
+      <File FileName="SuperMendelianSandbox/Population.cs" Line="116" Column="66" />
+      <File FileName="SuperMendelianSandbox/Simulation.cs" Line="240" Column="32" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="SuperMendelianSandbox">
+            <Node name="SuperMendelianSandbox">
+              <Node name="Simulation.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+</Properties>
