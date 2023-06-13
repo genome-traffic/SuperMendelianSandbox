@@ -16,7 +16,7 @@ namespace SMS
         public List<Organism> Eggs
         {get;set;}
 
-        //---------------------- Population constructors  -----------------------------------------------------
+        //--------------------------- Population constructors  -----------------------------------------------------
 
         //new WT population
         public Population(int number)

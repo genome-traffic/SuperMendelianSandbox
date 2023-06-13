@@ -5,17 +5,15 @@
       <File FileName="Chromosome.cs" />
       <File FileName="Organism.cs" />
       <File FileName="GeneLocus.cs" />
-      <File FileName="Population.cs" Line="176" Column="68" />
-      <File FileName="Simulation.cs" Line="231" Column="48" />
-      <File FileName="Program.cs" Line="1" Column="1" />
+      <File FileName="Population.cs" Line="183" Column="27" />
+      <File FileName="Simulation.cs" Line="69" Column="1" />
+      <File FileName="Program.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="SuperMendelianSandbox" expanded="True">
-            <Node name="SuperMendelianSandbox">
-              <Node name="Simulation.cs" selected="True" />
-            </Node>
+          <Node name="SuperMendelianSandbox">
+            <Node name="SuperMendelianSandbox" expanded="True" />
           </Node>
         </State>
       </Pad>

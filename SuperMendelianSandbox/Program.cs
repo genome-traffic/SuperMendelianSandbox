@@ -11,6 +11,7 @@ namespace SMS
             Console.WriteLine("Initializing...");
 
             //Sim1.Simulate();
+
             Sim1.SimulateSweep();
 
             Console.WriteLine("Simulation Ends.");

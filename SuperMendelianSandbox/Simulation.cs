@@ -6,7 +6,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.IO;
 using System.Xml.Linq;
-
+using System.Threading.Tasks;
 
 namespace SMS
 {
@@ -33,22 +33,35 @@ namespace SMS
         // Sweep param1 for HDR
         //public static float Param0 = 0F;
 
+        private static float param0;
         public static float Param0
-        { get { return Param0; } set { Param0 = (float)(Math.Truncate((double)value * 100.0) / 100.0); } }
+        {
+            get { return param0; }
+            set {
+                //param0 = (float)(Math.Truncate((double)value * 100.0) / 100.0);
+                param0 = value;
+                }
+        }
         public static float Param0MIN = 0.55F;
         public static float Param0MAX = 1F;
         public static float Param0step = 0.2F;
 
         // Sweep param1 for Cas9 activity
+        private static float param1;
         public static float Param1
-        { get { return Param1; } set { Param1 = (float)(Math.Truncate((double)value * 100.0) / 100.0); } }
+        {
+            get { return param1; } set { param1 = (float)(Math.Truncate((double)value * 100.0) / 100.0); }
+        }
         public static float Param1MIN = 0.5F;
         public static float Param1MAX = 1F;
         public static float Param1step = 0.1F;
 
         // Sweep param1 for r1
+        private static float param2;
         public static float Param2
-        { get { return Param2; } set { Param2 = (float)(Math.Truncate((double)value * 100.0) / 100.0); } }
+        {
+            get { return param2; } set { param2 = (float)(Math.Truncate((double)value * 100.0) / 100.0); }
+        }
         public static float Param2MIN = 0.5F;
         public static float Param2MAX = 1F;
         public static float Param2step = 0.1F;
@@ -90,6 +103,7 @@ namespace SMS
                         //    {
                         //        Pop = new Population(Pop, new Population("standard release", InterventionReleaseNumber));
                         //    }
+                        //
                         //}
 
                         #region output adult data to file
@@ -243,10 +257,10 @@ namespace SMS
                     {
                         while (Param2 <= Param2MAX)
                         {
-                            for (int cIterations = 1; cIterations <= Iterations; cIterations++)
+                            Parallel.For(1, Iterations, i =>
                             {
-                                Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
-                                Console.WriteLine("Param1 = " + Param1.ToString() + " and Param2 = " + Param2.ToString());
+                                Console.WriteLine("Iteration " + i.ToString() + " out of " + Iterations);
+                                Console.WriteLine("Param0 = " + Param0.ToString() + " , Param1 = " + Param1.ToString() + " and Param2 = " + Param2.ToString());
 
                                 Population Pop = new Population("cage setup");
 
@@ -261,7 +275,7 @@ namespace SMS
                                     //}
 
                                     if (cGenerations == Generations)
-                                        Fwriter.WriteLine("{0},{1},{2},{3}", cIterations, Param1.ToString(), Param2.ToString(), Pop.Adults.Count().ToString());
+                                        Fwriter.WriteLine("{0},{1},{2},{3},{4}", i, Param0.ToString(), Param1.ToString(), Param2.ToString(), Pop.Adults.Count().ToString());
 
                                     Pop.ReproduceToEggs(Mortality, PopulationCap, GlobalEggsPerFemale);
 
@@ -284,7 +298,7 @@ namespace SMS
                                     Pop.ParentalEffect(ZygoticHDRReduction);
 
                                 }
-                            }
+                            });
                             Param2 = Param2 + Param2step;
                         }
                         Param1 = Param1 + Param1step;
@@ -295,6 +309,7 @@ namespace SMS
                 }
 
                 // END OF SIMULATION
+
                 Fwriter.Flush();
             }
         }
