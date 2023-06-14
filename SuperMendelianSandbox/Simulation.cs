@@ -33,38 +33,16 @@ namespace SMS
         // Sweep param1 for HDR
         //public static float Param0 = 0F;
 
-        private static float param0;
-        public static float Param0
-        {
-            get { return param0; }
-            set {
-                //param0 = (float)(Math.Truncate((double)value * 100.0) / 100.0);
-                param0 = value;
-                }
-        }
-        public static float Param0MIN = 0.55F;
-        public static float Param0MAX = 1F;
-        public static float Param0step = 0.2F;
+        public static float Param0;
+        List<float> P0list = new List<float>() { 0.75F,0.95F };
 
         // Sweep param1 for Cas9 activity
-        private static float param1;
-        public static float Param1
-        {
-            get { return param1; } set { param1 = (float)(Math.Truncate((double)value * 100.0) / 100.0); }
-        }
-        public static float Param1MIN = 0.5F;
-        public static float Param1MAX = 1F;
-        public static float Param1step = 0.1F;
+        public static float Param1;
+        List<float> P1list = new List<float>() { 0.75F,0.8F,0.85F,0.9F, 0.95F,1F };
 
         // Sweep param1 for r1
-        private static float param2;
-        public static float Param2
-        {
-            get { return param2; } set { param2 = (float)(Math.Truncate((double)value * 100.0) / 100.0); }
-        }
-        public static float Param2MIN = 0.5F;
-        public static float Param2MAX = 1F;
-        public static float Param2step = 0.1F;
+        public static float Param2;
+        List<float> P2list = new List<float>() { 0.9F, 0.92F, 0.94F, 0.96F, 0.98F,1F };
 
 
         string[] Track = { "TRA","FFER"};
@@ -247,17 +225,21 @@ namespace SMS
             {
                 // THE ACTUAL SIMULATION
 
-                Param0 = Param0MIN;
-                Param1 = Param1MIN;
-                Param2 = Param2MIN;
-               
-                while (Param0 <= Param0MAX)
+                
+
+                foreach (float p0 in P0list)
                 {
-                    while (Param1 <= Param1MAX)
+                    Param0 = p0;
+
+                    foreach (float p1 in P1list)
                     {
-                        while (Param2 <= Param2MAX)
+                        Param1 = p1;
+
+                        foreach (float p2 in P2list)
                         {
-                            Parallel.For(1, Iterations, i =>
+                            Param2 = p2;
+
+                            Parallel.For(0, Iterations, i =>
                             {
                                 Console.WriteLine("Iteration " + i.ToString() + " out of " + Iterations);
                                 Console.WriteLine("Param0 = " + Param0.ToString() + " , Param1 = " + Param1.ToString() + " and Param2 = " + Param2.ToString());
@@ -299,14 +281,10 @@ namespace SMS
 
                                 }
                             });
-                            Param2 = Param2 + Param2step;
                         }
-                        Param1 = Param1 + Param1step;
-                        Param2 = Param2MIN;
+                       
                     }
-                    Param0 = Param0 + Param0step;
-                    Param1 = Param1MIN;
-                }
+                 }
 
                 // END OF SIMULATION
 

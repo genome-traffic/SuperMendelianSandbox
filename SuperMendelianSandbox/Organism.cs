@@ -289,42 +289,21 @@ namespace SMS
         {
             float fer = 1.0F;
 
-            if (this.GetSex() == "male")
+            // recessive female sterility
+            if (this.GetSex() == "female")
             {
-                //if (this.AlleleHomozygous("ZPG", "Transgene"))
-                //{ fer -= 0.59F; }
-                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHomozygous("ZPG", "R2"))
-                //{ fer = 0F; }
-
-            }
-            else
-            {
-                //if (this.AlleleHomozygous("ZPG", "Transgene"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "R2"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHomozygous("ZPG", "R2"))
-                //{ fer = 0F; }
-                //else if (this.AlleleHeterozygous("ZPG", "Transgene", "ZPG", "WT"))
-                //{ fer = 0F; }
+                if (this.AlleleHomozygous("FFER", "Transgene"))
+                { fer = 0F; }
+                else if (this.AlleleHomozygous("FFER", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHeterozygous("FFER", "Transgene", "FFER", "R2"))
+                { fer = 0F; }
             }
 
-            //if (this.AlleleHomozygous("Aper1", "R2"))
-            //{ fer -= 0.25F; }
-
-            //if (this.AlleleHomozygous("AP2", "R2"))
-            //{ fer -= 0.25F; }
-
-            //if (this.AlleleHomozygous("CP", "R2"))
-            //{ fer -= 0.25F; }
-
-
-            if (fer < 0F)
-            { fer = 0F; }
-            else if (fer > 1F)
-            { fer = 1F; }
+            //if (fer < 0F)
+            //{ fer = 0F; }
+            //else if (fer > 1F)
+            //{ fer = 1F; }
 
             return fer;
              

@@ -170,16 +170,17 @@ namespace SMS
         {
             Organism D_Male = new Organism(GenerateWTMale());
 
-            GeneLocus TRADRIVE = new GeneLocus("TRA", 2F, "Transgene");
-            TRADRIVE.AddToTraits("Cas9_male", Simulation.Param1);
-            TRADRIVE.AddToTraits("Cas9_female", Simulation.Param1);
-            TRADRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
-            TRADRIVE.AddToTraits("Cas9_paternal", 0F);
-            TRADRIVE.AddToTraits("gRNA_TRA", 1F);
-            TRADRIVE.AddToTraits("HomRepair_male", Simulation.Param0);
-            TRADRIVE.AddToTraits("HomRepair_female", Simulation.Param0);
+            GeneLocus FFERDRIVE = new GeneLocus("FFER", 1F, "Transgene");
+            FFERDRIVE.AddToTraits("Cas9_male", Simulation.Param1);
+            FFERDRIVE.AddToTraits("Cas9_female", Simulation.Param1);
+            FFERDRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
+            FFERDRIVE.AddToTraits("Cas9_paternal", 0F);
+            FFERDRIVE.AddToTraits("gRNA_FFER", 1F);
+            FFERDRIVE.AddToTraits("gRNA_TRA", 1F);
+            FFERDRIVE.AddToTraits("HomRepair_male", Simulation.Param0);
+            FFERDRIVE.AddToTraits("HomRepair_female", Simulation.Param0);
 
-            D_Male.ModifyAllele("A", TRADRIVE, "WT");
+            D_Male.ModifyAllele("A", FFERDRIVE, "WT");
             return D_Male;
         }
 

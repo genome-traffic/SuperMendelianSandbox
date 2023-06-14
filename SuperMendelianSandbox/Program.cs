@@ -8,13 +8,17 @@ namespace SMS
         {
             Simulation Sim1 = new Simulation();
 
-            Console.WriteLine("Initializing...");
+            Console.WriteLine("Initializing simulation...");
 
             //Sim1.Simulate();
 
+            Console.WriteLine("Simulation ends.");
+
+            Console.WriteLine("Initializing sweep...");
+
             Sim1.SimulateSweep();
 
-            Console.WriteLine("Simulation Ends.");
+            Console.WriteLine("Sweep ends.");
 
         }
     }
