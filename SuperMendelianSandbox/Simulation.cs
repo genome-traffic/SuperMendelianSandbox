@@ -30,8 +30,7 @@ namespace SMS
         public int InterventionReleaseNumber = 100;
 
         // Sweep param1 for HDR
-        //public static float Param0 = 0F;
-
+        
         public static float Param0;
         List<float> P0list = new List<float>() { 0.75F, 0.95F };
         

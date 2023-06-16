@@ -111,6 +111,7 @@ namespace SMS
         {
             Organism WTFemale = new Organism();
 
+            //ffer not really needed
             GeneLocus FFERa = new GeneLocus("FFER", 1F, "WT");
             FFERa.AddToTraits("Conservation", Simulation.Param2);
             FFERa.AddToTraits("HomRepair_male", Simulation.Param0);
