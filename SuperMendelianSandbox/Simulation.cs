@@ -30,7 +30,6 @@ namespace SMS
         public int InterventionReleaseNumber = 100;
 
         // Sweep param1 for HDR
-        
         public static float Param0;
         List<float> P0list = new List<float>() { 0.75F, 0.95F };
         
@@ -41,7 +40,6 @@ namespace SMS
         // Sweep param1 for r1
         public static float Param2;
         List<float> P2list = new List<float>() { 0.9F, 0.92F, 0.94F, 0.96F, 0.98F, 1F };
-
 
         string[] Track = { "TRA","FFER"};
 

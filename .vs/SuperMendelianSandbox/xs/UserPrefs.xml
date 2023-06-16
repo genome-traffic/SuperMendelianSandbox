@@ -6,13 +6,13 @@
       <File FileName="SuperMendelianSandbox/Chromosome.cs" />
       <File FileName="SuperMendelianSandbox/GeneLocus.cs" />
       <File FileName="SuperMendelianSandbox/Organism.cs" />
-      <File FileName="SuperMendelianSandbox/Population.cs" Line="1" Column="1" />
-      <File FileName="SuperMendelianSandbox/Simulation.cs" Line="37" Column="9" />
+      <File FileName="SuperMendelianSandbox/Population.cs" Line="114" Column="20" />
+      <File FileName="SuperMendelianSandbox/Simulation.cs" Line="33" Column="9" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="SuperMendelianSandbox" expanded="True">
+          <Node name="SuperMendelianSandbox">
             <Node name="SuperMendelianSandbox">
               <Node name="Simulation.cs" selected="True" />
             </Node>
