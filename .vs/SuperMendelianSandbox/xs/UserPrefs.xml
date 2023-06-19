@@ -1,20 +1,20 @@
 ﻿<Properties StartupConfiguration="{9614F1FC-4580-4EF4-80FD-C1D1761D48C0}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="SuperMendelianSandbox/Simulation.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="SuperMendelianSandbox/Population.cs">
     <Files>
       <File FileName="SuperMendelianSandbox/Program.cs" />
       <File FileName="SuperMendelianSandbox/Shuffle.cs" />
       <File FileName="SuperMendelianSandbox/Chromosome.cs" />
       <File FileName="SuperMendelianSandbox/GeneLocus.cs" />
       <File FileName="SuperMendelianSandbox/Organism.cs" />
-      <File FileName="SuperMendelianSandbox/Population.cs" Line="114" Column="20" />
-      <File FileName="SuperMendelianSandbox/Simulation.cs" Line="33" Column="9" />
+      <File FileName="SuperMendelianSandbox/Population.cs" Line="114" Column="50" />
+      <File FileName="SuperMendelianSandbox/Simulation.cs" Line="43" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="SuperMendelianSandbox">
             <Node name="SuperMendelianSandbox">
-              <Node name="Simulation.cs" selected="True" />
+              <Node name="Population.cs" selected="True" />
             </Node>
           </Node>
         </State>
