@@ -176,7 +176,7 @@ namespace SMS
             FFERDRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
             FFERDRIVE.AddToTraits("Cas9_paternal", 0F);
             FFERDRIVE.AddToTraits("gRNA_FFER", 1F);
-            FFERDRIVE.AddToTraits("gRNA_TRA", 1F);
+            FFERDRIVE.AddToTraits("gRNA_TRA", 0F);
             FFERDRIVE.AddToTraits("HomRepair_male", Simulation.Param0);
             FFERDRIVE.AddToTraits("HomRepair_female", Simulation.Param0);
 

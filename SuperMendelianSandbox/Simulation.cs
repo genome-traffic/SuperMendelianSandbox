@@ -31,18 +31,17 @@ namespace SMS
 
 
         // Sweep param1 for HDR
-        //public static float Param0 = 0F;
-
         public static float Param0;
-        List<float> P0list = new List<float>() { 0.75F,0.95F };
+        List<float> P0list = new List<float>() { 0.75F, 0.80F, 0.85F, 0.9F, 0.95F, 1F };
 
         // Sweep param1 for Cas9 activity
         public static float Param1;
-        List<float> P1list = new List<float>() { 0.75F,0.8F,0.85F,0.9F, 0.95F,1F };
+        List<float> P1list = new List<float>() { 0.75F, 0.8F, 0.85F, 0.9F, 0.95F, 1F };
 
         // Sweep param1 for r1
         public static float Param2;
-        List<float> P2list = new List<float>() { 0.9F, 0.92F, 0.94F, 0.96F, 0.98F,1F };
+        //List<float> P2list = new List<float>() { 0.9F, 0.92F, 0.94F, 0.96F, 0.98F, 1F };
+        List<float> P2list = new List<float>() { 0.99F };
 
 
         string[] Track = { "TRA","FFER"};
@@ -291,5 +290,90 @@ namespace SMS
                 Fwriter.Flush();
             }
         }
+
+
+        public void SimulateTimeSweep()
+        {
+            this.Generations = 100;
+            string pathdesktop = (string)Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            pathdesktop = pathdesktop + "/model";
+            string pathString = System.IO.Path.Combine(pathdesktop, "modeltimesweepoutput.csv");
+            Console.WriteLine("Writing output to: " + pathString);
+            File.Create(pathString).Dispose();
+            Console.WriteLine("Simulation Starts.");
+
+            using (var stream = File.OpenWrite(pathString))
+            using (var Fwriter = new StreamWriter(stream))
+            {
+                // THE ACTUAL SIMULATION
+
+
+
+                foreach (float p0 in P0list)
+                {
+                    Param0 = p0;
+
+                    foreach (float p1 in P1list)
+                    {
+                        Param1 = p1;
+
+                        foreach (float p2 in P2list)
+                        {
+                            Param2 = p2;
+
+                            Parallel.For(0, Iterations, i =>
+                            {
+                                Console.WriteLine("Iteration " + i.ToString() + " out of " + Iterations);
+                                Console.WriteLine("Param0 = " + Param0.ToString() + " , Param1 = " + Param1.ToString() + " and Param2 = " + Param2.ToString());
+                                Population Pop = new Population("cage setup");
+                                for (int cGenerations = 1; cGenerations <= Generations; cGenerations++)
+                                {
+                                    //if (ApplyIntervention)
+                                    //{
+                                    //    if ((cGenerations >= StartIntervention) && (cGenerations <= EndIntervention))
+                                    //    {
+                                    //        Pop = new Population(Pop, new Population("standard release", InterventionReleaseNumber));
+                                    //    }
+                                    //}
+                                    //if (cGenerations == Generations)
+                                    //    Fwriter.WriteLine("{0},{1},{2},{3},{4}", i, Param0.ToString(), Param1.ToString(), Param2.ToString(), Pop.Adults.Count().ToString());
+                                    if (Pop.Adults.Count() == 0)
+                                    {
+                                        Fwriter.WriteLine("{0},{1},{2},{3},{4}", i, Param0.ToString(), Param1.ToString(), Param2.ToString(), cGenerations.ToString());
+                                        break;
+                                    }
+                                    if (cGenerations == 100)
+                                    {
+                                        string na = "NA";
+                                        Fwriter.WriteLine("{0},{1},{2},{3},{4}", i, Param0.ToString(), Param1.ToString(), Param2.ToString(), na.ToString());
+                                        break;
+                                    }
+                                    Pop.ReproduceToEggs(Mortality, PopulationCap, GlobalEggsPerFemale);
+                                    //Fwriter.WriteLine("{0},{1},{2},{3},{4},{5},{6}", cIterations, cGenerations, "Eggs", "NA", "NA", Pop.Eggs.Count.ToString(), "all");
+                                    int EggsToBeReturned = 0;
+                                    if (Pop.Eggs.Count <= PopulationCap)
+                                        EggsToBeReturned = Pop.Eggs.Count;
+                                    else
+                                        EggsToBeReturned = PopulationCap;
+                                    for (int na = 0; na < EggsToBeReturned; na++)
+                                    {
+                                        Pop.Adults.Add(new Organism(Pop.Eggs[na]));
+                                    }
+                                    Pop.Eggs.Clear();
+                                    Pop.ParentalEffect(ZygoticHDRReduction);
+                                }
+                            });
+                        }
+
+                    }
+                }
+
+
+                // END OF SIMULATION
+
+                Fwriter.Flush();
+            }
+        }
+
     }
 }
