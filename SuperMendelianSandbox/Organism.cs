@@ -300,6 +300,17 @@ namespace SMS
                 { fer = 0F; }
             }
 
+            if (this.GetSex() == "female")
+            {
+                if (this.AlleleHomozygous("F2FER", "Transgene"))
+                { fer = 0F; }
+                else if (this.AlleleHomozygous("F2FER", "R2"))
+                { fer = 0F; }
+                else if (this.AlleleHeterozygous("F2FER", "Transgene", "F2FER", "R2"))
+                { fer = 0F; }
+            }
+
+
             //if (fer < 0F)
             //{ fer = 0F; }
             //else if (fer > 1F)

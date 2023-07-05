@@ -30,23 +30,24 @@ namespace SMS
         public int InterventionReleaseNumber = 100;
 
 
-        // Sweep param1 for HDR
-        public static float Param0;
+        // Param1 for HDR
+        public static float Param0 = 0.75F;
         List<float> P0list = new List<float>() { 0.75F, 0.80F, 0.85F, 0.9F, 0.95F, 1F };
+        //List<float> P0list = new List<float>() { 0.75F, 0.95F };
 
-        // Sweep param1 for Cas9 activity
-        public static float Param1;
+        // Param1 for Cas9 activity
+        public static float Param1 = 0.75F;
         List<float> P1list = new List<float>() { 0.75F, 0.8F, 0.85F, 0.9F, 0.95F, 1F };
 
-        // Sweep param1 for r1
-        public static float Param2;
+        // Param1 for R1
+        public static float Param2 = 0.99F;
         //List<float> P2list = new List<float>() { 0.9F, 0.92F, 0.94F, 0.96F, 0.98F, 1F };
         List<float> P2list = new List<float>() { 0.99F };
 
 
-        string[] Track = { "TRA","FFER"};
+        string[] Track = { "TRA","FFER","F2FER" };
 
-        public static string[,] Target_cognate_gRNA = { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" } };
+        public static string[,] Target_cognate_gRNA = { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" }, { "F2FER", "gRNA_F2FER" } };
 
         /*------------------------------- The Simulation ---------------------------------------------*/
 
@@ -290,7 +291,6 @@ namespace SMS
                 Fwriter.Flush();
             }
         }
-
 
         public void SimulateTimeSweep()
         {

@@ -129,6 +129,16 @@ namespace SMS
             TRAb.AddToTraits("HomRepair_male", Simulation.Param0);
             TRAb.AddToTraits("HomRepair_female", Simulation.Param0);
 
+
+            GeneLocus F2FERa = new GeneLocus("F2FER", 3F, "WT");
+            F2FERa.AddToTraits("Conservation", Simulation.Param2);
+            F2FERa.AddToTraits("HomRepair_male", Simulation.Param0);
+            F2FERa.AddToTraits("HomRepair_female", Simulation.Param0);
+            GeneLocus F2FERb = new GeneLocus("F2FER", 3F, "WT");
+            F2FERb.AddToTraits("Conservation", Simulation.Param2);
+            F2FERb.AddToTraits("HomRepair_male", Simulation.Param0);
+            F2FERb.AddToTraits("HomRepair_female", Simulation.Param0);
+
             Chromosome ChromXa = new Chromosome("X", "Sex");
             Chromosome ChromXb = new Chromosome("X", "Sex");
             Chromosome Chrom2a = new Chromosome("2", "2");
@@ -141,6 +151,9 @@ namespace SMS
 
             Chrom3a.GeneLocusList.Add(TRAa);
             Chrom3b.GeneLocusList.Add(TRAb);
+
+            Chrom3a.GeneLocusList.Add(F2FERa);
+            Chrom3b.GeneLocusList.Add(F2FERb);
 
             WTFemale.ChromosomeListA.Add(ChromXa);
             WTFemale.ChromosomeListB.Add(ChromXb);
@@ -176,11 +189,13 @@ namespace SMS
             FFERDRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
             FFERDRIVE.AddToTraits("Cas9_paternal", 0F);
             FFERDRIVE.AddToTraits("gRNA_FFER", 1F);
-            FFERDRIVE.AddToTraits("gRNA_TRA", 0F);
+            FFERDRIVE.AddToTraits("gRNA_F2FER", 1F);
+            //FFERDRIVE.AddToTraits("gRNA_TRA", 1F);
             FFERDRIVE.AddToTraits("HomRepair_male", Simulation.Param0);
             FFERDRIVE.AddToTraits("HomRepair_female", Simulation.Param0);
 
             D_Male.ModifyAllele("A", FFERDRIVE, "WT");
+           
             return D_Male;
         }
 

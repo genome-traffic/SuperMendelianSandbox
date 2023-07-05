@@ -1,31 +1,31 @@
 ﻿<Properties StartupConfiguration="{9614F1FC-4580-4EF4-80FD-C1D1761D48C0}|Default">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.ItemProperties.SuperMendelianSandbox PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workbench ActiveDocument="SuperMendelianSandbox/Population.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="SuperMendelianSandbox/Program.cs">
     <Files>
-      <File FileName="SuperMendelianSandbox/Program.cs" Line="14" Column="1" />
       <File FileName="SuperMendelianSandbox/Shuffle.cs" />
       <File FileName="SuperMendelianSandbox/Chromosome.cs" />
       <File FileName="SuperMendelianSandbox/GeneLocus.cs" />
-      <File FileName="SuperMendelianSandbox/Organism.cs" Line="303" Column="23" />
-      <File FileName="SuperMendelianSandbox/Population.cs" Line="179" Column="48" />
-      <File FileName="SuperMendelianSandbox/Simulation.cs" Line="287" Column="13" />
+      <File FileName="SuperMendelianSandbox/Organism.cs" />
+      <File FileName="SuperMendelianSandbox/Population.cs" Line="193" Column="15" />
+      <File FileName="SuperMendelianSandbox/Simulation.cs" Line="35" Column="9" />
+      <File FileName="SuperMendelianSandbox/Program.cs" Line="13" Column="15" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="SuperMendelianSandbox">
+          <Node name="SuperMendelianSandbox" expanded="True">
             <Node name="SuperMendelianSandbox">
-              <Node name="Population.cs" selected="True" />
+              <Node name="Program.cs" selected="True" />
             </Node>
           </Node>
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.SuperMendelianSandbox PreferredExecutionTarget="MonoDevelop.Default" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>
