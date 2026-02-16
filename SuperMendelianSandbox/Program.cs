@@ -2,6 +2,13 @@
 
 namespace SMS
 {
+    /// <summary>
+    /// Entry point for the Super Mendelian Sandbox (SMS) gene drive simulation.
+    /// Creates a Simulation instance with default parameters and runs the main
+    /// simulation loop. Alternative entry points for parameter sweeps
+    /// (SimulateSweep) and time-to-extinction analysis (SimulateTimeSweep) are
+    /// available but currently commented out.
+    /// </summary>
     class Program
     {
         static void Main(string[] args)
@@ -10,9 +17,10 @@ namespace SMS
 
             Console.WriteLine("Initializing...");
 
-            //Sim1.Simulate();
-            //Sim1.SimulateSweep();
-            Sim1.SimulateTimeSweep();
+            // Run the primary multi-generation, multi-iteration simulation.
+            Sim1.Simulate();
+            //Sim1.SimulateSweep();       // Parameter sweep across HDR, Cas9, and conservation values
+            //Sim1.SimulateTimeSweep();    // Time-to-extinction analysis across parameter space
 
             Console.WriteLine("Simulation Ends.");
 
