@@ -23,7 +23,7 @@
 
             <div class="param-row">
                 <label for="releaseNumber">Release males</label>
-                <input type="range" id="releaseNumber" min="1" max="500" step="1" value="100" />
+                <input type="range" id="releaseNumber" min="1" max="250" step="1" value="100" />
                 <span class="param-value" id="releaseNumber-val">100</span>
             </div>
 
@@ -67,8 +67,8 @@
 
             <div class="param-row">
                 <label for="conservation">Conservation level</label>
-                <input type="range" id="conservation" min="0.9" max="0.99999" step="0.00001" value="0.999" />
-                <span class="param-value" id="conservation-val">0.99900</span>
+                <input type="range" id="conservation" min="0.95" max="1" step="0.00001" value="1" />
+                <span class="param-value" id="conservation-val">1.00000</span>
             </div>
         </div>
 
@@ -145,11 +145,11 @@
         <h3>Release Males</h3>
         <p>
             The number of gene drive males released into Population 1 at generation 3
-            (range: 1&ndash;500). Each release male is heterozygous for the FFER transgene
+            (range: 1&ndash;250). Each release male is heterozygous for the FFER transgene
             (one drive copy, one wild-type copy). Larger releases increase the initial
             drive frequency and speed up spread, but even small releases can lead to
             population suppression if drive efficiency is high enough. Since the population
-            cap is 1,000, a release of 100 represents a 10% ratio relative to resident
+            cap is 500, a release of 100 represents a 20% ratio relative to resident
             population size.
         </p>
 
@@ -168,7 +168,7 @@
             Base fecundity: the number of eggs produced per successful mating (1&ndash;200).
             Higher values mean greater reproductive surplus over the carrying capacity,
             making the population more resilient to suppression. With 50 eggs and a cap of
-            1,000, there is a large reproductive buffer; reducing this to 5&ndash;10 eggs
+            500, there is a large reproductive buffer; reducing this to 5&ndash;10 eggs
             makes the population much more vulnerable to the fitness load imposed by the
             drive.
         </p>
@@ -205,13 +205,14 @@
 
         <h3>Conservation Level</h3>
         <p>
-            Probability (0.9&ndash;0.99999) that NHEJ repair at the target site produces
+            Probability (0.95&ndash;1.0) that NHEJ repair at the target site produces
             an R2 (non-functional, loss-of-function) allele rather than an R1 (functional
             resistance) allele. R2 alleles disrupt the target gene just like the transgene,
             so R2 homozygous females are also sterile &mdash; R2 effectively aids
             suppression. R1 alleles restore gene function while being resistant to
             further cutting, so R1 can halt drive spread.
-            At 0.999, nearly all NHEJ produces R2 (favourable for suppression). Lower
+            At 1.0, no functional resistance can arise &mdash; all NHEJ produces R2
+            (the most favourable scenario for suppression). Lower
             conservation means more R1, which can rescue the population. This parameter
             reflects the evolutionary constraint on the target site: highly conserved
             sequences tolerate fewer functional repair outcomes.
@@ -229,7 +230,7 @@
 
         <h2>Fixed Model Assumptions</h2>
         <ul>
-            <li><strong>Population carrying capacity:</strong> 1,000 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
+            <li><strong>Population carrying capacity:</strong> 500 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
             <li><strong>Number of populations:</strong> 5, arranged in a linear chain.</li>
             <li><strong>Migration topology:</strong> Linear chain only (1&harr;2&harr;3&harr;4&harr;5). No long-range migration.</li>
             <li><strong>Migration decay:</strong> 10&times; per step (not configurable).</li>

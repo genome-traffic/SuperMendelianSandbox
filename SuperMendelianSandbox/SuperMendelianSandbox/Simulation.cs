@@ -89,8 +89,8 @@ namespace SMS
         /// Used as the "Conservation" trait at WT loci. Determines the probability that
         /// NHEJ repair at a cut site produces an R2 (loss-of-function, non-functional
         /// resistance) allele vs an R1 (functional resistance) allele.
-        /// Default 0.999 = nearly all NHEJ produces R2.</summary>
-        public static float Param2 = 0.999F;
+        /// Default 1.0 = no functional resistance (R1) can arise.</summary>
+        public static float Param2 = 1.0F;
 
 
         /// <summary>Param3: Maternal Cas9 deposition level (0-1).
@@ -183,7 +183,7 @@ namespace SMS
                     Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
 
                     // --- Parameters set from web configuration page ---
-                    Environ Africa = new Environ("Africa", 5, 1000, 1000);
+                    Environ Africa = new Environ("Africa", 5, 500, 500);
 
                     // Linear chain migration with 10x decay per step from base rate
                     float migRate = MigrationBaseRate;
