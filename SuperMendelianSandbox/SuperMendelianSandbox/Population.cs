@@ -59,7 +59,7 @@ namespace SMS
         /// </summary>
         public Population()
         {
-            this.PopulationCapacity = 1000;
+            this.PopulationCapacity = 500;
             this.Adults = new List<Organism>();
             this.Eggs = new List<Organism>();
 
