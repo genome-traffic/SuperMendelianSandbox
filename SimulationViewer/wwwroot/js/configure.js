@@ -7,7 +7,7 @@ var PARAMS = [
 
 var DECIMAL_PARAMS = {
     mortality: 2, cas9Activity: 2, hdrRate: 2, maternalCas9: 2,
-    conservation: 3, migrationBaseRate: 3
+    conservation: 5, migrationBaseRate: 3
 };
 
 function formatValue(id, val) {

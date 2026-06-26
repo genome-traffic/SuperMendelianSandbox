@@ -246,3 +246,57 @@ h3 {
 .iter-legend span {
     margin: 0 10px;
 }
+
+.migration-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arrow-spacer {
+    min-width: 0;
+}
+
+/* -- Info panel (configuration page) -- */
+
+.info-panel {
+    background: white;
+    padding: 24px 32px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-top: 24px;
+    max-width: 900px;
+    line-height: 1.6;
+    font-size: 14px;
+    color: #374151;
+}
+
+.info-panel h2 {
+    font-size: 18px;
+    margin-top: 28px;
+}
+
+.info-panel h2:first-child {
+    margin-top: 0;
+}
+
+.info-panel h3 {
+    font-size: 14px;
+    margin-top: 18px;
+    margin-bottom: 4px;
+    border-bottom: none;
+    color: #1a1a2e;
+}
+
+.info-panel p {
+    margin: 0 0 10px 0;
+}
+
+.info-panel ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+}
+
+.info-panel li {
+    margin-bottom: 6px;
+}

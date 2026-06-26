@@ -262,15 +262,27 @@ function buildEnvironCharts(container, envName, envData) {
     var genes = unique(envData.filter(isGenotypeRow).map(function(d) { return d.category; }));
 
     var numCols = populations.length;
+    var colParts = ['50px'];
+    for (var c = 0; c < numCols; c++) {
+        if (c > 0) colParts.push('24px');
+        colParts.push('1fr');
+    }
     var grid = document.createElement('div');
     grid.className = 'chart-grid';
-    grid.style.gridTemplateColumns = '50px repeat(' + numCols + ', 1fr)';
+    grid.style.gridTemplateColumns = colParts.join(' ');
     container.appendChild(grid);
 
-    // Column headers
+    // Column headers with migration arrows
+    var ARROW_OPACITY = [1.0, 0.7, 0.45, 0.25];
     grid.appendChild(makeDiv('', 'col-header'));
     for (var p = 0; p < populations.length; p++) {
-        grid.appendChild(makeDiv('Pop ' + populations[p], 'col-header'));
+        if (p > 0) {
+            var arrow = document.createElement('div');
+            arrow.className = 'migration-arrow';
+            arrow.innerHTML = '<svg width="20" height="24" viewBox="0 0 20 24"><polygon points="10,22 3,14 7,14 7,2 13,2 13,14 17,14" fill="#0f3460" opacity="' + ARROW_OPACITY[p - 1] + '"/></svg>';
+            grid.appendChild(arrow);
+        }
+        grid.appendChild(makeDiv('Population ' + (populations[p] + 1), 'col-header'));
     }
 
     // Allele frequency rows (one per gene)
@@ -301,6 +313,7 @@ function buildEnvironCharts(container, envName, envData) {
 function addRow(grid, label, populations, envData, chartFn) {
     grid.appendChild(makeDiv(label, 'row-label'));
     for (var p = 0; p < populations.length; p++) {
+        if (p > 0) grid.appendChild(makeDiv('', 'arrow-spacer'));
         var pop = populations[p];
         var div = document.createElement('div');
         div.className = 'chart-cell';

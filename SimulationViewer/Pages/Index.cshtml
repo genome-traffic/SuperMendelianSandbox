@@ -67,8 +67,8 @@
 
             <div class="param-row">
                 <label for="conservation">Conservation level</label>
-                <input type="range" id="conservation" min="0" max="1" step="0.001" value="0.999" />
-                <span class="param-value" id="conservation-val">0.999</span>
+                <input type="range" id="conservation" min="0.9" max="0.99999" step="0.00001" value="0.999" />
+                <span class="param-value" id="conservation-val">0.99900</span>
             </div>
         </div>
 
@@ -97,6 +97,153 @@
         <div class="progress-text" id="progress-text"></div>
     </div>
 
-    <script src="/js/configure.js?v=1"></script>
+    <script src="/js/configure.js?v=2"></script>
+
+    <div class="info-panel">
+
+        <h2>About Female Fertility Gene Drives</h2>
+
+        <p>
+            A <strong>female fertility gene drive</strong> is a CRISPR-based homing construct
+            inserted into a gene essential for female reproduction. In heterozygous drive
+            carriers, Cas9 and a guide RNA (gRNA) cut the wild-type allele on the homologous
+            chromosome during meiosis. Homology-directed repair (HDR) then copies the transgene
+            onto the cut chromosome, converting heterozygotes into homozygotes and causing the
+            drive to be inherited by a majority of offspring rather than the Mendelian 50%.
+        </p>
+        <p>
+            Females homozygous for the transgene are sterile because the target gene
+            is disrupted on both copies. Males are unaffected regardless of genotype. As the
+            drive spreads through a population, an increasing fraction of females become
+            homozygous and fail to reproduce, reducing the population's reproductive output.
+            With sufficiently high drive efficiency and low resistance allele formation, this
+            genetic load can cause population suppression or collapse.
+        </p>
+        <p>
+            This strategy was first demonstrated in <em>Anopheles gambiae</em> mosquitoes by
+            Hammond et al. (2016, <em>Nature Biotechnology</em>), who built drives targeting
+            three female fertility genes and showed super-Mendelian inheritance rates above
+            90%. Kyrou et al. (2018, <em>Nature Biotechnology</em>) subsequently targeted the
+            sex determination gene <em>doublesex</em> and achieved complete population
+            collapse in caged populations within 7&ndash;11 generations. More recent
+            work by Hammond et al. (2021, <em>Nature Communications</em>) confirmed
+            drive performance in small and large cage trials, and Simoni et al. (2020,
+            <em>Nature Biotechnology</em>) demonstrated population suppression with
+            a doublesex-targeting drive in large cages mimicking more natural conditions.
+        </p>
+
+        <h2>Parameter Guide</h2>
+
+        <h3>Generations</h3>
+        <p>
+            The number of discrete, non-overlapping generations to simulate (5&ndash;100).
+            Each generation, all adults reproduce and die. Short runs (10&ndash;20) are
+            useful for testing; longer runs (50&ndash;100) reveal whether the drive
+            achieves population suppression or whether resistance evolves to block it.
+        </p>
+
+        <h3>Release Males</h3>
+        <p>
+            The number of gene drive males released into Population 1 at generation 3
+            (range: 1&ndash;500). Each release male is heterozygous for the FFER transgene
+            (one drive copy, one wild-type copy). Larger releases increase the initial
+            drive frequency and speed up spread, but even small releases can lead to
+            population suppression if drive efficiency is high enough. Since the population
+            cap is 1,000, a release of 100 represents a 10% ratio relative to resident
+            population size.
+        </p>
+
+        <h3>Mortality Rate</h3>
+        <p>
+            Per-generation background mortality (0.1&ndash;0.9). This controls mate-finding
+            difficulty: the effective number of mate-search attempts per female is
+            (1 &minus; mortality) &times; carrying capacity. Higher mortality means fewer
+            search attempts, so some females may fail to find a mate and not reproduce.
+            At low mortality (0.1), nearly all females mate successfully; at high
+            mortality (0.9), reproductive output drops sharply even without the drive.
+        </p>
+
+        <h3>Eggs per Female</h3>
+        <p>
+            Base fecundity: the number of eggs produced per successful mating (1&ndash;200).
+            Higher values mean greater reproductive surplus over the carrying capacity,
+            making the population more resilient to suppression. With 50 eggs and a cap of
+            1,000, there is a large reproductive buffer; reducing this to 5&ndash;10 eggs
+            makes the population much more vulnerable to the fitness load imposed by the
+            drive.
+        </p>
+
+        <h3>Cas9 Nuclease Activity</h3>
+        <p>
+            Probability (0&ndash;1) that Cas9 successfully cuts the wild-type target allele
+            during meiosis in the germline. This is used for both male and female germline
+            cutting (Cas9_male and Cas9_female). At 0.97, nearly every wild-type allele
+            opposite a drive allele gets cut. Lower values reduce drive efficiency and
+            slow spread. At 0, the drive behaves as a normal Mendelian allele.
+        </p>
+
+        <h3>HDR Rate</h3>
+        <p>
+            Probability (0&ndash;1) that a Cas9-induced double-strand break is repaired by
+            homology-directed repair, copying the transgene onto the cut chromosome. The
+            remainder (1 &minus; HDR) is repaired by non-homologous end joining (NHEJ),
+            producing resistance alleles (R1 or R2). High HDR (0.95&ndash;0.99) is essential
+            for drive spread; lower values generate more resistance alleles that can block
+            the drive.
+        </p>
+
+        <h3>Maternal Cas9 Deposition</h3>
+        <p>
+            Probability (0&ndash;1) that maternally-deposited Cas9 protein acts on the
+            embryo's chromosomes after fertilization (zygotic activity). Unlike germline
+            activity, zygotic cutting has a 99% reduction in HDR efficiency, meaning
+            almost all zygotic cuts produce resistance alleles via NHEJ rather than
+            drive copies. High maternal deposition therefore <em>accelerates resistance
+            formation</em> rather than aiding drive spread. Setting this low (0.1) limits
+            unwanted resistance generation; setting it high increases R2 allele frequency.
+        </p>
+
+        <h3>Conservation Level</h3>
+        <p>
+            Probability (0.9&ndash;0.99999) that NHEJ repair at the target site produces
+            an R2 (non-functional, loss-of-function) allele rather than an R1 (functional
+            resistance) allele. R2 alleles disrupt the target gene just like the transgene,
+            so R2 homozygous females are also sterile &mdash; R2 effectively aids
+            suppression. R1 alleles restore gene function while being resistant to
+            further cutting, so R1 can halt drive spread.
+            At 0.999, nearly all NHEJ produces R2 (favourable for suppression). Lower
+            conservation means more R1, which can rescue the population. This parameter
+            reflects the evolutionary constraint on the target site: highly conserved
+            sequences tolerate fewer functional repair outcomes.
+        </p>
+
+        <h3>Base Migration Rate</h3>
+        <p>
+            Per-generation probability (0&ndash;0.5) that any individual migrates between
+            adjacent populations. The rate decays by 10&times; for each successive pair:
+            Pop 1&harr;2 gets the base rate, Pop 2&harr;3 gets base/10, Pop 3&harr;4
+            gets base/100, and Pop 4&harr;5 gets base/1000. This models a linear
+            geographic chain with decreasing connectivity. Higher base rates mean faster
+            spatial spread of the drive; at 0, populations are completely isolated.
+        </p>
+
+        <h2>Fixed Model Assumptions</h2>
+        <ul>
+            <li><strong>Population carrying capacity:</strong> 1,000 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
+            <li><strong>Number of populations:</strong> 5, arranged in a linear chain.</li>
+            <li><strong>Migration topology:</strong> Linear chain only (1&harr;2&harr;3&harr;4&harr;5). No long-range migration.</li>
+            <li><strong>Migration decay:</strong> 10&times; per step (not configurable).</li>
+            <li><strong>Replicates:</strong> 3 independent iterations per simulation run, each starting from a fresh wild-type population.</li>
+            <li><strong>Release timing:</strong> Gene drive males are released once, at generation 3, into Population 1 only.</li>
+            <li><strong>Sex determination:</strong> XY system with a Maleness-on-Y (MoY) factor. Females are XX; males are XY. Sex is determined by the presence of MoY plus maternal TRA mRNA provision.</li>
+            <li><strong>Non-overlapping generations:</strong> All adults die after reproducing. There is no age structure or overlapping cohorts.</li>
+            <li><strong>Mating system:</strong> Random mating within each population. Each female mates with at most one male per generation (monandry); males can mate with multiple females (polygyny).</li>
+            <li><strong>Zygotic HDR reduction:</strong> 99% reduction in HDR efficiency for embryonic (post-fertilization) gene drive activity, making zygotic cutting overwhelmingly produce NHEJ resistance alleles.</li>
+            <li><strong>No fitness cost of the transgene:</strong> Drive-carrying males have normal fertility and mating competitiveness. Only homozygous transgene females are sterile.</li>
+            <li><strong>Drive target:</strong> FFER (female fertility) locus on autosome 2. TRA locus on autosome 3 is present but not actively targeted by the drive in this configuration.</li>
+        </ul>
+
+    </div>
+
 </body>
 </html>
