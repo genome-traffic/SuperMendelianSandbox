@@ -279,7 +279,7 @@ function buildEnvironCharts(container, envName, envData) {
         if (p > 0) {
             var arrow = document.createElement('div');
             arrow.className = 'migration-arrow';
-            arrow.innerHTML = '<svg width="20" height="24" viewBox="0 0 20 24"><polygon points="10,22 3,14 7,14 7,2 13,2 13,14 17,14" fill="#0f3460" opacity="' + ARROW_OPACITY[p - 1] + '"/></svg>';
+            arrow.innerHTML = '<svg width="24" height="20" viewBox="0 0 24 20"><polygon points="22,10 14,3 14,7 2,7 2,13 14,13 14,17" fill="#0f3460" opacity="' + ARROW_OPACITY[p - 1] + '"/></svg>';
             grid.appendChild(arrow);
         }
         grid.appendChild(makeDiv('Population ' + (populations[p] + 1), 'col-header'));

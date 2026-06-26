@@ -98,6 +98,12 @@ namespace SMS
         /// of maternal vs germline drive. Set from web configuration page.</summary>
         public static float Param3 = 0.1F;
 
+        /// <summary>Directory for simulation output files (CSV, status JSON).
+        /// Defaults to ./output/ relative to the working directory. Overridden
+        /// by the "outputDir" field in the JSON config file when launched from
+        /// the web configuration page.</summary>
+        public string OutputDir = Path.Combine(Directory.GetCurrentDirectory(), "output");
+
         /// <summary>Base migration rate for the linear population chain.
         /// Each successive population pair gets 10x lower rate:
         ///   Pop 0-1: base, Pop 1-2: base/10, Pop 2-3: base/100, Pop 3-4: base/1000.
@@ -156,12 +162,10 @@ namespace SMS
         /// </summary>
         public void Simulate()
         {
-            string modelDir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "model");
-            Directory.CreateDirectory(modelDir);
+            Directory.CreateDirectory(OutputDir);
 
-            string pathString = Path.Combine(modelDir, "modeloutput.csv");
-            string statusPath = Path.Combine(modelDir, "simstatus.json");
+            string pathString = Path.Combine(OutputDir, "modeloutput.csv");
+            string statusPath = Path.Combine(OutputDir, "simstatus.json");
 
             Console.WriteLine("Writing output to: " + pathString);
             File.Create(pathString).Dispose();
@@ -361,6 +365,8 @@ namespace SMS
                 Param3 = mat.GetSingle();
             if (root.TryGetProperty("migrationBaseRate", out var mig))
                 MigrationBaseRate = mig.GetSingle();
+            if (root.TryGetProperty("outputDir", out var outDir))
+                OutputDir = outDir.GetString() ?? OutputDir;
         }
 
         /// <summary>

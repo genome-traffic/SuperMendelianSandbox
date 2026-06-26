@@ -5,3 +5,5 @@ obj/
 *.suo
 .vs/
 .claude/
+**/output/*.csv
+**/output/*.json

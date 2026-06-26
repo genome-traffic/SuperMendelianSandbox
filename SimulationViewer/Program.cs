@@ -7,22 +7,32 @@ var app = builder.Build();
 app.UseStaticFiles();
 app.MapRazorPages();
 
-var modelDir = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "model");
+var outputDir = Path.GetFullPath(
+    Path.Combine(Directory.GetCurrentDirectory(), "output"));
 
 var simProjectPath = Path.GetFullPath(
     Path.Combine(Directory.GetCurrentDirectory(), "..", "SuperMendelianSandbox", "SuperMendelianSandbox"));
 
 app.MapPost("/api/simulate", async (HttpContext ctx) =>
 {
-    Directory.CreateDirectory(modelDir);
+    Directory.CreateDirectory(outputDir);
 
-    var configPath = Path.Combine(modelDir, "simconfig.json");
-    var statusPath = Path.Combine(modelDir, "simstatus.json");
+    var configPath = Path.Combine(outputDir, "simconfig.json");
+    var statusPath = Path.Combine(outputDir, "simstatus.json");
 
     using var reader = new StreamReader(ctx.Request.Body);
     var body = await reader.ReadToEndAsync();
-    await File.WriteAllTextAsync(configPath, body);
+
+    // Inject the output directory into the config so the simulation writes here
+    var config = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(body)
+        ?? new Dictionary<string, JsonElement>();
+    var configWithOutput = new Dictionary<string, object>();
+    foreach (var kv in config)
+        configWithOutput[kv.Key] = kv.Value;
+    configWithOutput["outputDir"] = outputDir;
+
+    var configJson = JsonSerializer.Serialize(configWithOutput);
+    await File.WriteAllTextAsync(configPath, configJson);
     await File.WriteAllTextAsync(statusPath,
         JsonSerializer.Serialize(new { status = "starting", iteration = 0,
             totalIterations = 3, generation = 0, totalGenerations = 30 }));
@@ -59,7 +69,7 @@ app.MapPost("/api/simulate", async (HttpContext ctx) =>
 
 app.MapGet("/api/status", async () =>
 {
-    var statusPath = Path.Combine(modelDir, "simstatus.json");
+    var statusPath = Path.Combine(outputDir, "simstatus.json");
     if (!File.Exists(statusPath))
         return Results.Json(new { status = "idle" });
 

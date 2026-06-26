@@ -12,8 +12,7 @@ public class ViewerModel : PageModel
     public void OnGet(string? path)
     {
         CsvPath = path ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-            "model", "modeloutput.csv");
+            Directory.GetCurrentDirectory(), "output", "modeloutput.csv");
 
         if (!System.IO.File.Exists(CsvPath))
         {
