@@ -15,12 +15,25 @@ h2 {
     margin-top: 30px;
 }
 
+h3 {
+    margin: 0 0 12px 0;
+    color: #0f3460;
+    font-size: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 6px;
+}
+
+/* -- Shared controls -- */
+
 .controls {
     background: white;
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .controls input {
@@ -50,6 +63,146 @@ h2 {
     border-radius: 4px;
     margin-bottom: 15px;
 }
+
+/* -- Buttons -- */
+
+.btn {
+    display: inline-block;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn-run {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-run:hover:not(:disabled) {
+    background: #15803d;
+}
+
+.btn-run:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+.btn-view {
+    background: #0f3460;
+    color: white;
+}
+
+.btn-view:hover:not(.disabled) {
+    background: #16213e;
+}
+
+.btn-view.disabled {
+    background: #9ca3af;
+    pointer-events: none;
+    color: #e5e7eb;
+}
+
+.btn-back {
+    background: #6b7280;
+    color: white;
+    padding: 6px 16px;
+    font-size: 13px;
+}
+
+.btn-back:hover {
+    background: #4b5563;
+}
+
+/* -- Configuration page -- */
+
+.config-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.config-section {
+    background: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.param-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 60px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.param-row label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.param-row input[type="range"] {
+    width: 100%;
+    cursor: pointer;
+}
+
+.param-value {
+    font-family: "SF Mono", Monaco, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f3460;
+    text-align: right;
+}
+
+.migration-detail {
+    font-size: 12px;
+    color: #6b7280;
+    font-family: monospace;
+    margin-top: 4px;
+}
+
+.action-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+/* -- Progress bar -- */
+
+.progress-container {
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    height: 24px;
+    background: #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+    border-radius: 12px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.progress-text {
+    font-size: 13px;
+    color: #6b7280;
+    text-align: center;
+}
+
+/* -- Chart grid (viewer page) -- */
 
 .chart-grid {
     display: grid;

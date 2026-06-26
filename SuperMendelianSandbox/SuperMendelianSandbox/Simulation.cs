@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using System.ComponentModel;
 using System.IO;
+using System.Text.Json;
 using System.Xml.Linq;
 using System.Threading.Tasks;
 
@@ -77,12 +78,12 @@ namespace SMS
         /// <summary>Param0: Homology-directed repair (HDR) efficiency (0-1).
         /// Used as the "HomRepair_male" and "HomRepair_female" trait value for both
         /// WT target loci and the Transgene. Default 0.95 = 95% HDR success when Cas9 cuts.</summary>
-        public static float Param0 = 0.95F;
+        public static float Param0 = 0.97F;
 
         /// <summary>Param1: Cas9 nuclease activity level (0-1).
         /// Used as the "Cas9_male", "Cas9_female", and "Cas9_maternal" trait values
         /// for the Transgene. Default 0.95 = 95% cutting probability.</summary>
-        public static float Param1 = 0.95F;
+        public static float Param1 = 0.97F;
 
         /// <summary>Param2: Conservation level (0-1).
         /// Used as the "Conservation" trait at WT loci. Determines the probability that
@@ -90,6 +91,18 @@ namespace SMS
         /// resistance) allele vs an R1 (functional resistance) allele.
         /// Default 0.999 = nearly all NHEJ produces R2.</summary>
         public static float Param2 = 0.999F;
+
+
+        /// <summary>Param3: Maternal Cas9 deposition level (0-1).
+        /// Separate from germline Cas9 activity (Param1) to allow independent tuning
+        /// of maternal vs germline drive. Set from web configuration page.</summary>
+        public static float Param3 = 0.1F;
+
+        /// <summary>Base migration rate for the linear population chain.
+        /// Each successive population pair gets 10x lower rate:
+        ///   Pop 0-1: base, Pop 1-2: base/10, Pop 2-3: base/100, Pop 3-4: base/1000.
+        /// Set from web configuration page.</summary>
+        public float MigrationBaseRate = 0.1F;
 
         /// <summary>Names of genes whose genotype frequencies are tracked in the output.
         /// TRA is the primary gene drive target; FFER is a secondary target locus.</summary>
@@ -143,13 +156,18 @@ namespace SMS
         /// </summary>
         public void Simulate()
         {
-            string pathdesktop = (string)Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            pathdesktop = pathdesktop + "/model";
-            string pathString = System.IO.Path.Combine(pathdesktop, "modeloutput.csv");
+            string modelDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "model");
+            Directory.CreateDirectory(modelDir);
+
+            string pathString = Path.Combine(modelDir, "modeloutput.csv");
+            string statusPath = Path.Combine(modelDir, "simstatus.json");
+
             Console.WriteLine("Writing output to: " + pathString);
             File.Create(pathString).Dispose();
 
             Console.WriteLine("Simulation Starts.");
+            WriteStatus(statusPath, "running", 0, 0);
 
             using (var stream = File.OpenWrite(pathString))
             using (var Fwriter = new StreamWriter(stream))
@@ -160,13 +178,16 @@ namespace SMS
                 {
                     Console.WriteLine("Iteration " + cIterations + " out of " + Iterations);
 
-                    Environ Africa = new Environ("Africa", 5, 500, 500);
+                    // --- Parameters set from web configuration page ---
+                    Environ Africa = new Environ("Africa", 5, 1000, 1000);
 
-                    // Linear chain migration with exponentially decreasing rates
-                    Africa.DefineMigration(0, 1, 0.1F);
-                    Africa.DefineMigration(1, 2, 0.01F);
-                    Africa.DefineMigration(2, 3, 0.001F);
-                    Africa.DefineMigration(3, 4, 0.0001F);
+                    // Linear chain migration with 10x decay per step from base rate
+                    float migRate = MigrationBaseRate;
+                    for (int m = 0; m < 4; m++)
+                    {
+                        Africa.DefineMigration(m, m + 1, migRate);
+                        migRate /= 10F;
+                    }
 
                     for (int cGenerations = 1; cGenerations <= Generations; cGenerations++)
                     {
@@ -302,11 +323,61 @@ namespace SMS
 
                         Africa.MigrateAll();
 
+                        WriteStatus(statusPath, "running", cIterations, cGenerations);
                     }
                 }
 
                 Fwriter.Flush();
             }
+
+            WriteStatus(statusPath, "completed", Iterations, Generations);
+        }
+
+        /// <summary>
+        /// Applies configuration from a JSON string. Called from Program.cs when a
+        /// config file path is passed as a command-line argument.
+        /// All configurable parameters are set here from the web configuration page.
+        /// </summary>
+        public void ApplyConfig(string json)
+        {
+            var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            if (root.TryGetProperty("generations", out var gen))
+                Generations = gen.GetInt32();
+            if (root.TryGetProperty("releaseNumber", out var rel))
+                InterventionReleaseNumber = rel.GetInt32();
+            if (root.TryGetProperty("mortality", out var mort))
+                Mortality = mort.GetSingle();
+            if (root.TryGetProperty("eggsPerFemale", out var eggs))
+                GlobalEggsPerFemale = eggs.GetInt32();
+            if (root.TryGetProperty("cas9Activity", out var cas9))
+                Param1 = cas9.GetSingle();
+            if (root.TryGetProperty("hdrRate", out var hdr))
+                Param0 = hdr.GetSingle();
+            if (root.TryGetProperty("conservation", out var cons))
+                Param2 = cons.GetSingle();
+            if (root.TryGetProperty("maternalCas9", out var mat))
+                Param3 = mat.GetSingle();
+            if (root.TryGetProperty("migrationBaseRate", out var mig))
+                MigrationBaseRate = mig.GetSingle();
+        }
+
+        /// <summary>
+        /// Writes simulation progress to a JSON status file, polled by the web
+        /// configuration page to update the progress bar.
+        /// </summary>
+        private void WriteStatus(string path, string status, int iteration, int generation)
+        {
+            string json = JsonSerializer.Serialize(new
+            {
+                status,
+                iteration,
+                totalIterations = Iterations,
+                generation,
+                totalGenerations = Generations
+            });
+            File.WriteAllText(path, json);
         }
 
 

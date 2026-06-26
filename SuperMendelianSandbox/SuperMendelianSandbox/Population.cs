@@ -59,7 +59,7 @@ namespace SMS
         /// </summary>
         public Population()
         {
-            this.PopulationCapacity = 500;
+            this.PopulationCapacity = 1000;
             this.Adults = new List<Organism>();
             this.Eggs = new List<Organism>();
 
@@ -280,7 +280,7 @@ namespace SMS
             GeneLocus FDRIVE = new GeneLocus("FFER", 1F, "Transgene");
             FDRIVE.AddToTraits("Cas9_male", Simulation.Param1);
             FDRIVE.AddToTraits("Cas9_female", Simulation.Param1);
-            FDRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
+            FDRIVE.AddToTraits("Cas9_maternal", Simulation.Param3);
             FDRIVE.AddToTraits("Cas9_paternal", 0F);
             FDRIVE.AddToTraits("gRNA_FFER", 1F);
             FDRIVE.AddToTraits("HomRepair_male", Simulation.Param0);

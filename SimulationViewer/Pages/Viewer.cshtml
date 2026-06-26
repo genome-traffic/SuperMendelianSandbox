@@ -1,0 +1,38 @@
+@page
+@model SimulationViewer.Pages.ViewerModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SMS Simulation Viewer</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+    <h1>Super Mendelian Sandbox &mdash; Simulation Viewer</h1>
+
+    <div class="controls">
+        <a href="/" class="btn btn-back">Configure</a>
+        <form method="get" style="display:inline">
+            <label for="path">CSV Path:</label>
+            <input type="text" name="path" id="path" value="@Model.CsvPath" size="60" />
+            <button type="submit">Load</button>
+        </form>
+    </div>
+
+    @if (Model.ErrorMessage != null)
+    {
+        <div class="error">@Model.ErrorMessage</div>
+    }
+
+    <div id="charts"></div>
+
+    <script src="/js/charts.js?v=3"></script>
+    <script>
+        const data = @Html.Raw(Model.CsvJson);
+        if (data.length > 0) {
+            buildCharts(data);
+        }
+    </script>
+</body>
+</html>

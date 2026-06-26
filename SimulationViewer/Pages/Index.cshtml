@@ -4,34 +4,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SMS Simulation Viewer</title>
-    <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+    <title>SMS Configuration</title>
     <link rel="stylesheet" href="/css/site.css" />
 </head>
 <body>
-    <h1>Super Mendelian Sandbox &mdash; Simulation Viewer</h1>
+    <h1>Super Mendelian Sandbox &mdash; FFER Drive Configuration</h1>
 
-    <div class="controls">
-        <form method="get">
-            <label for="path">CSV Path:</label>
-            <input type="text" name="path" id="path" value="@Model.CsvPath" size="80" />
-            <button type="submit">Load</button>
-        </form>
+    <div class="config-panel">
+
+        <div class="config-section">
+            <h3>Population &amp; Release</h3>
+
+            <div class="param-row">
+                <label for="generations">Generations</label>
+                <input type="range" id="generations" min="5" max="100" step="1" value="30" />
+                <span class="param-value" id="generations-val">30</span>
+            </div>
+
+            <div class="param-row">
+                <label for="releaseNumber">Release males</label>
+                <input type="range" id="releaseNumber" min="1" max="500" step="1" value="100" />
+                <span class="param-value" id="releaseNumber-val">100</span>
+            </div>
+
+            <div class="param-row">
+                <label for="mortality">Mortality rate</label>
+                <input type="range" id="mortality" min="0.1" max="0.9" step="0.01" value="0.10" />
+                <span class="param-value" id="mortality-val">0.10</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Reproduction</h3>
+
+            <div class="param-row">
+                <label for="eggsPerFemale">Eggs per female</label>
+                <input type="range" id="eggsPerFemale" min="1" max="200" step="1" value="50" />
+                <span class="param-value" id="eggsPerFemale-val">50</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Gene Drive Parameters</h3>
+
+            <div class="param-row">
+                <label for="cas9Activity">Cas9 nuclease activity</label>
+                <input type="range" id="cas9Activity" min="0" max="1" step="0.01" value="0.97" />
+                <span class="param-value" id="cas9Activity-val">0.97</span>
+            </div>
+
+            <div class="param-row">
+                <label for="hdrRate">HDR rate</label>
+                <input type="range" id="hdrRate" min="0" max="1" step="0.01" value="0.97" />
+                <span class="param-value" id="hdrRate-val">0.97</span>
+            </div>
+
+            <div class="param-row">
+                <label for="maternalCas9">Maternal Cas9 deposition</label>
+                <input type="range" id="maternalCas9" min="0" max="1" step="0.01" value="0.10" />
+                <span class="param-value" id="maternalCas9-val">0.10</span>
+            </div>
+
+            <div class="param-row">
+                <label for="conservation">Conservation level</label>
+                <input type="range" id="conservation" min="0" max="1" step="0.001" value="0.999" />
+                <span class="param-value" id="conservation-val">0.999</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Migration</h3>
+
+            <div class="param-row">
+                <label for="migrationBaseRate">Base migration rate</label>
+                <input type="range" id="migrationBaseRate" min="0" max="0.5" step="0.001" value="0.100" />
+                <span class="param-value" id="migrationBaseRate-val">0.100</span>
+            </div>
+            <div class="migration-detail" id="migration-detail"></div>
+        </div>
+
     </div>
 
-    @if (Model.ErrorMessage != null)
-    {
-        <div class="error">@Model.ErrorMessage</div>
-    }
+    <div class="action-bar">
+        <button id="btn-run" class="btn btn-run" onclick="runSimulation()">Run Simulation</button>
+        <a id="btn-view" href="/Viewer" class="btn btn-view disabled">View Results</a>
+    </div>
 
-    <div id="charts"></div>
+    <div id="progress-container" class="progress-container" style="display:none">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text"></div>
+    </div>
 
-    <script src="/js/charts.js?v=2"></script>
-    <script>
-        const data = @Html.Raw(Model.CsvJson);
-        if (data.length > 0) {
-            buildCharts(data);
-        }
-    </script>
+    <script src="/js/configure.js?v=1"></script>
 </body>
 </html>
