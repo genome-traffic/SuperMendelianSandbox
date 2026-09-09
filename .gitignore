@@ -5,5 +5,5 @@ obj/
 *.suo
 .vs/
 .claude/
-**/output/*.csv
-**/output/*.json
+# Simulation results, written per drive model into output/<model>/
+**/output/

@@ -23,6 +23,101 @@ h3 {
     padding-bottom: 6px;
 }
 
+/* -- Navigation bar (config + viewer pages) -- */
+
+.nav-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #0f3460;
+}
+
+.nav-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #16213e;
+}
+
+/* -- Landing page -- */
+
+.lede {
+    max-width: 900px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #374151;
+    margin-bottom: 24px;
+}
+
+.model-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 18px;
+    max-width: 1200px;
+}
+
+.model-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px 24px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    border-top: 4px solid #0f3460;
+}
+
+.model-card h2 {
+    font-size: 17px;
+    line-height: 1.35;
+    margin: 10px 0 12px;
+    border-bottom: none;
+    padding-bottom: 0;
+    color: #16213e;
+}
+
+.model-card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #374151;
+    margin: 0 0 14px;
+}
+
+.model-tag {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 10px;
+}
+
+.tag-suppress {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.tag-modify {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.model-meta {
+    font-size: 13px;
+    color: #6b7280;
+    font-style: italic;
+    margin: 0 0 18px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.model-card .btn {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
 /* -- Shared controls -- */
 
 .controls {
@@ -245,6 +340,15 @@ h3 {
 
 .iter-legend span {
     margin: 0 10px;
+}
+
+.iter-legend .swatch {
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    margin: 0 5px 0 0;
+    vertical-align: middle;
+    border-radius: 2px;
 }
 
 .migration-arrow {

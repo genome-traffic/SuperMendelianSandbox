@@ -120,13 +120,12 @@ namespace SMS
 
 
         /// <summary>
-        /// Creates a gene drive release population containing only drive males.
-        /// Each organism is a male heterozygous for the TRA gene drive transgene
-        /// (one copy Transgene, one copy WT) carrying Cas9 and gRNA_TRA.
+        /// Creates a release population containing only transgenic males, of whichever
+        /// construct the active model calls for (see Generate_DriveMale).
         /// Sets a high carrying capacity (10000) since this is a release cohort,
         /// not a self-sustaining population.
         /// </summary>
-        /// <param name="number">Number of gene drive males to create.</param>
+        /// <param name="number">Number of transgenic males to create.</param>
         public Population(int number)
         {
             this.PopulationCapacity = 10000;
@@ -148,50 +147,78 @@ namespace SMS
         //---------------------- Define Organism Types -----------------------------------------------------
 
 
+        //---------------------- Genome layout constants -----------------------------
+
+        /// <summary>Map position of the drive target locus on autosome 2. Also the
+        /// position of the MEDEA toxin half; the rescue sits Simulation.MedeaDistance
+        /// further along.</summary>
+        const float TargetPosition = 1F;
+
+        /// <summary>Map position of the TRA locus on autosome 3. TRA is retained in
+        /// every model because Organism.GetSex reads maternal TRA provision, but only
+        /// the "ffer" model ever carries a guide able to cut it.</summary>
+        const float TraPosition = 2F;
+
+        /// <summary>Map position of the Y-linked distorter insertion site. The same
+        /// site is scored on the X so that the construct's spread can be read as an
+        /// ordinary allele frequency; the sex pair never recombines, so the locus
+        /// cannot actually move between an X and a Y.</summary>
+        const float DistorterPosition = 2F;
+
         /// <summary>
-        /// Constructs a wild-type female organism with the following genome:
+        /// Builds a wild-type gene locus with the repair and conservation traits that
+        /// the CRISPR machinery reads. These traits are inert in the models that carry
+        /// no nuclease, but are set everywhere so every locus has a complete trait set.
+        /// </summary>
+        GeneLocus WTLocus(string gene, float position)
+        {
+            GeneLocus L = new GeneLocus(gene, position, "WT");
+            L.AddToTraits("Conservation", Simulation.Param2);
+            L.AddToTraits("HomRepair_male", Simulation.Param0);
+            L.AddToTraits("HomRepair_female", Simulation.Param0);
+            return L;
+        }
+
+        /// <summary>
+        /// Adds the wild-type loci that autosome 2 carries under the active model.
         ///
-        /// Chromosome layout (3 homologous pairs):
-        ///   Pair "Sex": X / X  (empty, no loci — sex determined by absence of MoY)
-        ///   Pair "2":   FFER(WT) / FFER(WT)  — on chromosome 2, position 1.0
-        ///   Pair "3":   TRA(WT)  / TRA(WT)   — on chromosome 3, position 2.0
+        ///   "medea" — MTOX (toxin) and MRES (rescue), separated by
+        ///             Simulation.MedeaDistance map units so that crossover between
+        ///             them can uncouple the two halves of the element.
+        ///   others  — FFER, the single female fertility target locus.
+        /// </summary>
+        void AddChrom2Loci(Chromosome Chrom)
+        {
+            if (Simulation.Model == "medea")
+            {
+                Chrom.GeneLocusList.Add(WTLocus("MTOX", TargetPosition));
+                Chrom.GeneLocusList.Add(WTLocus("MRES", TargetPosition + Simulation.MedeaDistance));
+            }
+            else
+            {
+                Chrom.GeneLocusList.Add(WTLocus("FFER", TargetPosition));
+            }
+        }
+
+        /// <summary>
+        /// Constructs a wild-type female organism. The genome has three homologous
+        /// pairs; what sits on autosome 2 and on the sex chromosomes depends on the
+        /// model being simulated:
         ///
-        /// Each WT locus carries traits parameterized by Simulation.Param0/Param2:
-        ///   - Conservation (Param2): probability that NHEJ produces R2 vs R1
-        ///   - HomRepair_male/female (Param0): HDR efficiency (used by the drive
-        ///     Transgene on the homologous chromosome, not by WT itself, but set here
-        ///     so the trait exists at the locus for consistency)
+        ///   Pair "Sex": X / X. Empty in the "ffer" and "medea" models — femaleness
+        ///               follows from the absence of MoY. In "ydrive" each X also
+        ///               carries YLD(WT), the wild-type version of the distorter
+        ///               insertion site, so the construct's frequency can be scored.
+        ///   Pair "2":   The drive target: FFER, or MTOX + MRES under MEDEA.
+        ///   Pair "3":   TRA(WT) / TRA(WT), retained in all models for sex determination.
         ///
-        /// Parental factors: TRA_mRNA = 1 (maternal TRA provision for sex determination)
-        ///
-        /// Note: FFER locus is included but noted as "not really needed for TRA sim only"
-        /// — it serves as a second gene drive target for multi-locus drive designs.
+        /// Parental factors: TRA_mRNA = 1 (maternal TRA provision for sex determination).
         /// </summary>
         /// <returns>A new wild-type XX female organism.</returns>
         public Organism GenerateWTFemale()
         {
             Organism WTFemale = new Organism();
 
-            //ffer not really needed for tra sim only
-            GeneLocus FFERa = new GeneLocus("FFER", 1F, "WT");
-            FFERa.AddToTraits("Conservation", Simulation.Param2);
-            FFERa.AddToTraits("HomRepair_male", Simulation.Param0);
-            FFERa.AddToTraits("HomRepair_female", Simulation.Param0);
-            GeneLocus FFERb = new GeneLocus("FFER", 1F, "WT");
-            FFERb.AddToTraits("Conservation", Simulation.Param2);
-            FFERb.AddToTraits("HomRepair_male", Simulation.Param0);
-            FFERb.AddToTraits("HomRepair_female", Simulation.Param0);
-
-            GeneLocus TRAa = new GeneLocus("TRA", 2F, "WT");
-            TRAa.AddToTraits("Conservation", Simulation.Param2);
-            TRAa.AddToTraits("HomRepair_male", Simulation.Param0);
-            TRAa.AddToTraits("HomRepair_female", Simulation.Param0);
-            GeneLocus TRAb = new GeneLocus("TRA", 2F, "WT");
-            TRAb.AddToTraits("Conservation", Simulation.Param2);
-            TRAb.AddToTraits("HomRepair_male", Simulation.Param0);
-            TRAb.AddToTraits("HomRepair_female", Simulation.Param0);
-
-            // Build chromosome pairs: Sex (X/X), autosome 2 (FFER), autosome 3 (TRA)
             Chromosome ChromXa = new Chromosome("X", "Sex");
             Chromosome ChromXb = new Chromosome("X", "Sex");
             Chromosome Chrom2a = new Chromosome("2", "2");
@@ -199,11 +226,19 @@ namespace SMS
             Chromosome Chrom3a = new Chromosome("3", "3");
             Chromosome Chrom3b = new Chromosome("3", "3");
 
-            Chrom2a.GeneLocusList.Add(FFERa);
-            Chrom2b.GeneLocusList.Add(FFERb);
+            // The distorter insertion site is scored on both sex chromosomes so that
+            // wild-type and drive Y chromosomes are distinguishable in the output.
+            if (Simulation.Model == "ydrive")
+            {
+                ChromXa.GeneLocusList.Add(WTLocus("YLD", DistorterPosition));
+                ChromXb.GeneLocusList.Add(WTLocus("YLD", DistorterPosition));
+            }
 
-            Chrom3a.GeneLocusList.Add(TRAa);
-            Chrom3b.GeneLocusList.Add(TRAb);
+            AddChrom2Loci(Chrom2a);
+            AddChrom2Loci(Chrom2b);
+
+            Chrom3a.GeneLocusList.Add(WTLocus("TRA", TraPosition));
+            Chrom3b.GeneLocusList.Add(WTLocus("TRA", TraPosition));
 
             // Assemble diploid genome: ListA and ListB must have chromosomes at
             // matching indices for homologous pairing
@@ -223,10 +258,8 @@ namespace SMS
         /// <summary>
         /// Constructs a wild-type male by cloning a WT female and replacing one X
         /// chromosome (ChromosomeListA[0]) with a Y chromosome carrying the MoY
-        /// (Maleness-on-Y) gene. This gives the male:
-        ///   Pair "Sex": Y(MoY=WT) / X  — XY karyotype
-        ///   Pair "2":   FFER(WT) / FFER(WT)
-        ///   Pair "3":   TRA(WT)  / TRA(WT)
+        /// (Maleness-on-Y) gene. Under the "ydrive" model the Y also carries YLD(WT),
+        /// marking an unmodified distorter insertion site.
         /// </summary>
         /// <returns>A new wild-type XY male organism.</returns>
         public Organism GenerateWTMale()
@@ -236,6 +269,9 @@ namespace SMS
             GeneLocus MaleFactor = new GeneLocus("MoY", 1F, "WT");
             ChromY.GeneLocusList.Add(MaleFactor);
 
+            if (Simulation.Model == "ydrive")
+                ChromY.GeneLocusList.Add(WTLocus("YLD", DistorterPosition));
+
             // Replace the first X (in ListA) with the Y chromosome
             WTMale.ChromosomeListA[0] = ChromY;
 
@@ -243,41 +279,41 @@ namespace SMS
         }
 
         /// <summary>
-        /// Constructs a gene drive male by cloning a WT male and replacing ONE copy
-        /// of the TRA gene (on ChromosomeListA) with the Transgene allele. The resulting
-        /// organism is hemizygous for the drive: TRA(Transgene)/TRA(WT).
-        ///
-        /// The Transgene TRA locus carries the following traits:
-        ///   - Cas9_male (Param1):    Cas9 activity in male germline
-        ///   - Cas9_female (Param1):  Cas9 activity in female germline
-        ///   - Cas9_maternal (Param1): Maternal Cas9 deposition into embryo
-        ///   - Cas9_paternal (0):      No paternal Cas9 deposition
-        ///   - gRNA_TRA (1.0):         Full gRNA expression targeting TRA
-        ///   - HomRepair_male (Param0): HDR rate in males
-        ///   - HomRepair_female (Param0): HDR rate in females
-        ///
-        /// This configuration means:
-        ///   - The drive actively cuts WT TRA alleles in both male and female germlines.
-        ///   - Cas9 is maternally but not paternally deposited into embryos.
-        ///   - gRNA is always expressed at full level (1.0).
-        ///   - Only TRA is directly targeted (FFER would need separate gRNA).
+        /// Constructs the transgenic male that is released into the population,
+        /// dispatching to the builder for the active model.
         /// </summary>
-        /// <returns>A new gene drive XY male organism, heterozygous TRA(Transgene)/TRA(WT).</returns>
+        /// <returns>A new transgenic XY male organism.</returns>
         public Organism Generate_DriveMale()
+        {
+            switch (Simulation.Model)
+            {
+                case "ydrive": return Generate_YDriveMale();
+                case "medea":  return Generate_MedeaMale();
+                default:       return Generate_HomingDriveMale();
+            }
+        }
+
+        /// <summary>
+        /// Suppressive homing drive male ("ffer"). Clones a WT male and replaces ONE
+        /// copy of the female fertility gene (on ChromosomeListA) with the Transgene
+        /// allele, giving FFER(Transgene)/FFER(WT).
+        ///
+        /// The Transgene locus carries:
+        ///   - Cas9_male / Cas9_female (Param1): germline nuclease activity
+        ///   - Cas9_maternal (Param3):           maternal deposition into the embryo
+        ///   - Cas9_paternal (0):                no paternal deposition
+        ///   - gRNA_FFER (1.0):                  full guide expression against FFER
+        ///   - HomRepair_male / _female (Param0): HDR efficiency used when homing
+        ///
+        /// So the drive cuts WT FFER alleles in both germlines and homes into them;
+        /// females left with two disrupted copies are sterile.
+        /// </summary>
+        /// <returns>A drive male, heterozygous FFER(Transgene)/FFER(WT).</returns>
+        Organism Generate_HomingDriveMale()
         {
             Organism D_Male = new Organism(GenerateWTMale());
 
-            /* GeneLocus TRADRIVE = new GeneLocus("TRA", 2F, "Transgene");
-            TRADRIVE.AddToTraits("Cas9_male", Simulation.Param1);
-            TRADRIVE.AddToTraits("Cas9_female", Simulation.Param1);
-            TRADRIVE.AddToTraits("Cas9_maternal", Simulation.Param1);
-            TRADRIVE.AddToTraits("Cas9_paternal", 0F);
-            TRADRIVE.AddToTraits("gRNA_TRA", 1F);
-            TRADRIVE.AddToTraits("HomRepair_male", Simulation.Param0);
-            TRADRIVE.AddToTraits("HomRepair_female", Simulation.Param0);
-            */
-
-            GeneLocus FDRIVE = new GeneLocus("FFER", 1F, "Transgene");
+            GeneLocus FDRIVE = new GeneLocus("FFER", TargetPosition, "Transgene");
             FDRIVE.AddToTraits("Cas9_male", Simulation.Param1);
             FDRIVE.AddToTraits("Cas9_female", Simulation.Param1);
             FDRIVE.AddToTraits("Cas9_maternal", Simulation.Param3);
@@ -286,40 +322,120 @@ namespace SMS
             FDRIVE.AddToTraits("HomRepair_male", Simulation.Param0);
             FDRIVE.AddToTraits("HomRepair_female", Simulation.Param0);
 
-
-            // Replace WT TRA allele on ChromosomeListA with the Transgene
+            // Replace the WT FFER allele on ChromosomeListA with the Transgene
             D_Male.ModifyAllele("A", FDRIVE, "WT");
             return D_Male;
         }
 
+        /// <summary>
+        /// Driving Y male ("ydrive"). Clones a WT male and converts the YLD locus on
+        /// the Y chromosome to the Transgene allele, which carries the "X_shred" trait.
+        /// Chromosome.Chromosome(HomChrom1, HomChrom2, parent) reads that trait during
+        /// meiosis and biases sex chromosome segregation towards the Y.
+        ///
+        /// The locus is edited on the Y specifically rather than through ModifyAllele,
+        /// because the construct must never be placed on an X: a distorter on an X
+        /// would shred the chromosome carrying it.
+        /// </summary>
+        /// <returns>A drive male carrying one shredder Y and one wild-type X.</returns>
+        Organism Generate_YDriveMale()
+        {
+            Organism D_Male = new Organism(GenerateWTMale());
 
-       
+            GeneLocus YDRIVE = new GeneLocus("YLD", DistorterPosition, "Transgene");
+            YDRIVE.AddToTraits("X_shred", Simulation.XShredRate);
+
+            foreach (Chromosome Chrom in D_Male.ChromosomeListA)
+            {
+                if (Chrom.ChromosomeName != "Y")
+                    continue;
+
+                foreach (GeneLocus GL in Chrom.GeneLocusList)
+                {
+                    if (GL.IsSameGene("YLD"))
+                        GL.InheritAll(YDRIVE);
+                }
+            }
+
+            return D_Male;
+        }
+
+        /// <summary>
+        /// MEDEA male ("medea"). Clones a WT male and converts both halves of the
+        /// element — the maternally expressed toxin (MTOX) and the zygotically
+        /// expressed rescue (MRES) — to Transgene on ChromosomeListA only, so the
+        /// released male is heterozygous.
+        ///
+        /// Putting both halves on the same homolog is what makes the linkage question
+        /// meaningful: a single crossover between MTOX and MRES in a heterozygote
+        /// separates them, yielding a toxin-only chromosome (whose carriers make toxin
+        /// but have no immunity) and a rescue-only chromosome (immune, and free of the
+        /// cost of making toxin). The closer the two loci, the rarer that event.
+        ///
+        /// Males are released rather than females because the toxin is a maternal
+        /// effect: the element must first pass through a female before it starts
+        /// removing non-carriers, which costs one generation of lag.
+        /// </summary>
+        /// <returns>A MEDEA male, heterozygous for an intact toxin/rescue element.</returns>
+        Organism Generate_MedeaMale()
+        {
+            Organism M_Male = new Organism(GenerateWTMale());
+
+            GeneLocus TOXIN = new GeneLocus("MTOX", TargetPosition, "Transgene");
+            TOXIN.AddToTraits("Medea_toxin", Simulation.MedeaPenetrance);
+
+            GeneLocus RESCUE = new GeneLocus("MRES", TargetPosition + Simulation.MedeaDistance, "Transgene");
+            RESCUE.AddToTraits("Medea_rescue", Simulation.MedeaRescue);
+
+            M_Male.ModifyAllele("A", TOXIN, "WT");
+            M_Male.ModifyAllele("A", RESCUE, "WT");
+
+            return M_Male;
+        }
+
 
         //----------------------- Population methods ----------------------------------------------------
 
 
         /// <summary>
         /// Performs a single mating cross between a male and female organism, producing
-        /// a list of offspring (eggs). The number of eggs is the base fecundity
-        /// (GlobalEggsPerFemale) multiplied by both parents' fertility values.
+        /// a list of surviving offspring (eggs). The number of eggs laid is the base
+        /// fecundity (GlobalEggsPerFemale) multiplied by both parents' fertility values.
         /// Each egg is created via the sexual reproduction constructor Organism(Dad, Mum),
         /// which performs meiosis, gene drive, and parental factor determination.
+        ///
+        /// Under the "medea" model a further, post-zygotic filter applies. A mother
+        /// carrying the toxin half of the element loads every egg she lays; each embryo
+        /// is then tested individually and those that fail to inherit a working rescue
+        /// arrest and are not returned. The eggs reported to the output are therefore
+        /// the viable ones, so the embryonic load the element imposes is visible as a
+        /// dip in egg number while it spreads.
         /// </summary>
         /// <param name="Dad">The paternal organism (must be male).</param>
         /// <param name="Mum">The maternal organism (must be female).</param>
         /// <param name="GlobalEggsPerFemale">Base number of eggs per cross.</param>
-        /// <returns>List of offspring organisms.</returns>
+        /// <returns>List of viable offspring organisms.</returns>
         public List<Organism> PerformCross(Organism Dad, Organism Mum, int GlobalEggsPerFemale)
         {
             int EggsPerFemale = GlobalEggsPerFemale;
             List<Organism> EggList = new List<Organism>();
 
-            // Adjust egg count by parental fertility (currently always 1.0)
+            // Adjust egg count by parental fertility
             EggsPerFemale = (int)(EggsPerFemale * Dad.GetFertility() * Mum.GetFertility());
+
+            // A MEDEA mother deposits toxin into every egg regardless of its genotype.
+            float MaternalToxin = 0F;
+            if (Simulation.Model == "medea")
+                MaternalToxin = Mum.GetMaxTransgeneTrait("Medea_toxin");
 
             for (int i = 0; i < EggsPerFemale; i++)
             {
-                EggList.Add(new Organism(Dad, Mum));
+                Organism Egg = new Organism(Dad, Mum);
+
+                if (MaternalToxin > 0F && !Egg.SurvivesMedeaToxin(MaternalToxin))
+                    continue;   // embryonic arrest: the egg is laid but never hatches
+
+                EggList.Add(Egg);
             }
 
             return EggList;

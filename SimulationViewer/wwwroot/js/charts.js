@@ -15,6 +15,32 @@ const FALLBACK_PALETTE = [
 const ITER_DASHES = ['solid', 'dash', 'dot', 'dashdot', 'longdash',
                      'longdashdot', 'solid', 'dash'];
 
+// Row labels for the tracked loci of each drive model, and the order the rows
+// should appear in. Loci not listed fall back to their raw gene name and sort
+// after the known ones.
+const GENE_LABELS = {
+    'FFER': 'Fertility locus',
+    'YLD':  'Driving Y',
+    'MTOX': 'MEDEA toxin',
+    'MRES': 'MEDEA rescue',
+};
+
+const GENE_ORDER = ['FFER', 'YLD', 'MTOX', 'MRES'];
+
+function geneLabel(gene) {
+    return GENE_LABELS[gene] || gene;
+}
+
+function orderGenes(genes) {
+    return genes.slice().sort(function(a, b) {
+        var ia = GENE_ORDER.indexOf(a), ib = GENE_ORDER.indexOf(b);
+        if (ia === -1) ia = GENE_ORDER.length;
+        if (ib === -1) ib = GENE_ORDER.length;
+        if (ia !== ib) return ia - ib;
+        return String(a).localeCompare(String(b));
+    });
+}
+
 function alleleColor(allele) {
     if (ALLELE_COLORS[allele]) return ALLELE_COLORS[allele];
     var hash = 0;
@@ -42,7 +68,9 @@ var MARGIN = { t: 10, b: 38, l: 48, r: 8 };
 
 function baseLayout(yTitle, extra) {
     var layout = {
-        xaxis:  { title: { text: 'Generation', font: { size: 11 } }, tickfont: { size: 10 } },
+        // nticks keeps generation labels legible in the narrow per-population
+        // cells; without it long runs cram every generation onto the axis.
+        xaxis:  { title: { text: 'Generation', font: { size: 11 } }, tickfont: { size: 10 }, nticks: 6 },
         yaxis:  { title: { text: yTitle, font: { size: 11 } }, tickfont: { size: 10 } },
         margin: MARGIN,
         height: CHART_HEIGHT,
@@ -236,6 +264,21 @@ function buildCharts(data) {
     var container = document.getElementById('charts');
     container.innerHTML = '';
 
+    // Allele colour key, shared by every chart. Keeping it out of the individual
+    // plots means all population cells get the same plot width, so curves can be
+    // compared across populations by eye.
+    var alleleRows = allData.filter(isGenotypeRow);
+    var alleles = unique(alleleRows.map(function(d) { return d.value1; })
+                  .concat(alleleRows.map(function(d) { return d.value2; })));
+    if (alleles.length > 0) {
+        var alleleLeg = document.createElement('div');
+        alleleLeg.className = 'iter-legend';
+        alleleLeg.innerHTML = 'Alleles: ' + alleles.map(function(a) {
+            return '<span><span class="swatch" style="background:' + alleleColor(a) + '"></span>' + a + '</span>';
+        }).join('');
+        container.appendChild(alleleLeg);
+    }
+
     // Iteration dash legend
     var allIters = unique(data.map(function(d) { return d.iteration; }));
     if (allIters.length > 1) {
@@ -259,7 +302,7 @@ function buildCharts(data) {
 function buildEnvironCharts(container, envName, envData) {
     var populations = unique(envData.map(function(d) { return d.population; }));
     var iterations  = unique(envData.map(function(d) { return d.iteration; }));
-    var genes = unique(envData.filter(isGenotypeRow).map(function(d) { return d.category; }));
+    var genes = orderGenes(unique(envData.filter(isGenotypeRow).map(function(d) { return d.category; })));
 
     var numCols = populations.length;
     var colParts = ['50px'];
@@ -285,10 +328,10 @@ function buildEnvironCharts(container, envName, envData) {
         grid.appendChild(makeDiv('Population ' + (populations[p] + 1), 'col-header'));
     }
 
-    // Allele frequency rows (one per gene)
+    // Allele frequency rows (one per tracked locus)
     for (var g = 0; g < genes.length; g++) {
         (function(gene) {
-            addRow(grid, gene, populations, envData, function(div, popData, isFirst) {
+            addRow(grid, geneLabel(gene), populations, envData, function(div, popData, isFirst) {
                 buildAlleleChart(div, popData, iterations, gene, isFirst);
             });
         })(genes[g]);
@@ -319,7 +362,9 @@ function addRow(grid, label, populations, envData, chartFn) {
         div.className = 'chart-cell';
         grid.appendChild(div);
         var popData = envData.filter(function(d) { return d.population === pop; });
-        chartFn(div, popData, p === 0);
+        // Legends are rendered once above the grid rather than per chart, so no
+        // cell loses plot width to one.
+        chartFn(div, popData, false);
     }
 }
 

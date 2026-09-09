@@ -3,20 +3,49 @@ using System.Text.Json;
 
 namespace SimulationViewer.Pages;
 
+/// <summary>
+/// Results viewer. Shared by all drive models: the "model" query parameter
+/// selects which output subdirectory to read and how the page labels itself.
+/// </summary>
 public class ViewerModel : PageModel
 {
     public string CsvJson { get; set; } = "[]";
     public string CsvPath { get; set; } = "";
     public string? ErrorMessage { get; set; }
 
-    public void OnGet(string? path)
+    /// <summary>The drive model whose results are shown; always one of the known ids.</summary>
+    public string DriveModel { get; private set; } = "ffer";
+
+    /// <summary>Display name for the model, shown in the page heading.</summary>
+    public string DriveModelName => DriveModel switch
     {
+        "ydrive" => "Driving Y chromosome (X-shredder sex distorter)",
+        "medea"  => "MEDEA selfish genetic element",
+        _        => "Suppressive gene drive targeting a mosquito female fertility gene",
+    };
+
+    /// <summary>Path back to this model's configuration page.</summary>
+    public string ConfigPage => DriveModel switch
+    {
+        "ydrive" => "/YDrive",
+        "medea"  => "/Medea",
+        _        => "/Ffer",
+    };
+
+    static readonly string[] KnownModels = { "ffer", "ydrive", "medea" };
+
+    public void OnGet(string? path, string? model)
+    {
+        // The model id becomes a path segment, so only accept known values.
+        if (model != null && Array.IndexOf(KnownModels, model) >= 0)
+            DriveModel = model;
+
         CsvPath = path ?? Path.Combine(
-            Directory.GetCurrentDirectory(), "output", "modeloutput.csv");
+            Directory.GetCurrentDirectory(), "output", DriveModel, "modeloutput.csv");
 
         if (!System.IO.File.Exists(CsvPath))
         {
-            ErrorMessage = $"File not found: {CsvPath}";
+            ErrorMessage = $"No results found for this model yet. Run a simulation first. (Looked for: {CsvPath})";
             return;
         }
 

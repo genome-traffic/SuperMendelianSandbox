@@ -453,12 +453,22 @@ namespace SMS
 
         /// <summary>
         /// Calculates the fertility of this organism as a multiplier on egg production
-        /// (0.0 = sterile, 1.0 = fully fertile). Currently returns 1.0 for all organisms
-        /// since the genotype-specific fertility penalties are commented out. These
-        /// commented-out blocks show a previous or alternative gene drive design targeting
-        /// the ZPG (zero population growth) gene, where certain transgene/R2 genotypes
-        /// caused partial or complete sterility. Additional commented blocks show
-        /// fertility penalties for R2 homozygosity at Aper1, AP2, and CP loci.
+        /// (0.0 = sterile, 1.0 = fully fertile). The penalties depend on which control
+        /// system is being simulated:
+        ///
+        ///   "ffer"   — Females carrying two disrupted copies of the female fertility
+        ///              gene (Transgene and/or R2 in any combination) are completely
+        ///              sterile; heterozygotes carrying one disrupted copy pay a small
+        ///              10% penalty. Males are unaffected by genotype.
+        ///
+        ///   "ydrive" — Males carrying the Y-linked shredder have their fertility
+        ///              multiplied by Simulation.YDriveFertility, covering both the
+        ///              gametes lost to shredding and the cost of the construct.
+        ///              Females are unaffected: the element cannot enter an X.
+        ///
+        ///   "medea"  — No parental penalty at all. MEDEA's load is paid by embryos
+        ///              (see Organism.SurvivesMedeaToxin), not by their parents, which
+        ///              is why it modifies a population without suppressing it.
         ///
         /// The result is clamped to [0, 1].
         /// </summary>
@@ -467,21 +477,40 @@ namespace SMS
         {
             float fer = 1.0F;
 
-            if (this.GetSex() == "female")
+            switch (Simulation.Model)
             {
-                if (this.AlleleHomozygous("FFER", "Transgene"))
-                { fer = 0F; }
-                else if (this.AlleleHomozygous("FFER", "R2"))
-                { fer = 0F; }
-                else if (this.AlleleHeterozygous("FFER", "Transgene", "FFER", "R2"))
-                { fer = 0F; }
-                else if (this.AlleleHeterozygous("FFER", "Transgene", "FFER", "WT"))
-                { fer -= 0.1F; }
-                 else if (this.AlleleHeterozygous("FFER", "R2", "FFER", "WT"))
-                { fer -= 0.1F; }
+                case "ydrive":
 
+                    if (this.GetSex() == "male" && this.AllelePresent("YLD", "Transgene"))
+                    { fer = Simulation.YDriveFertility; }
+
+                    break;
+
+                case "medea":
+
+                    // Deliberately empty: MEDEA kills embryos, it does not sterilise
+                    // parents. Every adult reproduces at full capacity.
+                    break;
+
+                default:
+
+                    if (this.GetSex() == "female")
+                    {
+                        if (this.AlleleHomozygous("FFER", "Transgene"))
+                        { fer = 0F; }
+                        else if (this.AlleleHomozygous("FFER", "R2"))
+                        { fer = 0F; }
+                        else if (this.AlleleHeterozygous("FFER", "Transgene", "FFER", "R2"))
+                        { fer = 0F; }
+                        else if (this.AlleleHeterozygous("FFER", "Transgene", "FFER", "WT"))
+                        { fer -= 0.1F; }
+                        else if (this.AlleleHeterozygous("FFER", "R2", "FFER", "WT"))
+                        { fer -= 0.1F; }
+
+                    }
+
+                    break;
             }
-           
 
             if (fer < 0F)
             { fer = 0F; }
@@ -863,6 +892,79 @@ namespace SMS
             else
                 return level;
 
+        }
+
+        /// <summary>
+        /// Returns the LARGEST value of a trait found across the organism's Transgene
+        /// alleles, or 0 if it carries none. Unlike GetTransgeneLevel, which sums
+        /// contributions and so scales with copy number, this reports the trait as a
+        /// property of the construct itself. Used for MEDEA toxin penetrance and rescue
+        /// efficiency, where a homozygote should behave like a heterozygote rather than
+        /// getting a double dose.
+        /// </summary>
+        /// <param name="whichtrait">The trait name to look up (e.g., "Medea_toxin").</param>
+        /// <returns>Maximum trait value over all Transgene loci, or 0 if absent.</returns>
+        public float GetMaxTransgeneTrait(string whichtrait)
+        {
+            float level = 0F;
+
+            foreach (Chromosome Chrom in this.ChromosomeListA)
+            {
+                foreach (GeneLocus GL in Chrom.GeneLocusList)
+                {
+                    if (GL.AlleleName == "Transgene")
+                    {
+                        float v = GL.GetOutTraitValue(whichtrait);
+                        if (v > level)
+                            level = v;
+                    }
+                }
+            }
+
+            foreach (Chromosome Chrom in this.ChromosomeListB)
+            {
+                foreach (GeneLocus GL in Chrom.GeneLocusList)
+                {
+                    if (GL.AlleleName == "Transgene")
+                    {
+                        float v = GL.GetOutTraitValue(whichtrait);
+                        if (v > level)
+                            level = v;
+                    }
+                }
+            }
+
+            return level;
+        }
+
+        /// <summary>
+        /// Decides whether this embryo survives a MEDEA toxin-loaded egg.
+        ///
+        /// A mother carrying the toxin half of the element loads every egg she lays,
+        /// regardless of which alleles the individual egg inherited. The embryo's fate
+        /// then depends on its own genotype:
+        ///
+        ///   - Carries a rescue copy (MRES Transgene): survives with probability equal
+        ///     to the rescue efficiency. An imperfect rescue kills some carriers too,
+        ///     which is this element's fitness cost.
+        ///   - No rescue copy: arrests with probability equal to the toxin penetrance.
+        ///     A leaky toxin (penetrance below 1) lets non-carriers slip through and
+        ///     slows the element's spread.
+        ///
+        /// Because the rescue is what confers immunity, a chromosome that has recombined
+        /// away from the toxin but kept the rescue is a free rider: immune, but paying
+        /// nothing to make toxin. Those chromosomes accumulate and break the drive.
+        /// </summary>
+        /// <param name="toxinPenetrance">Penetrance of the maternal toxin (0–1).</param>
+        /// <returns>True if the embryo develops; false if it arrests.</returns>
+        public bool SurvivesMedeaToxin(float toxinPenetrance)
+        {
+            float rescue = this.GetMaxTransgeneTrait("Medea_rescue");
+
+            if (rescue > 0F)
+                return rescue >= (float)Shuffle.random.NextDouble();
+
+            return toxinPenetrance < (float)Shuffle.random.NextDouble();
         }
 
         /// <summary>

@@ -108,9 +108,12 @@ namespace SMS
         /// Meiotic constructor with CRISPR gene drive mechanics. Produces a single
         /// recombinant gamete chromosome from two homologous parental chromosomes.
         ///
-        /// For sex chromosomes ("Sex" pair): No recombination or gene drive occurs.
-        /// One of the two homologs (e.g., X or Y) is chosen at random with 50/50
-        /// probability, simulating Mendelian segregation of sex chromosomes.
+        /// For sex chromosomes ("Sex" pair): No recombination or homing occurs. One of
+        /// the two homologs (X or Y) is chosen, normally with 50/50 probability, which
+        /// simulates Mendelian segregation. If the parent carries a Y-linked X-shredder
+        /// (the "X_shred" trait on a Transgene allele) the draw is biased towards the Y
+        /// in proportion to the shredding efficiency, since X-bearing gametes are
+        /// destroyed before they can fertilise.
         ///
         /// For autosomes: The process is:
         ///   1. Clone both homologs to avoid modifying the parent's genome.
@@ -132,10 +135,34 @@ namespace SMS
             if (HomChrom1.HomologousPairName != HomChrom2.HomologousPairName)
             { throw new System.ArgumentException("Not homologous Chromosomes", "warning"); }
 
-            // Sex chromosomes: no recombination, randomly pick one homolog (X or Y)
+            // Sex chromosomes: no recombination, pick one homolog (X or Y).
             if (HomChrom1.HomologousPairName == "Sex")
             {
-                if (Shuffle.random.Next(0, 2) != 0)
+                // A Y-linked X-shredder biases this otherwise 50/50 draw. The nuclease
+                // is expressed in the male germline and cleaves the X, so a fraction
+                // (rate) of X-bearing gametes never mature. The surviving pool is
+                // (1 - rate) X : 1 Y, giving P(Y) = 1 / (2 - rate) — 0.5 with no
+                // shredding, 1.0 when every X-bearing gamete is destroyed.
+                float shredRate = parent.GetTransgeneLevel("X_shred");
+                bool oneIsY = HomChrom1.ChromosomeName == "Y";
+                bool twoIsY = HomChrom2.ChromosomeName == "Y";
+
+                if (shredRate > 0F && (oneIsY ^ twoIsY))
+                {
+                    float pY = 1F / (2F - shredRate);
+                    bool takeY = pY >= (float)Shuffle.random.NextDouble();
+                    Chromosome Chosen = (takeY == oneIsY) ? HomChrom1 : HomChrom2;
+
+                    this.ChromosomeName = Chosen.ChromosomeName;
+                    this.HomologousPairName = Chosen.HomologousPairName;
+
+                    foreach (GeneLocus OldGL in Chosen.GeneLocusList)
+                    {
+                        GeneLocus NewGL = new GeneLocus(OldGL);
+                        GeneLocusList.Add(NewGL);
+                    }
+                }
+                else if (Shuffle.random.Next(0, 2) != 0)
                 {
                     this.ChromosomeName = HomChrom1.ChromosomeName;
                     this.HomologousPairName = HomChrom1.HomologousPairName;

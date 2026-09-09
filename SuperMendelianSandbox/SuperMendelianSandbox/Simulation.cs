@@ -16,11 +16,25 @@ namespace SMS
     /// Configures all parameters, creates the spatial environment, runs the multi-generation
     /// simulation loop, applies gene drive interventions, and writes output to CSV.
     ///
-    /// The simulation models a CRISPR-based sex-distortion gene drive targeting the
-    /// TRA (Transformer) gene in a dipteran insect (modeled after Ceratitis capitata /
-    /// medfly or similar tephritid). The drive disrupts female sex determination by
-    /// converting WT TRA alleles to Transgene copies (via HDR) or resistance alleles
-    /// (via NHEJ), progressively masculinizing the population and causing collapse.
+    /// Three genetic control systems are implemented, selected by <see cref="Model"/>:
+    ///
+    ///   "ffer"   — Suppressive CRISPR homing drive targeting a female fertility gene
+    ///              in Anopheles. Heterozygous carriers convert WT alleles to drive
+    ///              copies in the germline (HDR) or to resistance alleles (NHEJ);
+    ///              females homozygous for a disrupted allele are sterile, so the
+    ///              accumulating genetic load suppresses the population.
+    ///
+    ///   "ydrive" — Y-linked X-shredder sex distorter (a driving Y chromosome).
+    ///              A nuclease carried on the Y destroys X-bearing gametes during male
+    ///              meiosis, so drive males sire almost exclusively sons. The Y spreads
+    ///              because it is over-transmitted, and the population collapses as
+    ///              females disappear.
+    ///
+    ///   "medea"  — Maternal-Effect Dominant Embryonic Arrest element. Mothers carrying
+    ///              the element load every egg with a toxin; only embryos that inherit
+    ///              a linked zygotic rescue survive. Non-carrier offspring of carrier
+    ///              mothers are removed, so the element spreads to fixation without
+    ///              suppressing the population — a population MODIFICATION system.
     ///
     /// Simulation structure:
     ///   - Multiple independent iterations (replicates) for statistical analysis.
@@ -34,6 +48,14 @@ namespace SMS
     {
 
         /*-------------------- Simulation Parameters ---------------------------------*/
+
+        /// <summary>Which genetic control system to simulate: "ffer" (suppressive
+        /// female-fertility homing drive), "ydrive" (Y-linked X-shredder sex distorter)
+        /// or "medea" (maternal-effect toxin/zygotic-rescue element).
+        /// Static because Population, Organism and Chromosome all branch on it while
+        /// building genomes and resolving inheritance.
+        /// Set from the web configuration page.</summary>
+        public static string Model = "ffer";
 
         /// <summary>Number of discrete, non-overlapping generations to simulate.</summary>
         public int Generations = 30;
@@ -98,6 +120,47 @@ namespace SMS
         /// of maternal vs germline drive. Set from web configuration page.</summary>
         public static float Param3 = 0.1F;
 
+        /*--- Driving Y / X-shredder parameters (Model == "ydrive") ------------------*/
+
+        /// <summary>Fraction of X-bearing gametes destroyed by the Y-linked shredder
+        /// during male meiosis (0-1). Carried as the "X_shred" trait on the YLD
+        /// Transgene allele. The surviving gamete pool is (1 - rate) X : 1 Y, so the
+        /// probability that a sperm carries the Y is 1 / (2 - rate): 0.5 at rate 0
+        /// (Mendelian) rising to 1.0 at rate 1 (all-male progeny).
+        /// Set from web configuration page.</summary>
+        public static float XShredRate = 0.95F;
+
+        /// <summary>Fertility of a male carrying the driving Y, as a multiplier on the
+        /// number of eggs his mate produces (0-1). Folds together the loss of half the
+        /// sperm complement to shredding and any fitness cost of the construct itself.
+        /// Set from web configuration page.</summary>
+        public static float YDriveFertility = 0.9F;
+
+        /*--- MEDEA parameters (Model == "medea") -----------------------------------*/
+
+        /// <summary>Penetrance of the maternal-effect toxin (0-1): the probability that
+        /// an embryo receiving toxin but no rescue actually arrests. Carried as the
+        /// "Medea_toxin" trait on the MTOX Transgene allele. Values below 1 make the
+        /// element leaky, letting non-carriers escape and slowing its spread.
+        /// Set from web configuration page.</summary>
+        public static float MedeaPenetrance = 0.95F;
+
+        /// <summary>Efficiency of the zygotic rescue (0-1): the probability that an
+        /// embryo inheriting a rescue copy survives a toxin-loaded egg. Carried as the
+        /// "Medea_rescue" trait on the MRES Transgene allele. Values below 1 kill some
+        /// carriers too, which is the element's fitness cost and the source of its
+        /// release-frequency threshold. Set from web configuration page.</summary>
+        public static float MedeaRescue = 0.95F;
+
+        /// <summary>Map distance between the toxin (MTOX) and rescue (MRES) loci, in
+        /// map units (0-0.5). Recombination frequency between them is min(distance, 0.5),
+        /// so at 0 the two halves are perfectly linked and travel as one element, while
+        /// larger values let crossovers separate them — producing rescue-only chromosomes
+        /// that are immune to the toxin without paying to make it. Those free riders
+        /// dilute the intact element and break the drive.
+        /// Set from web configuration page.</summary>
+        public static float MedeaDistance = 0.0F;
+
         /// <summary>Directory for simulation output files (CSV, status JSON).
         /// Defaults to ./output/ relative to the working directory. Overridden
         /// by the "outputDir" field in the JSON config file when launched from
@@ -110,42 +173,63 @@ namespace SMS
         /// Set from web configuration page.</summary>
         public float MigrationBaseRate = 0.1F;
 
-        /// <summary>Names of genes whose genotype frequencies are tracked in the output.
-        /// TRA is the primary gene drive target; FFER is a secondary target locus.</summary>
-        //string[] Track = {"TRA","FFER"};
-
-        /// <summary>Names of genes whose genotype frequencies are tracked in the output.
-        /// FFER is the target locus, TRA ignored in this configuration.</summary>
-        string[] Track = {"FFER"};
-
-
         /// <summary>Defines which gRNA targets which gene. Each row is {target_gene, gRNA_name}.
         /// The gene drive's Cas9 uses each gRNA to cut the corresponding target gene.
-        /// Row 0: FFER targeted by gRNA_FFER; Row 1: TRA targeted by gRNA_TRA.
+        /// Only the CRISPR homing drive ("ffer") uses guides; the driving Y and MEDEA
+        /// carry no nuclease/guide pair, so for those models this is left empty and every
+        /// cut-and-home loop in Chromosome and Organism becomes a no-op.
         /// This is a static field accessed throughout the simulation by Chromosome and
         /// Organism classes during gene drive mechanics.</summary>
         public static string[,] Target_cognate_gRNA = { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" } };
+
+        /// <summary>Selects the gRNA/target table for the active model. Called from
+        /// ApplyConfig once the model is known, before any organism is built.</summary>
+        private static void ConfigureGuides()
+        {
+            if (Model == "ffer")
+                Target_cognate_gRNA = new string[,] { { "FFER", "gRNA_FFER" }, { "TRA", "gRNA_TRA" } };
+            else
+                Target_cognate_gRNA = new string[0, 2];
+        }
+
+        /// <summary>Names of the genes whose genotype frequencies are written to the
+        /// output for the active model. MEDEA tracks both halves of the element so that
+        /// their frequencies can be compared — a rescue frequency running ahead of the
+        /// toxin frequency is the signature of recombinational uncoupling.</summary>
+        private string[] TrackedGenes()
+        {
+            switch (Model)
+            {
+                case "ydrive": return new[] { "YLD" };
+                case "medea":  return new[] { "MTOX", "MRES" };
+                default:       return new[] { "FFER" };
+            }
+        }
 
         /*------------------------------- The Simulation ---------------------------------------------*/
 
         /// <summary>
         /// Main simulation method. Runs the complete multi-iteration, multi-generation
-        /// gene drive simulation and writes all output to a CSV file on the Desktop.
+        /// simulation for the active model and writes all output to CSV.
         ///
-        /// Output file: ~/Desktop/model/modeloutput.csv
+        /// Output file: OutputDir/modeloutput.csv, where OutputDir defaults to
+        /// ./output/ and is set to output/&lt;model&gt;/ when launched from the web
+        /// configuration page, so each model's results are kept separate.
+        ///
         /// CSV columns (with header row):
         ///   Iteration, Environ, Population, Generation, Category, Value1, Value2, Count, Type
         ///
         /// Output categories per population per generation:
-        ///   - Genotype frequencies for tracked genes (TRA, FFER) -- both "all" (full census)
-        ///     and "sample" (first N=48 organisms, simulating field sampling).
+        ///   - Genotype frequencies for the model's tracked loci (see TrackedGenes) --
+        ///     both "all" (full census) and "sample" (first N=48 organisms, simulating
+        ///     field sampling).
         ///   - Phenotypic sex counts (Males, Females) -- "all" census.
         ///   - Karyotype counts (XX, XY) -- "all" census.
-        ///   - Total egg count produced -- "all".
+        ///   - Viable egg count produced -- "all".
         ///
         /// Simulation flow per generation per population:
         ///   1. Apply intervention: if enabled and within the intervention window, release
-        ///      InterventionReleaseNumber gene drive males into population 0.
+        ///      InterventionReleaseNumber transgenic males into population 0.
         ///   2. Record output data (genotypes, sex ratios, karyotypes).
         ///   3. Reproduce: all females attempt to mate with random males, producing eggs.
         ///      Adults die (non-overlapping generations).
@@ -156,9 +240,9 @@ namespace SMS
         ///
         /// Environment setup:
         ///   5 populations of 500 individuals each (cap 500), connected in a linear
-        ///   chain with exponentially decreasing migration rates:
-        ///     Pop 0-1: 10%,  1-2: 1%,  2-3: 0.1%,  3-4: 0.01%
-        ///   Gene drive males are released into population 0.
+        ///   chain with migration decaying 10x per step from MigrationBaseRate:
+        ///     Pop 0-1: base,  1-2: base/10,  2-3: base/100,  3-4: base/1000
+        ///   Transgenic males are released into population 0.
         /// </summary>
         public void Simulate()
         {
@@ -170,8 +254,10 @@ namespace SMS
             Console.WriteLine("Writing output to: " + pathString);
             File.Create(pathString).Dispose();
 
-            Console.WriteLine("Simulation Starts.");
+            Console.WriteLine("Simulation Starts. Model = " + Model);
             WriteStatus(statusPath, "running", 0, 0);
+
+            string[] Track = TrackedGenes();
 
             using (var stream = File.OpenWrite(pathString))
             using (var Fwriter = new StreamWriter(stream))
@@ -347,6 +433,12 @@ namespace SMS
             var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
+            // The model must be set before anything else, since it decides which
+            // genome layout and inheritance rules the rest of the run uses.
+            if (root.TryGetProperty("model", out var mod))
+                Model = mod.GetString() ?? Model;
+            ConfigureGuides();
+
             if (root.TryGetProperty("generations", out var gen))
                 Generations = gen.GetInt32();
             if (root.TryGetProperty("releaseNumber", out var rel))
@@ -363,6 +455,21 @@ namespace SMS
                 Param2 = cons.GetSingle();
             if (root.TryGetProperty("maternalCas9", out var mat))
                 Param3 = mat.GetSingle();
+
+            // Driving Y / X-shredder
+            if (root.TryGetProperty("xShredRate", out var shred))
+                XShredRate = shred.GetSingle();
+            if (root.TryGetProperty("yDriveFertility", out var yfer))
+                YDriveFertility = yfer.GetSingle();
+
+            // MEDEA
+            if (root.TryGetProperty("medeaPenetrance", out var pen))
+                MedeaPenetrance = pen.GetSingle();
+            if (root.TryGetProperty("medeaRescue", out var res))
+                MedeaRescue = res.GetSingle();
+            if (root.TryGetProperty("medeaDistance", out var dist))
+                MedeaDistance = dist.GetSingle();
+
             if (root.TryGetProperty("migrationBaseRate", out var mig))
                 MigrationBaseRate = mig.GetSingle();
             if (root.TryGetProperty("outputDir", out var outDir))

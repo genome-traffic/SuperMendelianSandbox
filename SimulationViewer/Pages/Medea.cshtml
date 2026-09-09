@@ -1,0 +1,310 @@
+@page
+@model SimulationViewer.Pages.MedeaModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SMS &mdash; MEDEA Element</title>
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="/" class="btn btn-back">&larr; All models</a>
+        <span class="nav-title">MEDEA selfish genetic element</span>
+    </div>
+
+    <div class="config-panel">
+
+        <div class="config-section">
+            <h3>Population &amp; Release</h3>
+
+            <div class="param-row">
+                <label for="generations">Generations</label>
+                <input type="range" id="generations" min="5" max="100" step="1" value="40" />
+                <span class="param-value" id="generations-val">40</span>
+            </div>
+
+            <div class="param-row">
+                <label for="releaseNumber">Release males</label>
+                <input type="range" id="releaseNumber" min="1" max="250" step="1" value="150" />
+                <span class="param-value" id="releaseNumber-val">150</span>
+            </div>
+
+            <div class="param-row">
+                <label for="mortality">Mortality rate</label>
+                <input type="range" id="mortality" min="0.1" max="0.9" step="0.01" value="0.10" />
+                <span class="param-value" id="mortality-val">0.10</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Reproduction</h3>
+
+            <div class="param-row">
+                <label for="eggsPerFemale">Eggs per female</label>
+                <input type="range" id="eggsPerFemale" min="1" max="200" step="1" value="50" />
+                <span class="param-value" id="eggsPerFemale-val">50</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Toxin &amp; Rescue</h3>
+
+            <div class="param-row">
+                <label for="medeaPenetrance">Toxin penetrance</label>
+                <input type="range" id="medeaPenetrance" min="0" max="1" step="0.01" value="1.00" />
+                <span class="param-value" id="medeaPenetrance-val">1.00</span>
+            </div>
+
+            <div class="param-row">
+                <label for="medeaRescue">Rescue efficiency</label>
+                <input type="range" id="medeaRescue" min="0" max="1" step="0.01" value="1.00" />
+                <span class="param-value" id="medeaRescue-val">1.00</span>
+            </div>
+
+            <div class="param-row">
+                <label for="medeaDistance">Toxin&ndash;rescue distance</label>
+                <input type="range" id="medeaDistance" min="0" max="0.5" step="0.005" value="0" />
+                <span class="param-value" id="medeaDistance-val">0.000</span>
+            </div>
+            <div class="migration-detail" id="linkage-detail"></div>
+        </div>
+
+        <div class="config-section">
+            <h3>Migration</h3>
+
+            <div class="param-row">
+                <label for="migrationBaseRate">Base migration rate</label>
+                <input type="range" id="migrationBaseRate" min="0" max="0.5" step="0.001" value="0.100" />
+                <span class="param-value" id="migrationBaseRate-val">0.100</span>
+            </div>
+            <div class="migration-detail" id="migration-detail"></div>
+        </div>
+
+    </div>
+
+    <div class="action-bar">
+        <button id="btn-run" class="btn btn-run" onclick="runSimulation()">Run Simulation</button>
+        <a id="btn-view" href="/Viewer?model=medea" class="btn btn-view disabled">View Results</a>
+    </div>
+
+    <div id="progress-container" class="progress-container" style="display:none">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text"></div>
+    </div>
+
+    <script>
+        var SIM_MODEL = 'medea';
+        var SIM_PARAMS = [
+            'generations', 'releaseNumber', 'mortality', 'eggsPerFemale',
+            'medeaPenetrance', 'medeaRescue', 'medeaDistance', 'migrationBaseRate'
+        ];
+    </script>
+    <script src="/js/configure.js?v=3"></script>
+
+    <div class="info-panel">
+
+        <h2>About MEDEA Elements</h2>
+
+        <p>
+            <strong>MEDEA</strong> stands for <em>Maternal-Effect Dominant Embryonic
+            Arrest</em>, and the acronym is also a reference to the Medea of Greek myth,
+            who killed her own children. The element is a two-part construct: a
+            <strong>toxin</strong> expressed in the mother's germline and loaded into
+            every egg she lays, paired with a <strong>rescue</strong> expressed in the
+            embryo from its own genome. An embryo that inherits the element makes the
+            rescue and develops normally. An embryo that does not inherit it receives the
+            toxin with no antidote and arrests.
+        </p>
+        <p>
+            The consequence is elegant. A heterozygous mother poisons her whole clutch,
+            but only the half of her offspring that failed to inherit the element actually
+            die. Among her surviving offspring, essentially all are carriers. The element
+            does not copy itself, cut anything, or bias meiosis &mdash; inheritance stays
+            perfectly Mendelian. It spreads purely because non-carriers are selectively
+            removed from carrier broods, which is enough to take it from a modest release
+            frequency all the way to fixation.
+        </p>
+        <p>
+            Crucially, MEDEA is a <strong>population modification</strong> system, not a
+            suppression system. Its load falls on embryos, and in a species that lays far
+            more eggs than can survive to adulthood, killing embryos costs the population
+            almost nothing &mdash; density-dependent competition would have removed most
+            of them anyway. Adult numbers stay essentially flat while the element sweeps
+            through. That is exactly what makes it interesting: it is a vehicle for
+            <em>carrying</em> something else, such as a gene conferring refractoriness to
+            <em>Plasmodium</em>, into a wild population, leaving the mosquitoes in place
+            but no longer able to transmit malaria.
+        </p>
+        <p>
+            Natural Medea factors were discovered in the flour beetle
+            <em>Tribolium castaneum</em> by Beeman et al. (1992,
+            <em>Genetics</em>), where they had swept through wild populations on their
+            own. Chen et al. (2007, <em>Science</em>) built the first synthetic version in
+            <em>Drosophila melanogaster</em>, using a maternally expressed microRNA to
+            silence an essential embryonic gene together with a zygotically expressed,
+            microRNA-resistant copy of that same gene as the rescue; it drove to high
+            frequency in cage populations. Akbari et al. (2014, <em>Current Biology</em>)
+            later showed the same design working across multiple <em>Drosophila</em>
+            genetic backgrounds. On the theoretical side, Wade &amp; Beeman (1994,
+            <em>Genetics</em>) and Ward et al. (2011, <em>Evolution</em>) established the
+            threshold conditions for spread, and Marshall &amp; Hay (2012,
+            <em>Journal of Heredity</em>) compared Medea against other threshold-dependent
+            systems. No synthetic Medea has yet been reported in <em>Anopheles</em>, so the
+            configuration here is a projection of the <em>Drosophila</em> design onto a
+            mosquito life history.
+        </p>
+
+        <h2>Parameter Guide</h2>
+
+        <h3>Generations</h3>
+        <p>
+            The number of discrete, non-overlapping generations to simulate (5&ndash;100).
+            MEDEA spreads more slowly than a homing drive because it gains only the
+            offspring that non-carriers lose, so give it room &mdash; 40&ndash;60
+            generations is usually needed to see a full sweep to fixation, and longer if
+            the release was small.
+        </p>
+
+        <h3>Release Males</h3>
+        <p>
+            The number of MEDEA males released into Population 1 at generation 3
+            (range: 1&ndash;250). Each is heterozygous for an intact element. Note that
+            releasing <em>males</em> costs one generation of lag: the toxin is a maternal
+            effect, so nothing happens until the element has passed into females in the
+            following generation. Release size matters more here than for a homing drive,
+            because a MEDEA element with any fitness cost has a
+            <strong>release threshold</strong> &mdash; below some starting frequency it is
+            lost instead of spreading.
+        </p>
+
+        <h3>Mortality Rate</h3>
+        <p>
+            Per-generation background mortality (0.1&ndash;0.9), which sets how many
+            mate-search attempts each female gets: (1 &minus; mortality) &times; carrying
+            capacity. For MEDEA this mostly acts as a general brake on reproductive
+            output rather than interacting with the drive mechanism itself.
+        </p>
+
+        <h3>Eggs per Female</h3>
+        <p>
+            Base fecundity per successful mating (1&ndash;200). This determines whether
+            MEDEA's embryonic killing is invisible or costly. With a large reproductive
+            surplus (50 eggs against a cap of 500) losing half the brood of carrier
+            mothers barely dents adult numbers, and the element behaves as a pure
+            modification system. Reduce fecundity to 5&ndash;10 and the same killing
+            starts to bite: eggs become limiting, and MEDEA begins to suppress the
+            population as a side effect. Contrasting a high and a low setting here is the
+            clearest way to see why &ldquo;modification&rdquo; and
+            &ldquo;suppression&rdquo; are a property of the ecology as much as of the
+            construct.
+        </p>
+
+        <h3>Toxin Penetrance</h3>
+        <p>
+            The probability (0&ndash;1) that an embryo which received toxin but no rescue
+            actually arrests. At 1.0 every non-carrier offspring of a carrier mother dies,
+            which is the maximum selective advantage the element can have. Lower values
+            make the toxin <em>leaky</em>: some non-carriers survive, wild-type alleles
+            persist, and the sweep slows down or stalls. At 0 the toxin does nothing and
+            the element is inherited as an ordinary Mendelian allele, drifting rather than
+            driving. Leakiness is the most common way a real synthetic Medea
+            underperforms, since maternal expression is rarely complete in every egg.
+        </p>
+
+        <h3>Rescue Efficiency</h3>
+        <p>
+            The probability (0&ndash;1) that an embryo which inherited the rescue survives
+            a toxin-loaded egg. At 1.0 the rescue is perfect and carriers pay nothing.
+            Below 1.0 some carriers die too, and this is the element's
+            <strong>fitness cost</strong> &mdash; the parameter that creates its release
+            threshold. An imperfect rescue penalises carriers in exactly the situations
+            where the element is common, so a MEDEA element with a weak rescue can spread
+            from a large release but be driven out from a small one. Setting rescue well
+            below penetrance is a good way to demonstrate threshold behaviour: try a large
+            and a small release with rescue at 0.8 and compare.
+        </p>
+
+        <h3>Toxin&ndash;Rescue Distance</h3>
+        <p>
+            The genetic map distance (0&ndash;0.5) between the toxin locus and the rescue
+            locus, which sets the recombination frequency between them &mdash; shown under
+            the slider. At 0 the two halves are perfectly linked and travel as a single
+            element, exactly as in a real construct where toxin and rescue sit in one
+            insertion.
+        </p>
+        <p>
+            Increase it and the element becomes self-destroying. A crossover between the
+            two loci in a heterozygote produces two new chromosome types:
+            <em>toxin-only</em>, whose carriers poison their eggs but have no immunity of
+            their own, and <em>rescue-only</em>, which confers immunity while paying
+            nothing to make toxin. The rescue-only chromosome is a <strong>free
+            rider</strong>: it enjoys every benefit of the system with none of its costs,
+            so selection favours it strongly. It accumulates, the toxin is stripped out,
+            and the drive collapses. Watching the rescue allele frequency run away from
+            the toxin allele frequency in the results is the clearest possible
+            demonstration of why tight linkage between the two halves is not a
+            construction detail but the whole basis of the design.
+        </p>
+
+        <h3>Base Migration Rate</h3>
+        <p>
+            Per-generation probability (0&ndash;0.5) that an individual moves between
+            adjacent populations, decaying tenfold at each step: Pop 1&harr;2 gets the
+            base rate, Pop 2&harr;3 base/10, Pop 3&harr;4 base/100, Pop 4&harr;5
+            base/1000. Because MEDEA is threshold-dependent when it has any fitness cost,
+            migration cuts both ways: it carries the element outwards, but it also
+            continually dilutes it with wild-type immigrants, which can hold a population
+            below the threshold and keep the element from establishing there. A high
+            migration rate can prevent a release from taking hold anywhere.
+        </p>
+
+        <h2>What to Look For in the Results</h2>
+        <p>
+            The <strong>toxin</strong> and <strong>rescue</strong> allele frequency panels
+            are the heart of this model. With the two loci fully linked they lie exactly on
+            top of each other, because they are physically the same element. Separate them
+            and the two curves diverge, with rescue climbing while toxin falls &mdash; the
+            signature of recombinational uncoupling.
+        </p>
+        <p>
+            The <strong>adults</strong> panel should stay close to the carrying capacity
+            throughout, which is the point: this is modification, not suppression. The
+            <strong>eggs</strong> panel is where the element's load shows up, dipping while
+            it spreads (many carrier mothers, many non-carrier embryos dying) and then
+            recovering once it is near fixation, because by then almost every embryo
+            inherits a rescue copy and the killing stops.
+        </p>
+        <p>
+            One further behaviour worth noticing: the wild-type allele never disappears
+            completely. Once the element is common, nearly every embryo inherits a rescue
+            copy from at least one parent, so residual wild-type alleles ride along
+            harmlessly in heterozygotes. Only embryos that inherit no copy from either
+            parent die, and those become vanishingly rare. MEDEA reaches fixation as a
+            <em>genotype</em> long before it removes the last wild-type allele.
+        </p>
+
+        <h2>Fixed Model Assumptions</h2>
+        <ul>
+            <li><strong>Population carrying capacity:</strong> 500 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
+            <li><strong>Number of populations:</strong> 5, arranged in a linear chain.</li>
+            <li><strong>Migration topology:</strong> Linear chain only (1&harr;2&harr;3&harr;4&harr;5), decaying 10&times; per step.</li>
+            <li><strong>Replicates:</strong> 3 independent iterations per simulation run, each starting from a fresh wild-type population.</li>
+            <li><strong>Release timing:</strong> MEDEA males are released once, at generation 3, into Population 1 only.</li>
+            <li><strong>Element location:</strong> Toxin (MTOX) and rescue (MRES) both sit on autosome 2, separated by the configured map distance.</li>
+            <li><strong>Toxin is a strict maternal effect:</strong> Only mothers load toxin, and they load it into every egg regardless of that egg's genotype. Fathers contribute nothing.</li>
+            <li><strong>Rescue is strictly zygotic:</strong> Immunity comes from the embryo's own rescue copy, inherited from either parent. A rescue copy inherited from the father protects just as well as one from the mother.</li>
+            <li><strong>Dominance:</strong> One copy of the toxin is enough to make a mother fully toxic; one copy of the rescue is enough to fully protect an embryo. Homozygotes get no extra dose.</li>
+            <li><strong>No nuclease:</strong> MEDEA carries no Cas9 and no guide RNA, so no cutting, homing or resistance-allele formation occurs anywhere in this model. The only genetic change over time is recombination.</li>
+            <li><strong>No cargo modelled:</strong> The element carries no additional gene. In a real application the point of the sweep would be to spread a linked cargo, which would add its own fitness cost.</li>
+            <li><strong>No parental fitness cost:</strong> Adults carrying the element mate and reproduce normally; the entire load is paid by embryos.</li>
+            <li><strong>Non-overlapping generations:</strong> All adults die after reproducing.</li>
+            <li><strong>Mating system:</strong> Random mating. Each female mates once per generation; males can mate with many females.</li>
+        </ul>
+
+    </div>
+
+</body>
+</html>

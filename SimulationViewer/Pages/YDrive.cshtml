@@ -1,0 +1,271 @@
+@page
+@model SimulationViewer.Pages.YDriveModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SMS &mdash; Driving Y Chromosome</title>
+    <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="/" class="btn btn-back">&larr; All models</a>
+        <span class="nav-title">Driving Y chromosome (X-shredder sex distorter)</span>
+    </div>
+
+    <div class="config-panel">
+
+        <div class="config-section">
+            <h3>Population &amp; Release</h3>
+
+            <div class="param-row">
+                <label for="generations">Generations</label>
+                <input type="range" id="generations" min="5" max="100" step="1" value="30" />
+                <span class="param-value" id="generations-val">30</span>
+            </div>
+
+            <div class="param-row">
+                <label for="releaseNumber">Release males</label>
+                <input type="range" id="releaseNumber" min="1" max="250" step="1" value="100" />
+                <span class="param-value" id="releaseNumber-val">100</span>
+            </div>
+
+            <div class="param-row">
+                <label for="mortality">Mortality rate</label>
+                <input type="range" id="mortality" min="0.1" max="0.9" step="0.01" value="0.10" />
+                <span class="param-value" id="mortality-val">0.10</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Reproduction</h3>
+
+            <div class="param-row">
+                <label for="eggsPerFemale">Eggs per female</label>
+                <input type="range" id="eggsPerFemale" min="1" max="200" step="1" value="50" />
+                <span class="param-value" id="eggsPerFemale-val">50</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Sex Distortion</h3>
+
+            <div class="param-row">
+                <label for="xShredRate">X-shredding efficiency</label>
+                <input type="range" id="xShredRate" min="0" max="1" step="0.01" value="0.95" />
+                <span class="param-value" id="xShredRate-val">0.95</span>
+            </div>
+            <div class="migration-detail" id="shred-detail"></div>
+
+            <div class="param-row">
+                <label for="yDriveFertility">Drive male fertility</label>
+                <input type="range" id="yDriveFertility" min="0.1" max="1" step="0.01" value="0.90" />
+                <span class="param-value" id="yDriveFertility-val">0.90</span>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <h3>Migration</h3>
+
+            <div class="param-row">
+                <label for="migrationBaseRate">Base migration rate</label>
+                <input type="range" id="migrationBaseRate" min="0" max="0.5" step="0.001" value="0.100" />
+                <span class="param-value" id="migrationBaseRate-val">0.100</span>
+            </div>
+            <div class="migration-detail" id="migration-detail"></div>
+        </div>
+
+    </div>
+
+    <div class="action-bar">
+        <button id="btn-run" class="btn btn-run" onclick="runSimulation()">Run Simulation</button>
+        <a id="btn-view" href="/Viewer?model=ydrive" class="btn btn-view disabled">View Results</a>
+    </div>
+
+    <div id="progress-container" class="progress-container" style="display:none">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text"></div>
+    </div>
+
+    <script>
+        var SIM_MODEL = 'ydrive';
+        var SIM_PARAMS = [
+            'generations', 'releaseNumber', 'mortality', 'eggsPerFemale',
+            'xShredRate', 'yDriveFertility', 'migrationBaseRate'
+        ];
+    </script>
+    <script src="/js/configure.js?v=3"></script>
+
+    <div class="info-panel">
+
+        <h2>About Driving Y Chromosomes</h2>
+
+        <p>
+            A <strong>driving Y</strong>, or <strong>Y-linked X-shredder</strong>, is a
+            sex-ratio distorter: a nuclease inserted into the Y chromosome that is
+            expressed during male meiosis and cleaves the X chromosome. In
+            <em>Anopheles</em> the natural target is the highly repetitive ribosomal DNA
+            block on the X, present in hundreds of copies, which is cut so many times
+            that the chromosome cannot be repaired. Sperm that inherited the X therefore
+            fail, while sperm carrying the Y &mdash; and the shredder along with it &mdash;
+            are unaffected. A carrier male consequently sires almost exclusively sons,
+            and every one of those sons inherits the driving Y.
+        </p>
+        <p>
+            This gives the construct two reinforcing advantages. It is
+            <em>over-transmitted</em>, because it is present in nearly every functional
+            gamete instead of half of them, so it spreads even without any homing
+            machinery. And it is <em>suppressive</em>, because the population it spreads
+            through becomes progressively more male until too few females remain to
+            sustain it. The idea is old: W. D. Hamilton (1967, <em>Science</em>)
+            recognised that a driving sex chromosome could crash a population, and it
+            remains one of the most theoretically robust genetic control strategies.
+        </p>
+        <p>
+            Windbichler et al. (2008, <em>Nucleic Acids Research</em>) first showed that
+            the homing endonuclease I-PpoI could be directed at <em>Anopheles gambiae</em>
+            X-linked rDNA. Galizi et al. (2014, <em>Nature Communications</em>) then built
+            a working synthetic sex distorter, achieving progeny that were roughly
+            95% male, and Galizi et al. (2016, <em>Scientific Reports</em>) moved the
+            construct onto the Y chromosome to make it a true driving Y. Simoni et al.
+            (2020, <em>Nature Biotechnology</em>) later combined shredding with homing in
+            a single &ldquo;sex-distorter gene drive&rdquo;. On the theory side, Deredec
+            et al. (2011, <em>PNAS</em>) and Beaghton et al. (2016, <em>Genetics</em>)
+            worked out the conditions under which a driving Y eliminates a population
+            rather than reaching a stable, heavily male-biased equilibrium.
+        </p>
+        <p>
+            A key attraction of this design is what it does <em>not</em> do. Homing drives
+            create resistance alleles at their own target site every time repair goes
+            wrong, and those alleles can end the drive. An X-shredder never converts an
+            allele; it simply destroys gametes. Resistance would have to arise as X-linked
+            variation that escapes cutting &mdash; much harder when the target is a large
+            repeat array. That route is not modelled here, so the drive in this simulation
+            cannot become resistant.
+        </p>
+
+        <h2>Parameter Guide</h2>
+
+        <h3>Generations</h3>
+        <p>
+            The number of discrete, non-overlapping generations to simulate (5&ndash;100).
+            Sex distortion acts fast once the driving Y is common, but the initial phase
+            is slow, so allow 30&ndash;60 generations to see the full trajectory from
+            release through to collapse or equilibrium.
+        </p>
+
+        <h3>Release Males</h3>
+        <p>
+            The number of driving-Y males released into Population 1 at generation 3
+            (range: 1&ndash;250). Each carries one shredder Y and one wild-type X.
+            Because the construct is Y-linked it can only ever be transmitted by males,
+            so a release of males is the only option &mdash; there is no such thing as a
+            driving-Y female. Larger releases shorten the slow initial phase.
+        </p>
+
+        <h3>Mortality Rate</h3>
+        <p>
+            Per-generation background mortality (0.1&ndash;0.9). It controls how many
+            mate-search attempts each female gets: (1 &minus; mortality) &times; carrying
+            capacity. This parameter interacts unusually strongly with sex distortion.
+            As the population becomes male-biased, finding a mate gets <em>easier</em>
+            for the few remaining females, which partly buffers the population against
+            collapse.
+        </p>
+
+        <h3>Eggs per Female</h3>
+        <p>
+            Base fecundity per successful mating (1&ndash;200). This is the single most
+            important determinant of whether sex distortion actually collapses the
+            population, and it is worth understanding why. The population only starts to
+            shrink once the surviving females cannot fill the carrying capacity, which
+            needs (number of females) &times; (eggs) &times; (male fertility) to fall
+            below 500. At 50 eggs per female, ten fertile females are enough to refill a
+            population of 500, so the sex ratio has to reach roughly 98% male before
+            numbers move at all. Drop fecundity to 10 and the same population starts
+            declining at around 90% male. Realistic reproductive surplus is exactly what
+            makes suppression hard.
+        </p>
+
+        <h3>X-Shredding Efficiency</h3>
+        <p>
+            The fraction (0&ndash;1) of X-bearing gametes destroyed by the nuclease during
+            meiosis in a drive male. The surviving gamete pool contains
+            (1 &minus; efficiency) X-bearing sperm for every one Y-bearing sperm, so the
+            probability that a given sperm carries the driving Y is
+            1 / (2 &minus; efficiency). At 0 the Y segregates normally and half the
+            offspring are male; at 0.95 about 95% are male; at 1.0 every offspring is a
+            son. The readout under the slider shows the resulting male fraction as you
+            move it. Published constructs sit around 0.95, and the region between 0.9 and
+            1.0 is where the outcome changes from a male-biased but persistent population
+            to outright elimination.
+        </p>
+
+        <h3>Drive Male Fertility</h3>
+        <p>
+            Fertility of a driving-Y male relative to a wild-type male (0.1&ndash;1),
+            applied as a multiplier on the number of eggs his mate produces. This folds
+            together two real costs: half the sperm complement is destroyed by the
+            shredder, which matters whenever sperm are limiting, and the construct itself
+            imposes a load through nuclease expression and off-target cutting.
+        </p>
+        <p>
+            This parameter sets up the central tension of the design. A high fertility
+            cost slows the driving Y's spread, because carrier males compete poorly for
+            paternity against wild-type males &mdash; but it also deepens suppression once
+            the Y has spread, because by then every male in the population is a carrier.
+            Very low values (below about 0.3) can prevent the drive from establishing at
+            all, so that the release simply washes out.
+        </p>
+
+        <h3>Base Migration Rate</h3>
+        <p>
+            Per-generation probability (0&ndash;0.5) that an individual moves between
+            adjacent populations, decaying tenfold at each step along the chain:
+            Pop 1&harr;2 gets the base rate, Pop 2&harr;3 base/10, Pop 3&harr;4 base/100,
+            Pop 4&harr;5 base/1000. Migration is what lets the driving Y escape the
+            release site &mdash; but note it also brings wild-type males back in, which
+            dilutes the distorter locally and can rescue a collapsing population.
+        </p>
+
+        <h2>What to Look For in the Results</h2>
+        <p>
+            The <strong>sex ratio</strong> panel is where this drive shows itself first:
+            the female fraction falls away from 0.5 as soon as the driving Y starts
+            spreading. The <strong>adults</strong> and <strong>eggs</strong> panels lag
+            behind it, staying flat while the reproductive surplus absorbs the loss of
+            females, then falling sharply once that buffer is exhausted. The
+            <strong>allele frequency</strong> panel tracks the distorter itself; because
+            it is Y-linked, its frequency is scored across all sex chromosomes and so
+            tops out near 0.5 rather than 1.0, since every individual also carries at
+            least one wild-type X.
+        </p>
+        <p>
+            Two outcomes are worth trying to produce deliberately. With high shredding and
+            low fecundity you should be able to drive Population 1 to extinction while the
+            far end of the chain remains untouched. With a heavy fertility cost you should
+            be able to make the release fail outright, with the driving Y peaking and then
+            being lost.
+        </p>
+
+        <h2>Fixed Model Assumptions</h2>
+        <ul>
+            <li><strong>Population carrying capacity:</strong> 500 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
+            <li><strong>Number of populations:</strong> 5, arranged in a linear chain.</li>
+            <li><strong>Migration topology:</strong> Linear chain only (1&harr;2&harr;3&harr;4&harr;5), decaying 10&times; per step.</li>
+            <li><strong>Replicates:</strong> 3 independent iterations per simulation run, each starting from a fresh wild-type population.</li>
+            <li><strong>Release timing:</strong> Driving-Y males are released once, at generation 3, into Population 1 only.</li>
+            <li><strong>Sex determination:</strong> XY system. Females are XX; males are XY. The presence of a Y chromosome determines maleness, and the shredder does not interfere with that &mdash; it biases which sperm survive, not how sex is read.</li>
+            <li><strong>No X-linked resistance:</strong> The X target site cannot mutate to escape cutting. In reality resistant X haplotypes are the main evolutionary threat to this design, but modelling them would require tracking the repeat array itself.</li>
+            <li><strong>No homing:</strong> The construct destroys gametes rather than copying itself, so no drive-resistant target alleles (R1/R2) are ever created at the distorter locus.</li>
+            <li><strong>Y-linkage is absolute:</strong> The sex chromosomes do not recombine, so the distorter can never move onto an X.</li>
+            <li><strong>Non-overlapping generations:</strong> All adults die after reproducing.</li>
+            <li><strong>Mating system:</strong> Random mating. Each female mates once per generation; males can mate with many females, so a shortage of males is never limiting.</li>
+        </ul>
+
+    </div>
+
+</body>
+</html>

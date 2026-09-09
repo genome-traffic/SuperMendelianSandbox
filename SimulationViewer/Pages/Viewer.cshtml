@@ -9,11 +9,15 @@
     <link rel="stylesheet" href="/css/site.css" />
 </head>
 <body>
-    <h1>Super Mendelian Sandbox &mdash; Simulation Viewer</h1>
+    <div class="nav-bar">
+        <a href="/" class="btn btn-back">&larr; All models</a>
+        <a href="@Model.ConfigPage" class="btn btn-back">Configure</a>
+        <span class="nav-title">Results &mdash; @Model.DriveModelName</span>
+    </div>
 
     <div class="controls">
-        <a href="/" class="btn btn-back">Configure</a>
         <form method="get" style="display:inline">
+            <input type="hidden" name="model" value="@Model.DriveModel" />
             <label for="path">CSV Path:</label>
             <input type="text" name="path" id="path" value="@Model.CsvPath" size="60" />
             <button type="submit">Load</button>
@@ -27,7 +31,7 @@
 
     <div id="charts"></div>
 
-    <script src="/js/charts.js?v=5"></script>
+    <script src="/js/charts.js?v=8"></script>
     <script>
         const data = @Html.Raw(Model.CsvJson);
         if (data.length > 0) {
