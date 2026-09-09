@@ -69,6 +69,17 @@ namespace SMS
         /// Higher mortality means harder to find mates and lower effective reproduction.</summary>
         public float Mortality = 0.1f;
 
+        /// <summary>Fitness cost of carrying the transgene, charged as additional
+        /// per-generation mortality among adults before they reproduce (0-1). Applies
+        /// to all three models. The cost is per insertion, so a heterozygote survives
+        /// with probability (1 - cost) and a homozygote with (1 - cost)^2.
+        ///
+        /// This is the only parameter that removes transgenic alleles from the
+        /// population irrespective of the drive mechanism, and it is therefore what
+        /// determines whether a threshold-dependent system can invade from a given
+        /// release size. Set from web configuration page.</summary>
+        public float TransgeneFitnessCost = 0.05F;
+
         /// <summary>Fractional reduction in homology-directed repair (HDR) efficiency for
         /// zygotic (embryonic) gene drive activity. 0.99 = 99% reduction compared to
         /// germline HDR. This makes zygotic cutting overwhelmingly produce resistance
@@ -295,6 +306,11 @@ namespace SMS
                                 }
                             }
 
+                            // Transgene fitness cost, charged before reproduction so the
+                            // census below counts only the adults that actually breed.
+                            // Released males pay it too, like any other carrier.
+                            Africa.Populations[p].ApplyTransgeneFitnessCost(TransgeneFitnessCost);
+
                             #region Output adult data to file
 
                             List<string> Genotypes = new List<string>();
@@ -445,6 +461,8 @@ namespace SMS
                 InterventionReleaseNumber = rel.GetInt32();
             if (root.TryGetProperty("mortality", out var mort))
                 Mortality = mort.GetSingle();
+            if (root.TryGetProperty("fitnessCost", out var fit))
+                TransgeneFitnessCost = fit.GetSingle();
             if (root.TryGetProperty("eggsPerFemale", out var eggs))
                 GlobalEggsPerFemale = eggs.GetInt32();
             if (root.TryGetProperty("cas9Activity", out var cas9))

@@ -38,13 +38,20 @@
         </div>
 
         <div class="config-section">
-            <h3>Reproduction</h3>
+            <h3>Reproduction &amp; Fitness</h3>
 
             <div class="param-row">
                 <label for="eggsPerFemale">Eggs per female</label>
                 <input type="range" id="eggsPerFemale" min="1" max="200" step="1" value="50" />
                 <span class="param-value" id="eggsPerFemale-val">50</span>
             </div>
+
+            <div class="param-row">
+                <label for="fitnessCost">Transgene fitness cost</label>
+                <input type="range" id="fitnessCost" min="0" max="0.5" step="0.01" value="0.05" />
+                <span class="param-value" id="fitnessCost-val">0.05</span>
+            </div>
+            <div class="migration-detail" id="fitness-detail"></div>
         </div>
 
         <div class="config-section">
@@ -92,11 +99,11 @@
     <script>
         var SIM_MODEL = 'ydrive';
         var SIM_PARAMS = [
-            'generations', 'releaseNumber', 'mortality', 'eggsPerFemale',
+            'generations', 'releaseNumber', 'mortality', 'eggsPerFemale', 'fitnessCost',
             'xShredRate', 'yDriveFertility', 'migrationBaseRate'
         ];
     </script>
-    <script src="/js/configure.js?v=3"></script>
+    <script src="/js/configure.js?v=4"></script>
 
     <div class="info-panel">
 
@@ -187,6 +194,32 @@
             numbers move at all. Drop fecundity to 10 and the same population starts
             declining at around 90% male. Realistic reproductive surplus is exactly what
             makes suppression hard.
+        </p>
+
+        <h3>Transgene Fitness Cost</h3>
+        <p>
+            Extra mortality (0&ndash;0.5) suffered each generation by an adult carrying
+            the construct, applied before it reproduces. The readout under the slider
+            translates the value into mortality figures for heterozygotes and
+            homozygotes; for this model only heterozygotes occur, since the distorter
+            sits on the Y and no individual has two Y chromosomes.
+        </p>
+        <p>
+            This is <em>not</em> the same knob as drive male fertility above, and the
+            distinction matters. Fertility acts on the <strong>number of eggs</strong> a
+            drive male's mate produces &mdash; he survives and mates, but sires a smaller
+            brood, which is what gamete loss to shredding looks like. The fitness cost
+            acts on <strong>whether he is alive to mate at all</strong>, which is what
+            nuclease toxicity and insertional disruption look like. Both reduce a
+            carrier's contribution, but only mortality removes the driving Y from the
+            population before it can be transmitted, so it is much more effective at
+            preventing the drive from establishing.
+        </p>
+        <p>
+            Because the driving Y is transmitted to nearly every offspring of a surviving
+            carrier, this drive is unusually tolerant of a fitness cost: a male who
+            survives passes it on almost regardless. That makes it a good model for
+            testing how much cost a strongly over-transmitted element can absorb.
         </p>
 
         <h3>X-Shredding Efficiency</h3>

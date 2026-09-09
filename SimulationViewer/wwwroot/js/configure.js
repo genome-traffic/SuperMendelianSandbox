@@ -11,6 +11,7 @@
 // integers and are shown as-is.
 var DECIMAL_PARAMS = {
     mortality: 2,
+    fitnessCost: 2,
     cas9Activity: 2,
     hdrRate: 2,
     maternalCas9: 2,
@@ -80,8 +81,25 @@ function updateLinkageDetail() {
     }
 }
 
+function updateFitnessDetail() {
+    var el = document.getElementById('fitness-detail');
+    if (!el) return;
+
+    // The cost is charged per insertion, so survival is (1-c)^copies.
+    var c = paramValue('fitnessCost');
+    if (c === 0) {
+        el.textContent = 'No fitness cost: carriers survive as well as wild types';
+    } else {
+        var het = 100 * c;
+        var hom = 100 * (1 - Math.pow(1 - c, 2));
+        el.textContent = 'Extra mortality per generation: ' + het.toFixed(0) +
+                         '% if heterozygous, ' + hom.toFixed(0) + '% if homozygous';
+    }
+}
+
 function updateDerivedDetails() {
     updateMigrationDetail();
+    updateFitnessDetail();
     updateShredDetail();
     updateLinkageDetail();
 }

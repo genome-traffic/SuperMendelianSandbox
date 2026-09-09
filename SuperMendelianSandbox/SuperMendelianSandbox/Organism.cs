@@ -895,6 +895,41 @@ namespace SMS
         }
 
         /// <summary>
+        /// Counts how many of the organism's two haplotypes carry transgenic material:
+        /// 0 for a wild type, 1 for a heterozygote, 2 for a homozygote.
+        ///
+        /// This counts *insertions*, not Transgene alleles, which matters because the
+        /// models differ in how many loci one construct occupies. A MEDEA element spans
+        /// two loci (toxin and rescue), so counting alleles would charge a MEDEA
+        /// heterozygote twice what a homing-drive heterozygote pays. Asking instead
+        /// whether each chromosome set carries any Transgene allele gives the same
+        /// answer — one copy — for both, and correctly reports 2 for an organism whose
+        /// two chromosomes each carry a recombinant half-element.
+        /// </summary>
+        /// <returns>Number of transgene-bearing haplotypes, 0-2.</returns>
+        public int TransgeneCopies()
+        {
+            int copies = 0;
+            if (SetCarriesTransgene(this.ChromosomeListA)) copies++;
+            if (SetCarriesTransgene(this.ChromosomeListB)) copies++;
+            return copies;
+        }
+
+        /// <summary>True if any locus in this chromosome set carries a Transgene allele.</summary>
+        static bool SetCarriesTransgene(List<Chromosome> ChromosomeSet)
+        {
+            foreach (Chromosome Chrom in ChromosomeSet)
+            {
+                foreach (GeneLocus GL in Chrom.GeneLocusList)
+                {
+                    if (GL.AlleleName == "Transgene")
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Returns the LARGEST value of a trait found across the organism's Transgene
         /// alleles, or 0 if it carries none. Unlike GetTransgeneLevel, which sums
         /// contributions and so scales with copy number, this reports the trait as a

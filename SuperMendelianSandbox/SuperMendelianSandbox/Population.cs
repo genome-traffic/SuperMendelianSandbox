@@ -500,6 +500,43 @@ namespace SMS
         }
 
         /// <summary>
+        /// Applies the fitness cost of carrying the transgene, as extra mortality among
+        /// adults before they reproduce. Called once per generation, after any release
+        /// and before reproduction, so the recorded adult census is the set of animals
+        /// that actually go on to breed.
+        ///
+        /// The cost is charged per insertion: an organism carrying <em>n</em> transgenic
+        /// haplotypes (see Organism.TransgeneCopies) survives with probability
+        /// (1 - cost)^n. So a heterozygote pays the cost once and a homozygote twice,
+        /// multiplicatively — the standard formulation, and it means the same slider
+        /// covers both without needing a separate dominance parameter.
+        ///
+        /// This is deliberately independent of the drive mechanism. It represents the
+        /// viability burden of the construct itself: nuclease or toxin expression,
+        /// off-target activity, insertional disruption at the landing site. It is what
+        /// gives a threshold-dependent system such as MEDEA its release threshold,
+        /// because unlike the drive's own killing it destroys transgenic alleles.
+        /// </summary>
+        /// <param name="CostPerCopy">Per-generation mortality per transgenic haplotype (0-1).</param>
+        public void ApplyTransgeneFitnessCost(float CostPerCopy)
+        {
+            if (CostPerCopy <= 0F)
+                return;
+
+            for (int o = 0; o < this.Adults.Count; o++)
+            {
+                int copies = this.Adults[o].TransgeneCopies();
+                if (copies == 0)
+                    continue;
+
+                float survival = (float)Math.Pow(1F - CostPerCopy, copies);
+
+                if (survival < (float)Shuffle.random.NextDouble())
+                    this.Adults.RemoveAt(o--);   // Remove the casualty; adjust index
+            }
+        }
+
+        /// <summary>
         /// Applies post-fertilization (zygotic/embryonic) effects to all adults in the
         /// population. Called after eggs have been promoted to adults.
         ///

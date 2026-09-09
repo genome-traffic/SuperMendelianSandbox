@@ -38,13 +38,20 @@
         </div>
 
         <div class="config-section">
-            <h3>Reproduction</h3>
+            <h3>Reproduction &amp; Fitness</h3>
 
             <div class="param-row">
                 <label for="eggsPerFemale">Eggs per female</label>
                 <input type="range" id="eggsPerFemale" min="1" max="200" step="1" value="50" />
                 <span class="param-value" id="eggsPerFemale-val">50</span>
             </div>
+
+            <div class="param-row">
+                <label for="fitnessCost">Transgene fitness cost</label>
+                <input type="range" id="fitnessCost" min="0" max="0.5" step="0.01" value="0.05" />
+                <span class="param-value" id="fitnessCost-val">0.05</span>
+            </div>
+            <div class="migration-detail" id="fitness-detail"></div>
         </div>
 
         <div class="config-section">
@@ -98,11 +105,11 @@
     <script>
         var SIM_MODEL = 'medea';
         var SIM_PARAMS = [
-            'generations', 'releaseNumber', 'mortality', 'eggsPerFemale',
+            'generations', 'releaseNumber', 'mortality', 'eggsPerFemale', 'fitnessCost',
             'medeaPenetrance', 'medeaRescue', 'medeaDistance', 'migrationBaseRate'
         ];
     </script>
-    <script src="/js/configure.js?v=3"></script>
+    <script src="/js/configure.js?v=4"></script>
 
     <div class="info-panel">
 
@@ -124,8 +131,17 @@
             die. Among her surviving offspring, essentially all are carriers. The element
             does not copy itself, cut anything, or bias meiosis &mdash; inheritance stays
             perfectly Mendelian. It spreads purely because non-carriers are selectively
-            removed from carrier broods, which is enough to take it from a modest release
-            frequency all the way to fixation.
+            removed from carrier broods.
+        </p>
+        <p>
+            MEDEA is usually described as a <strong>threshold-dependent</strong> drive,
+            meaning it must be released above some frequency to take hold, and below that
+            frequency it is purged. That is true of any real element &mdash; but the
+            threshold comes from the element's <em>fitness cost</em>, not from the
+            toxin&ndash;rescue mechanism. A perfectly efficient, cost-free MEDEA has no
+            threshold at all and invades from arbitrarily low frequency. The Transgene
+            Fitness Cost section below explains why, and this simulation lets you watch
+            the threshold appear and disappear as you change that one slider.
         </p>
         <p>
             Crucially, MEDEA is a <strong>population modification</strong> system, not a
@@ -177,7 +193,9 @@
             following generation. Release size matters more here than for a homing drive,
             because a MEDEA element with any fitness cost has a
             <strong>release threshold</strong> &mdash; below some starting frequency it is
-            lost instead of spreading.
+            lost instead of spreading. With the cost at 0.10 and migration off, that
+            threshold sits between 100 and 250 released males; with the cost at zero there
+            is no threshold and even a handful of males eventually sweeps.
         </p>
 
         <h3>Mortality Rate</h3>
@@ -200,6 +218,51 @@
             clearest way to see why &ldquo;modification&rdquo; and
             &ldquo;suppression&rdquo; are a property of the ecology as much as of the
             construct.
+        </p>
+
+        <h3>Transgene Fitness Cost</h3>
+        <p>
+            Extra mortality (0&ndash;0.5) suffered each generation by an adult carrying
+            the element, applied before it reproduces. Charged per insertion, so a
+            heterozygote survives with probability (1 &minus; cost) and a homozygote with
+            (1 &minus; cost)&sup2;. It stands for the burden of the construct itself:
+            expressing the toxin, expressing the rescue, and disrupting the insertion
+            site.
+        </p>
+        <p>
+            <strong>For MEDEA this is the parameter that decides everything.</strong> It
+            is what makes the element threshold-dependent, and the reason is worth
+            spelling out, because MEDEA's own killing does not penalise it at all.
+        </p>
+        <p>
+            When a heterozygous mother's non-carrier embryos die, the alleles lost are
+            exclusively wild type &mdash; a dead embryo that inherited no element carries
+            no element allele. So her brood halves, but her output of <em>element</em>
+            alleles is exactly what Mendel predicts; only her output of wild-type alleles
+            falls. Under density-dependent regulation, where the surviving larvae compete
+            for a fixed carrying capacity, removing wild-type competitors while holding
+            your own contribution steady is a pure gain in frequency. A cost-free MEDEA
+            element therefore has <strong>no invasion threshold</strong>: it rises from
+            any starting frequency, however low. That is the standard theoretical result
+            (Wade &amp; Beeman 1994, <em>Genetics</em>; Ward et al. 2011,
+            <em>Evolution</em>), and it is what you see in this simulation with the cost
+            set to zero.
+        </p>
+        <p>
+            A fitness cost is different in kind, because it kills carriers &mdash; and
+            carriers are precisely the individuals holding element alleles. It is the only
+            parameter here that destroys element alleles rather than wild-type ones, so it
+            is the only one that can oppose the drive at low frequency. Since the cost
+            scales with carrier frequency while MEDEA's advantage also scales with it, the
+            two balance at an unstable equilibrium: below it the element is lost, above it
+            it sweeps. That is the release threshold.
+        </p>
+        <p>
+            You can see this directly. With the cost at 0.10, penetrance and rescue both
+            at 1.0 and migration off, a release of 100 males is lost within a few
+            generations while a release of 250 sweeps to fixation. Turn the cost to zero
+            and both spread. Threshold-dependence is not a property of the MEDEA mechanism
+            on its own &mdash; it only exists once carriers pay for the construct.
         </p>
 
         <h3>Toxin Penetrance</h3>
@@ -254,11 +317,25 @@
             Per-generation probability (0&ndash;0.5) that an individual moves between
             adjacent populations, decaying tenfold at each step: Pop 1&harr;2 gets the
             base rate, Pop 2&harr;3 base/10, Pop 3&harr;4 base/100, Pop 4&harr;5
-            base/1000. Because MEDEA is threshold-dependent when it has any fitness cost,
-            migration cuts both ways: it carries the element outwards, but it also
-            continually dilutes it with wild-type immigrants, which can hold a population
-            below the threshold and keep the element from establishing there. A high
-            migration rate can prevent a release from taking hold anywhere.
+            base/1000. Migration is where the fitness cost shows its second, and arguably
+            more important, consequence: <strong>spatial confinement</strong>.
+        </p>
+        <p>
+            With no cost the element has no threshold, so a trickle of migrants is enough
+            to seed a neighbouring population and the sweep marches down the chain
+            &mdash; at cost 0 and base migration 0.1, a release of 250 into Population 1
+            reaches roughly 0.91 there, 0.87 in Population 2 and 0.22 in Population 3
+            within 40 generations. Add a 0.10 fitness cost and the picture inverts
+            completely: the same release is lost even in Population 1, because
+            immigration continually dilutes it with wild types and holds it below its own
+            threshold, and no neighbour is invaded at all.
+        </p>
+        <p>
+            This is the trade that makes threshold-dependent drives attractive for field
+            use. A costly element cannot escape the release site on a few stray migrants,
+            so its spread is geographically limited and in principle reversible &mdash;
+            but you have to release enough of it, into a population connected enough to
+            hold it, for it to establish in the first place.
         </p>
 
         <h2>What to Look For in the Results</h2>
@@ -299,7 +376,7 @@
             <li><strong>Dominance:</strong> One copy of the toxin is enough to make a mother fully toxic; one copy of the rescue is enough to fully protect an embryo. Homozygotes get no extra dose.</li>
             <li><strong>No nuclease:</strong> MEDEA carries no Cas9 and no guide RNA, so no cutting, homing or resistance-allele formation occurs anywhere in this model. The only genetic change over time is recombination.</li>
             <li><strong>No cargo modelled:</strong> The element carries no additional gene. In a real application the point of the sweep would be to spread a linked cargo, which would add its own fitness cost.</li>
-            <li><strong>No parental fitness cost:</strong> Adults carrying the element mate and reproduce normally; the entire load is paid by embryos.</li>
+            <li><strong>Form of the fitness cost:</strong> The transgene fitness cost acts only as pre-reproduction adult mortality. Carriers that survive it mate and lay eggs normally, so apart from that mortality the element's entire load falls on embryos.</li>
             <li><strong>Non-overlapping generations:</strong> All adults die after reproducing.</li>
             <li><strong>Mating system:</strong> Random mating. Each female mates once per generation; males can mate with many females.</li>
         </ul>
