@@ -255,12 +255,27 @@
 
         <h3>Base Migration Rate</h3>
         <p>
-            Per-generation probability (0&ndash;0.5) that an individual moves between
-            adjacent populations, decaying tenfold at each step along the chain:
-            Pop 1&harr;2 gets the base rate, Pop 2&harr;3 base/10, Pop 3&harr;4 base/100,
-            Pop 4&harr;5 base/1000. Migration is what lets the driving Y escape the
-            release site &mdash; but note it also brings wild-type males back in, which
-            dilutes the distorter locally and can rescue a collapsing population.
+            Per-generation probability (0&ndash;0.5) that an individual disperses to the
+            next population downstream. Migration runs in <strong>one direction
+            only</strong>, left to right along the chain &mdash; the direction of the
+            arrows in the results viewer &mdash; decaying tenfold at each step:
+            Pop 1&rarr;2 gets the base rate, Pop 2&rarr;3 base/10, Pop 3&rarr;4
+            base/100, Pop 4&rarr;5 base/1000. At 0 the populations are isolated.
+        </p>
+        <p>
+            For a suppression drive the one-way design matters a great deal. Migration
+            is what lets the driving Y escape the release site, but because nothing
+            flows back upstream, no wild-type males ever arrive to dilute the distorter
+            where it was released. Population 1 therefore collapses on its own terms, as
+            an isolated population would, and <strong>stays empty</strong> &mdash; there
+            is no neighbour that can recolonise it. Suppression travels down the chain as
+            a one-way wave: Population 1 empties first, then Population 2, and so on, at
+            a speed set by the migration rate.
+        </p>
+        <p>
+            Dispersal also does not deplete the source, so emigration never helps a
+            population survive by shedding drive carriers; the carriers leave copies
+            downstream and remain where they are.
         </p>
 
         <h2>What to Look For in the Results</h2>
@@ -287,7 +302,8 @@
         <ul>
             <li><strong>Population carrying capacity:</strong> 500 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
             <li><strong>Number of populations:</strong> 5, arranged in a linear chain.</li>
-            <li><strong>Migration topology:</strong> Linear chain only (1&harr;2&harr;3&harr;4&harr;5), decaying 10&times; per step.</li>
+            <li><strong>Migration topology:</strong> One-way linear chain (1&rarr;2&rarr;3&rarr;4&rarr;5), decaying 10&times; per step. No upstream movement, so an eliminated population is never recolonised.</li>
+            <li><strong>Migration does not deplete the source:</strong> Migrants are propagules &mdash; the destination gains a copy while the origin keeps its individual. Both behaviours are switchable in the code via <code>OneWayMigration</code> and <code>NoLossMigration</code> on the Simulation class.</li>
             <li><strong>Replicates:</strong> 3 independent iterations per simulation run, each starting from a fresh wild-type population.</li>
             <li><strong>Release timing:</strong> Driving-Y males are released once, at generation 3, into Population 1 only.</li>
             <li><strong>Sex determination:</strong> XY system. Females are XX; males are XY. The presence of a Y chromosome determines maleness, and the shredder does not interfere with that &mdash; it biases which sperm survive, not how sex is read.</li>

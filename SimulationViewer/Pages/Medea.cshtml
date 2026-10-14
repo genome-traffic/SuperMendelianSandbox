@@ -26,7 +26,7 @@
 
             <div class="param-row">
                 <label for="releaseNumber">Release males</label>
-                <input type="range" id="releaseNumber" min="1" max="250" step="1" value="150" />
+                <input type="range" id="releaseNumber" min="1" max="450" step="1" value="150" />
                 <span class="param-value" id="releaseNumber-val">150</span>
             </div>
 
@@ -314,28 +314,36 @@
 
         <h3>Base Migration Rate</h3>
         <p>
-            Per-generation probability (0&ndash;0.5) that an individual moves between
-            adjacent populations, decaying tenfold at each step: Pop 1&harr;2 gets the
-            base rate, Pop 2&harr;3 base/10, Pop 3&harr;4 base/100, Pop 4&harr;5
-            base/1000. Migration is where the fitness cost shows its second, and arguably
-            more important, consequence: <strong>spatial confinement</strong>.
+            Per-generation probability (0&ndash;0.5) that an individual disperses to the
+            next population downstream. Migration runs in <strong>one direction
+            only</strong>, left to right along the chain &mdash; the direction of the
+            arrows in the results viewer &mdash; decaying tenfold at each step:
+            Pop 1&rarr;2 gets the base rate, Pop 2&rarr;3 base/10, Pop 3&rarr;4
+            base/100, Pop 4&rarr;5 base/1000. Dispersal does not deplete the source, so
+            Population 1 neither gains nor loses individuals and behaves as a closed
+            population.
         </p>
         <p>
-            With no cost the element has no threshold, so a trickle of migrants is enough
-            to seed a neighbouring population and the sweep marches down the chain
-            &mdash; at cost 0 and base migration 0.1, a release of 250 into Population 1
-            reaches roughly 0.91 there, 0.87 in Population 2 and 0.22 in Population 3
-            within 40 generations. Add a 0.10 fitness cost and the picture inverts
-            completely: the same release is lost even in Population 1, because
-            immigration continually dilutes it with wild types and holds it below its own
-            threshold, and no neighbour is invaded at all.
+            Migration is where the fitness cost shows its second, and arguably more
+            important, consequence: <strong>spatial confinement</strong>. Because each
+            population downstream is seeded only by the thin trickle arriving from its
+            left, it starts from a very low local frequency &mdash; and whether it can
+            climb from there is exactly the threshold question.
         </p>
         <p>
-            This is the trade that makes threshold-dependent drives attractive for field
-            use. A costly element cannot escape the release site on a few stray migrants,
-            so its spread is geographically limited and in principle reversible &mdash;
-            but you have to release enough of it, into a population connected enough to
-            hold it, for it to establish in the first place.
+            With a release of 250 into Population 1 and base migration 0.1, measured at
+            generation 40:
+        </p>
+        <ul>
+            <li><strong>No fitness cost:</strong> element frequency reaches 0.98 in Population 1, 0.97 in Population 2 and 0.85 in Population 3, with Population 4 just beginning to pick it up. Having no threshold, it establishes wherever a migrant lands and the sweep marches steadily down the chain.</li>
+            <li><strong>Fitness cost 0.10:</strong> it still establishes where it was released &mdash; 0.65 in Population 1 and 0.62 in Population 2 &mdash; but stalls at 0.05 in Population 3 and never reaches Population 4 at all. The migrants arriving there put it below the local threshold, so instead of invading it is purged.</li>
+        </ul>
+        <p>
+            That contrast is the trade which makes threshold-dependent drives attractive
+            for field use. A costly element holds the ground where it was deliberately
+            released above threshold, but cannot keep escaping onwards on a few stray
+            migrants, so its spread is geographically limited and in principle
+            reversible. A cost-free element has no such brake.
         </p>
 
         <h2>What to Look For in the Results</h2>
@@ -367,7 +375,8 @@
         <ul>
             <li><strong>Population carrying capacity:</strong> 500 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
             <li><strong>Number of populations:</strong> 5, arranged in a linear chain.</li>
-            <li><strong>Migration topology:</strong> Linear chain only (1&harr;2&harr;3&harr;4&harr;5), decaying 10&times; per step.</li>
+            <li><strong>Migration topology:</strong> One-way linear chain (1&rarr;2&rarr;3&rarr;4&rarr;5), decaying 10&times; per step. No upstream movement, so Population 1 never receives immigrants.</li>
+            <li><strong>Migration does not deplete the source:</strong> Migrants are propagules &mdash; the destination gains a copy while the origin keeps its individual. Both behaviours are switchable in the code via <code>OneWayMigration</code> and <code>NoLossMigration</code> on the Simulation class.</li>
             <li><strong>Replicates:</strong> 3 independent iterations per simulation run, each starting from a fresh wild-type population.</li>
             <li><strong>Release timing:</strong> MEDEA males are released once, at generation 3, into Population 1 only.</li>
             <li><strong>Element location:</strong> Toxin (MTOX) and rescue (MRES) both sit on autosome 2, separated by the configured map distance.</li>

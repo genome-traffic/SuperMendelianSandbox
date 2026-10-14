@@ -78,9 +78,12 @@
         <h2>What all three models share</h2>
         <p>
             Whichever system you pick, the underlying simulation is the same. Five
-            populations of 500 mosquitoes sit in a linear chain connected by migration
-            that weakens tenfold at each step, so a release into Population 1 has to
-            work its way outwards. Generations are discrete and non-overlapping: every
+            populations of 500 mosquitoes sit in a linear chain connected by one-way
+            migration that weakens tenfold at each step, so a release into Population 1
+            has to work its way downstream and nothing ever flows back &mdash; a
+            population the drive empties stays empty. Dispersal does not deplete the
+            source, so emigration never shrinks the population a migrant came from.
+            Generations are discrete and non-overlapping: every
             adult mates, lays eggs and dies, and density-dependent regulation then culls
             the egg pool back to the carrying capacity. Transgenic males are released
             into Population 1 at generation 3, and each run is replicated three times

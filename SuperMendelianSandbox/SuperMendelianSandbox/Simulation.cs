@@ -184,6 +184,19 @@ namespace SMS
         /// Set from web configuration page.</summary>
         public float MigrationBaseRate = 0.1F;
 
+        /// <summary>Restrict migration to the downstream direction only, so individuals
+        /// move from population 0 towards population 4 and never back. This matches the
+        /// arrows drawn in the results viewer, and means an eliminated population cannot
+        /// be reseeded by its neighbour. Set false for bidirectional migration.
+        /// See Environ.OneWayMigration.</summary>
+        public bool OneWayMigration = true;
+
+        /// <summary>Treat migrants as propagules: the destination gains a copy and the
+        /// source keeps its own individual, so emigration never shrinks the population
+        /// of origin. Set false to remove migrants from the source as they leave.
+        /// See Environ.NoLossMigration.</summary>
+        public bool NoLossMigration = true;
+
         /// <summary>Defines which gRNA targets which gene. Each row is {target_gene, gRNA_name}.
         /// The gene drive's Cas9 uses each gRNA to cut the corresponding target gene.
         /// Only the CRISPR homing drive ("ffer") uses guides; the driving Y and MEDEA
@@ -281,6 +294,9 @@ namespace SMS
 
                     // --- Parameters set from web configuration page ---
                     Environ Africa = new Environ("Africa", 5, 500, 500);
+
+                    Africa.OneWayMigration = OneWayMigration;
+                    Africa.NoLossMigration = NoLossMigration;
 
                     // Linear chain migration with 10x decay per step from base rate
                     float migRate = MigrationBaseRate;
@@ -490,6 +506,10 @@ namespace SMS
 
             if (root.TryGetProperty("migrationBaseRate", out var mig))
                 MigrationBaseRate = mig.GetSingle();
+            if (root.TryGetProperty("oneWayMigration", out var oneWay))
+                OneWayMigration = oneWay.GetBoolean();
+            if (root.TryGetProperty("noLossMigration", out var noLoss))
+                NoLossMigration = noLoss.GetBoolean();
             if (root.TryGetProperty("outputDir", out var outDir))
                 OutputDir = outDir.GetString() ?? OutputDir;
         }

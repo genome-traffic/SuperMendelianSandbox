@@ -262,19 +262,37 @@
 
         <h3>Base Migration Rate</h3>
         <p>
-            Per-generation probability (0&ndash;0.5) that any individual migrates between
-            adjacent populations. The rate decays by 10&times; for each successive pair:
-            Pop 1&harr;2 gets the base rate, Pop 2&harr;3 gets base/10, Pop 3&harr;4
-            gets base/100, and Pop 4&harr;5 gets base/1000. This models a linear
-            geographic chain with decreasing connectivity. Higher base rates mean faster
-            spatial spread of the drive; at 0, populations are completely isolated.
+            Per-generation probability (0&ndash;0.5) that an individual disperses to the
+            next population downstream. Migration runs in <strong>one direction
+            only</strong>, left to right along the chain &mdash; the direction of the
+            arrows in the results viewer &mdash; and the rate decays tenfold at each
+            step: Pop 1&rarr;2 gets the base rate, Pop 2&rarr;3 base/10, Pop 3&rarr;4
+            base/100, Pop 4&rarr;5 base/1000. At 0 the populations are completely
+            isolated.
+        </p>
+        <p>
+            Two things follow from the one-way design. Population 1, where the release
+            happens, receives no immigrants at all, so it behaves as a closed population
+            and <strong>cannot be recolonised once the drive has emptied it</strong>.
+            Downstream populations can likewise only ever be reached, or reseeded, from
+            their left, so suppression propagates as a one-way wave rather than a
+            spreading patch.
+        </p>
+        <p>
+            Dispersal also does not deplete the source: a migrant arrives downstream
+            while the original individual stays put, so gene flow never shrinks the
+            population it came from. The receiving population therefore holds its
+            carrying capacity plus that generation's immigrants, which is why
+            Populations 2 and 3 record adult counts slightly above 500 while
+            Population 1 sits exactly on it.
         </p>
 
         <h2>Fixed Model Assumptions</h2>
         <ul>
             <li><strong>Population carrying capacity:</strong> 500 individuals per population. Egg production above this cap is culled by density-dependent regulation (random selection of survivors).</li>
             <li><strong>Number of populations:</strong> 5, arranged in a linear chain.</li>
-            <li><strong>Migration topology:</strong> Linear chain only (1&harr;2&harr;3&harr;4&harr;5). No long-range migration.</li>
+            <li><strong>Migration topology:</strong> One-way linear chain (1&rarr;2&rarr;3&rarr;4&rarr;5), decaying 10&times; per step. No upstream movement and no long-range migration, so Population 1 never receives immigrants.</li>
+            <li><strong>Migration does not deplete the source:</strong> Migrants are propagules &mdash; the destination gains a copy while the origin keeps its individual. Both behaviours are switchable in the code via <code>OneWayMigration</code> and <code>NoLossMigration</code> on the Simulation class.</li>
             <li><strong>Migration decay:</strong> 10&times; per step (not configurable).</li>
             <li><strong>Replicates:</strong> 3 independent iterations per simulation run, each starting from a fresh wild-type population.</li>
             <li><strong>Release timing:</strong> Gene drive males are released once, at generation 3, into Population 1 only.</li>

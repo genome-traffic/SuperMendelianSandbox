@@ -37,11 +37,43 @@ namespace SMS
 
         /// <summary>
         /// Migration matrix: Migration[i,j] is the per-generation probability that any
-        /// individual organism migrates from population i to population j (and vice versa).
+        /// individual organism migrates from population i to population j.
         /// Sized 100x100 to support up to 100 populations. Only the upper triangle
-        /// (j > i) is read during MigrateAll; entries are symmetric.
+        /// (j > i) is read during MigrateAll, so entry [i,j] always describes movement
+        /// from the lower-numbered to the higher-numbered population.
         /// </summary>
         public float[,] Migration = new float[100, 100];
+
+        /// <summary>
+        /// When true, individuals move only from lower-numbered to higher-numbered
+        /// populations — left to right along the chain, matching the arrows drawn in
+        /// the results viewer. Nothing ever flows back upstream.
+        ///
+        /// The consequence worth knowing: population 0 receives no immigrants at all,
+        /// so once a drive has eliminated it, it cannot be reseeded from its neighbour.
+        /// Downstream populations likewise can only ever be reseeded from their left.
+        ///
+        /// When false, migration is bidirectional and symmetric: the same rate applies
+        /// to movement in both directions along each connected pair.
+        /// </summary>
+        public bool OneWayMigration = true;
+
+        /// <summary>
+        /// When true, migrants are propagules rather than departures: the destination
+        /// gains a copy of each migrant and the source keeps its own individual, so
+        /// emigration never shrinks the population of origin. Gene flow then represents
+        /// dispersal out of a population that is continuously replenished, rather than
+        /// a physical transfer of bodies between patches.
+        ///
+        /// Note that the destination really does grow. Density regulation only acts at
+        /// the egg stage, so between migration and the next round of reproduction a
+        /// receiving population carries its carrying capacity plus that generation's
+        /// immigrants, and the adult census in the output reflects that.
+        ///
+        /// When false, migrants are removed from the source as they leave, so a pair of
+        /// connected populations conserves individuals between them.
+        /// </summary>
+        public bool NoLossMigration = true;
 
 
         /// <summary>
@@ -95,7 +127,8 @@ namespace SMS
         /// <summary>
         /// Executes migration between all connected population pairs for one generation.
         /// Iterates over the upper triangle of the migration matrix (p2 > p1) and calls
-        /// SingleMigration for each pair with a non-zero migration rate.
+        /// SingleMigration for each pair with a non-zero migration rate, so pairs are
+        /// always visited with the lower-numbered population first.
         /// </summary>
         public void MigrateAll()
         {
@@ -122,52 +155,62 @@ namespace SMS
         }
 
         /// <summary>
-        /// Performs bilateral migration between two populations in a single step.
+        /// Performs migration between two connected populations in a single step.
+        /// One is always the lower-numbered population, so One → Two is the downstream
+        /// (left to right) direction.
         ///
-        /// For each adult in Population One: with probability Migration[pop1,pop2],
-        /// the organism is removed from One and added to a forward-migration pool.
-        /// Similarly for Population Two into a reverse-migration pool.
+        /// The downstream flow always happens. The upstream flow Two → One happens only
+        /// when OneWayMigration is false. Both directions use the same rate.
         ///
-        /// After processing both populations, the forward pool is added to Two and
-        /// the reverse pool is added to One (via AddToPopulation, which deep-clones).
-        ///
-        /// Note: The o-- after RemoveAt compensates for the index shift when removing
-        /// elements during forward iteration.
+        /// Migrants are gathered into a holding pool and then handed to the destination
+        /// via AddToPopulation, which deep-clones each organism. Under NoLossMigration
+        /// the source keeps its own copy, so the two populations end up with genetically
+        /// identical but independent individuals.
         /// </summary>
-        /// <param name="One">First population.</param>
-        /// <param name="Two">Second population.</param>
-        /// <param name="pop1">Index of first population (for migration matrix lookup).</param>
-        /// <param name="pop2">Index of second population (for migration matrix lookup).</param>
+        /// <param name="One">The lower-numbered (upstream) population.</param>
+        /// <param name="Two">The higher-numbered (downstream) population.</param>
+        /// <param name="pop1">Index of the first population (for migration matrix lookup).</param>
+        /// <param name="pop2">Index of the second population (for migration matrix lookup).</param>
         public void SingleMigration(Population One, Population Two, int pop1, int pop2)
         {
-            Population ForwadPop = new Population();   // Organisms moving from One → Two
+            float rate = this.Migration[pop1, pop2];
+
+            Population ForwardPop = new Population();   // Organisms moving from One → Two
+            CollectMigrants(One, ForwardPop, rate);
+            Two.AddToPopulation(ForwardPop);
+
+            if (this.OneWayMigration)
+                return;
+
             Population RevPop = new Population();       // Organisms moving from Two → One
-
-
-            // Stochastically select migrants from Population One → Two
-            for (int o = 0; o < One.Adults.Count; o++)
-            {
-                if (this.Migration[pop1, pop2] >= (float)Shuffle.random.NextDouble())
-                {
-                    ForwadPop.Adults.Add(One.Adults[o]);
-                    One.Adults.RemoveAt(o--);  // Remove migrant; adjust index
-                }
-            }
-
-            // Stochastically select migrants from Population Two → One
-            for (int o = 0; o < Two.Adults.Count; o++)
-            {
-                if (this.Migration[pop1, pop2] >= (float)Shuffle.random.NextDouble())
-                {
-                    RevPop.Adults.Add(Two.Adults[o]);
-                    Two.Adults.RemoveAt(o--);  // Remove migrant; adjust index
-                }
-            }
-
-            // Add migrants to their destination populations
-            Two.AddToPopulation(ForwadPop);
+            CollectMigrants(Two, RevPop, rate);
             One.AddToPopulation(RevPop);
+        }
 
+        /// <summary>
+        /// Draws migrants out of a source population into a holding pool: each adult
+        /// leaves independently with probability <paramref name="rate"/>.
+        ///
+        /// Under NoLossMigration the organism is only referenced by the pool and stays
+        /// in the source; the destination will clone it, so the two copies diverge from
+        /// then on. Otherwise it is removed from the source as it leaves, and the o--
+        /// after RemoveAt compensates for the index shift during forward iteration.
+        /// </summary>
+        /// <param name="Source">Population the migrants leave from.</param>
+        /// <param name="Pool">Holding pool that receives them.</param>
+        /// <param name="rate">Per-individual probability of migrating this generation.</param>
+        void CollectMigrants(Population Source, Population Pool, float rate)
+        {
+            for (int o = 0; o < Source.Adults.Count; o++)
+            {
+                if (rate >= (float)Shuffle.random.NextDouble())
+                {
+                    Pool.Adults.Add(Source.Adults[o]);
+
+                    if (!this.NoLossMigration)
+                        Source.Adults.RemoveAt(o--);
+                }
+            }
         }
 
 	}
